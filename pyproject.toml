@@ -24,7 +24,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = ["textual", "plyer"]
 
 # [project.urls]
 # Documentation = "https://github.com/wmelvin/pomodorable#readme"
@@ -38,6 +38,7 @@ path = "src/pomodorable/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "textual-dev",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"

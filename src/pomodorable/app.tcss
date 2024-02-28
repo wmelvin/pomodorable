@@ -1,0 +1,5 @@
+
+Static {
+    content-align: center middle;
+    color: green;
+}
