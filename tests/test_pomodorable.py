@@ -1,5 +1,5 @@
-
 from pomodorable.ui import PomodoroApp
+
 
 async def test_app_is_created():
     app = PomodoroApp()

@@ -38,6 +38,7 @@ path = "src/pomodorable/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "pytest-asyncio",
   "textual-dev",
 ]
 [tool.hatch.envs.default.scripts]
@@ -79,4 +80,12 @@ exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.ruff.lint]
+extend-ignore = [
+  "RUF012",
 ]

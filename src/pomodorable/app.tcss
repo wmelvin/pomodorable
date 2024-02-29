@@ -1,5 +1,45 @@
 
-Static {
+Horizontal {
+    height: 3;
+}
+
+TimeDisplay {
     content-align: center middle;
     color: green;
+    margin: 0 1;
+    max-width: 9;    
+    border: solid gray;
+}
+
+Label {
+    padding: 1;
+}
+
+#fr-times {
+    content-align-vertical: middle;
+}
+
+#start {
+    border: solid gray;
+    color: green;
+}
+
+#pause {
+    border: solid gray;
+    color: yellow;
+}
+
+#resume {
+    border: solid gray;
+    color: green;
+}
+
+#extend {
+    border: solid gray;
+    color: teal;
+}
+
+#stop {
+    border: solid gray;
+    color: red;
 }

@@ -8,3 +8,4 @@ dist/
 *.pyc
 
 try_*.py
+try_*.tcss
