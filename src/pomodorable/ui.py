@@ -5,8 +5,12 @@ from textual.widgets import Button, Footer, Header, Input, Label, Log, Static
 APP_NAME = "Pomodorable"
 
 
-class TimeDisplay(Static):
+class CountdownDisplay(Static):
     """00:00 (minutes:seconds)"""
+
+
+class TimeDisplay(Static):
+    """00:00:00 (hours:minutes:seconds)"""
 
 
 class PomodoroApp(App):
@@ -22,11 +26,11 @@ class PomodoroApp(App):
         yield Header()
         yield Horizontal(
             Label("Countdown:"),
-            TimeDisplay("25:00", id="countdown"),
+            CountdownDisplay("25:00", id="countdown"),
             Label("Started:"),
-            TimeDisplay("00:00", id="time-started"),
+            TimeDisplay("14:05:00", id="time-started"),
             Label("Ending:"),
-            TimeDisplay("00:00", id="time-ending"),
+            TimeDisplay("14:30:00", id="time-ending"),
             id="fr-times",
         )
         yield Horizontal(

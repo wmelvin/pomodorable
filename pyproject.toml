@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "pomodorable"
 dynamic = ["version"]
-description = ''
+description = 'A pomodoro timer implemented as a Textual app'
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
-keywords = ["pomodoro"]
+keywords = ["pomodoro", "Textual"]
 authors = [
   { name = "Bill Melvin", email = "bill@billmelvin.com" },
 ]
