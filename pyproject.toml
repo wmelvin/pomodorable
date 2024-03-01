@@ -85,7 +85,15 @@ exclude_lines = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
+# See: https://hatch.pypa.io/latest/config/static-analysis/#pyprojecttoml_2
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "ruff_defaults.toml"
+
+[tool.ruff]
+extend = "ruff_defaults.toml"
+
 [tool.ruff.lint]
 extend-ignore = [
-  "RUF012",
+  "RUF012",  # typing.ClassVar annotation
+  "DTZ005",  # datetime.now() w/o tz
 ]
