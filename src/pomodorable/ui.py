@@ -85,16 +85,15 @@ class TimeDisplay(Static):
     def on_mount(self) -> None:
         self.set_interval(1 / 5, self.update_time)
 
-    def set_add_seconds(self, add_seconds: int) -> None:
+    def sync_time(self, add_seconds: int) -> None:
         self.add_seconds = add_seconds
         self.time = datetime.now() + timedelta(seconds=self.add_seconds)
 
     def update_time(self) -> None:
+        #  While the countdown is not running, show the current time plus any
+        #  added seconds.
         if not self.app.has_class("running"):
-            if self.add_seconds:
-                self.time = datetime.now() + timedelta(seconds=self.add_seconds)
-            else:
-                self.time = datetime.now()
+            self.time = datetime.now() + timedelta(seconds=self.add_seconds)
 
     def watch_time(self, time: datetime) -> None:
         self.update(f"{time.strftime('%H:%M:%S')}")
@@ -150,27 +149,32 @@ class PomodoroApp(App):
         log = self.query_one(Log)
         log.write_line("Hello.")
         time_disp = self.query_one("#time-ending")
-        time_disp.set_add_seconds(DEFAULT_SESSION_SECONDS)
+        time_disp.sync_time(DEFAULT_SESSION_SECONDS)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button.id
 
         log = self.query_one(Log)
-        log.write_line(f"You pressed [{btn}].")
+        log.write_line(f"Button pressed [{btn}]")
+
         countdown = self.query_one(CountdownDisplay)
+        time_ending = self.query_one("#time-ending")
 
         if btn == "btn-reset":
             countdown.reset()
 
         elif btn == "btn-plus-five":
             countdown.add_minutes(5)
+            time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-minus-five":
             countdown.add_minutes(-5)
+            time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-start":
             countdown.set_start_time()
             self.add_class("running")
+            time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-pause":
             if not self.has_class("paused"):
@@ -183,14 +187,14 @@ class PomodoroApp(App):
 
         elif btn == "btn-extend":
             countdown.extend()
-            time_ending = self.query_one("#time-ending")
-            time_ending.set_add_seconds(countdown.remaining_seconds())
+            time_ending.sync_time(countdown.remaining_seconds())
             self.remove_class("paused")
 
         elif btn == "btn-stop":
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset()
+            time_ending.sync_time(countdown.remaining_seconds())
 
     def countdown_finished(self):
         if self.has_class("running"):
@@ -198,8 +202,8 @@ class PomodoroApp(App):
             time_ending = self.query_one("#time-ending")
             self.remove_class("paused")
             self.remove_class("running")
-            time_ending.set_add_seconds(0)
             countdown.reset()
+            time_ending.sync_time(countdown.remaining_seconds())
 
     def action_ten_seconds(self) -> None:
         # For manual testing.
