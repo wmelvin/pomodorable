@@ -70,7 +70,7 @@ class PomodoroApp(App):
             Button("Reset", id="btn-reset"),  # To default session length (not 00:00).
             Button("+ 5 min", id="btn-plus-five"),
             Button("- 5 min", id="btn-minus-five"),
-            id="set-time",
+            id="frm-set",
         )
         yield Horizontal(
             Button("Start", id="btn-start"),
@@ -103,9 +103,16 @@ class PomodoroApp(App):
         if btn == "btn-plus-five":
             disp = self.query_one(CountdownDisplay)
             disp.add_minutes(5)
-        if btn == "btn-minus-five":
+        elif btn == "btn-minus-five":
             disp = self.query_one(CountdownDisplay)
             disp.add_minutes(-5)
+        elif btn == "btn-start":
+            self.add_class("running")
+        elif btn == "btn-pause":
+            self.add_class("paused")
+        elif btn == "btn-stop":
+            self.remove_class("paused")
+            self.remove_class("running")
 
     def action_exit_app(self) -> None:
         self.exit()

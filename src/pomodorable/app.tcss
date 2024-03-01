@@ -50,3 +50,35 @@ Button {
 #btn-stop {
     color: red;
 }
+
+#frm-set {
+    display: block;
+}
+
+.running #frm-set {
+    display: none;
+}
+
+#frm-start {
+    display: block;
+}
+
+.running #frm-start {
+    display: none;
+}
+
+#frm-pause {
+    display: none;
+}
+
+.running #frm-pause {
+    display: block;
+}
+
+#frm-paused {
+    display: none;
+}
+
+.paused #frm-paused {
+    display: block;
+}
