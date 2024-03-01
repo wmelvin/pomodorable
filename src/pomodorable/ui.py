@@ -9,6 +9,7 @@ APP_NAME = "Pomodorable"
 
 DEFAULT_SESSION_SECONDS = 25 * 60  # TODO: settings.default_session_minutes
 
+
 class CountdownDisplay(Static):
     """[00:]00:00 ([hours:]minutes:seconds)"""
 
@@ -69,14 +70,23 @@ class PomodoroApp(App):
             Button("Reset", id="btn-reset"),  # To default session length (not 00:00).
             Button("+ 5 min", id="btn-plus-five"),
             Button("- 5 min", id="btn-minus-five"),
-            id="set-time"
+            id="set-time",
         )
         yield Horizontal(
-            Button("Start", id="btn-start"), Input(id="input-task", placeholder="(task description)"), id="frm-start"
+            Button("Start", id="btn-start"),
+            Input(id="input-task", placeholder="(task description)"),
+            id="frm-start",
         )
-        yield Horizontal(Button("Pause", id="btn-pause"), Input(id="input-reason", placeholder="(reason)"), id="frm-pause")
         yield Horizontal(
-            Button("Resume", id="btn-resume"), Button("Extend", id="btn-extend"), Button("Stop", id="btn-stop"), id="frm-paused"
+            Button("Pause", id="btn-pause"),
+            Input(id="input-reason", placeholder="(reason)"),
+            id="frm-pause",
+        )
+        yield Horizontal(
+            Button("Resume", id="btn-resume"),
+            Button("Extend", id="btn-extend"),
+            Button("Stop", id="btn-stop"),
+            id="frm-paused",
         )
         yield Log()
         yield Footer()
