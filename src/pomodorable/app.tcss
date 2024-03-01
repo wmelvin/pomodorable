@@ -7,17 +7,16 @@ CountdownDisplay, TimeDisplay {
     border: solid gray;
     content-align: center middle;
     margin: 0 1;
+    max-width: 12;
 }
 
 CountdownDisplay {
     color: greenyellow;
-    max-width: 9;
     text-style: bold;
 }
 
 TimeDisplay {
     color: green;
-    max-width: 12;
 }
 
 Label {
