@@ -3,6 +3,10 @@ Horizontal {
     height: 3;
 }
 
+Label {
+    padding: 1;
+}
+
 CountdownDisplay, TimeDisplay {
     border: solid gray;
     content-align: center middle;
@@ -16,11 +20,7 @@ CountdownDisplay {
 }
 
 TimeDisplay {
-    color: green;
-}
-
-Label {
-    padding: 1;
+    color: darkgoldenrod;
 }
 
 #frm-times {
