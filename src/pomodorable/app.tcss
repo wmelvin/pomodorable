@@ -3,20 +3,20 @@ Horizontal {
     height: 3;
 }
 
-CountdownDisplay {
+CountdownDisplay, TimeDisplay {
     border: solid gray;
     content-align: center middle;
-    color: greenyellow;
     margin: 0 1;
+}
+
+CountdownDisplay {
+    color: greenyellow;
     max-width: 9;
     text-style: bold;
 }
 
 TimeDisplay {
-    border: solid gray;
-    content-align: center middle;
     color: green;
-    margin: 0 1;
     max-width: 12;
 }
 
@@ -24,31 +24,30 @@ Label {
     padding: 1;
 }
 
-#fr-times {
+#frm-times {
     content-align-vertical: middle;
 }
 
-#start {
+Button {
     border: solid gray;
+}
+
+#btn-start {
     color: green;
 }
 
-#pause {
-    border: solid gray;
+#btn-pause {
     color: yellow;
 }
 
-#resume {
-    border: solid gray;
+#btn-resume {
     color: green;
 }
 
-#extend {
-    border: solid gray;
+#btn-extend {
     color: teal;
 }
 
-#stop {
-    border: solid gray;
+#btn-stop {
     color: red;
 }

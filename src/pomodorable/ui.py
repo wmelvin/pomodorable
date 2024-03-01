@@ -22,7 +22,6 @@ class PomodoroApp(App):
     ]
 
     def compose(self) -> ComposeResult:
-        """Called to add widgets to the app."""
         yield Header()
         yield Horizontal(
             Label("Countdown:"),
@@ -31,14 +30,20 @@ class PomodoroApp(App):
             TimeDisplay("14:05:00", id="time-started"),
             Label("Ending:"),
             TimeDisplay("14:30:00", id="time-ending"),
-            id="fr-times",
+            id="frm-times",
         )
         yield Horizontal(
-            Button("Start", id="start"), Input(id="input-task", placeholder="(task description)"), id="fr-start"
+            Button("Reset", id="btn-reset"),  # To default session length (not 00:00).
+            Button("+ 5 min", id="btn-plus-five"),
+            Button("- 5 min", id="btn-minus-five"),
+            id="set-time"
         )
-        yield Horizontal(Button("Pause", id="pause"), Input(id="input-reason", placeholder="(reason)"), id="fr-pause")
         yield Horizontal(
-            Button("Resume", id="resume"), Button("Extend", id="extend"), Button("Stop", id="stop"), id="fr-paused"
+            Button("Start", id="btn-start"), Input(id="input-task", placeholder="(task description)"), id="frm-start"
+        )
+        yield Horizontal(Button("Pause", id="btn-pause"), Input(id="input-reason", placeholder="(reason)"), id="frm-pause")
+        yield Horizontal(
+            Button("Resume", id="btn-resume"), Button("Extend", id="btn-extend"), Button("Stop", id="btn-stop"), id="frm-paused"
         )
         yield Log()
         yield Footer()
@@ -51,7 +56,7 @@ class PomodoroApp(App):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button.id
         log = self.query_one(Log)
-        log.write_line(f"You pressed {btn}.")
+        log.write_line(f"You pressed [{btn}].")
 
     def action_exit_app(self) -> None:
         self.exit()
