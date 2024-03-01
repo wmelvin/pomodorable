@@ -24,12 +24,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["textual", "plyer"]
+dependencies = ["textual", "plyer", "click", "platformdirs"]
 
-# [project.urls]
-# Documentation = "https://github.com/wmelvin/pomodorable#readme"
+[project.urls]
+Source = "https://github.com/wmelvin/pomodorable"
+Documentation = "https://github.com/wmelvin/pomodorable#readme"
 # Issues = "https://github.com/wmelvin/pomodorable/issues"
-# Source = "https://github.com/wmelvin/pomodorable"
 
 [tool.hatch.version]
 path = "src/pomodorable/__about__.py"
