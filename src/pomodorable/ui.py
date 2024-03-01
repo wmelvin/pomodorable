@@ -5,7 +5,15 @@ from datetime import datetime, timedelta
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.reactive import reactive
-from textual.widgets import Button, Footer, Header, Input, Label, Log, Static
+from textual.widgets import (
+    Button,
+    Footer,
+    Header,
+    Input,
+    Label,
+    Log,
+    Static,
+)
 
 APP_NAME = "Pomodorable"
 
@@ -26,13 +34,13 @@ class CountdownDisplay(Static):
 
     def update_countdown(self) -> None:
         if self.app.has_class("paused"):
-            self.seconds = self.start_seconds - (
-                self.pause_time - self.start_time
-            ).seconds
+            self.seconds = (
+                self.start_seconds - (self.pause_time - self.start_time).seconds
+            )
         elif self.app.has_class("running"):
-            self.seconds = self.start_seconds - (
-                datetime.now() - self.start_time
-            ).seconds
+            self.seconds = (
+                self.start_seconds - (datetime.now() - self.start_time).seconds
+            )
         self.seconds += self.seconds_added
         if self.seconds <= 0:
             self.app.countdown_finished()
@@ -99,7 +107,10 @@ class TimeDisplay(Static):
         self.update(f"{time.strftime('%H:%M:%S')}")
 
 
-class PomodoroApp(App):
+class PomodorableApp(App):
+    ENABLE_COMMAND_PALETTE = False
+    # TODO: Explore this https://textual.textualize.io/guide/command_palette/
+
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
@@ -146,6 +157,7 @@ class PomodoroApp(App):
 
     def on_mount(self) -> None:
         self.title = APP_NAME
+        self.sub_title = ""
         log = self.query_one(Log)
         log.write_line("Hello.")
         time_disp = self.query_one("#time-ending")
@@ -215,5 +227,5 @@ class PomodoroApp(App):
 
 
 if __name__ == "__main__":
-    app = PomodoroApp()
+    app = PomodorableApp()
     app.run()

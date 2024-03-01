@@ -1,4 +1,9 @@
 
+/* Do not show the icon character in the header. */
+HeaderIcon {
+    display: none;
+}
+
 Horizontal {
     height: 3;
 }
