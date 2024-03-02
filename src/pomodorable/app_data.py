@@ -38,14 +38,13 @@ class AppData:
                 / APP_CONFIG_FILE
             )
             data_path = user_data_path(APP_NAME, appauthor=False, ensure_exists=True)
-            self.output_csv =  data_path / APP_OUTPUT_CSV
+            self.output_csv = data_path / APP_OUTPUT_CSV
             self.log_file = data_path / APP_LOG_FILE
 
         self._init_logging(self.log_file)
 
-    def _init_logging(self,log_file: Path) -> None:
-        """Add a file handler to the root logger.
-        """
+    def _init_logging(self, log_file: Path) -> None:
+        """Add a file handler to the root logger."""
         if not log_file:
             return
         logger = logging.getLogger()
@@ -72,7 +71,9 @@ class AppData:
         self, start_time: datetime, task: str, session_seconds: int
     ) -> None:
         dt_csv = self.csv_date_time(start_time)
-        self._append_csv(f'{dt_csv},"Start","{task}","{sec_to_hms(session_seconds)}",""')
+        self._append_csv(
+            f'{dt_csv},"Start","{task}","{sec_to_hms(session_seconds)}",""'
+        )
 
     def write_pause(
         self,
@@ -98,7 +99,7 @@ class AppData:
 
 
 def sec_to_hms(seconds: int) -> str:
-    """ Convert seconds to a string in the form "HH:MM:SS" or "MM:SS" if less
+    """Convert seconds to a string in the form "HH:MM:SS" or "MM:SS" if less
     than an hour.
     """
     minutes, seconds = divmod(seconds, 60)
