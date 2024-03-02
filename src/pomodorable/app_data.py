@@ -1,35 +1,48 @@
 from __future__ import annotations
 
+import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
+import dotenv
 from platformdirs import user_config_path, user_data_path
 
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.json"
-APP_DATA_FILE = f"{APP_NAME}-data.csv"
+APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
 
 
 class AppData:
     def __init__(self) -> None:
-        dev_output_path = Path.cwd() / "dev_output"
-        if dev_output_path.exists():
-            self.config_file = dev_output_path / APP_CONFIG_FILE
-            self.data_file = dev_output_path / APP_DATA_FILE
+        dotenv.load_dotenv()
+        self.dev_output_path: Path | None = None
+        dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
+        if dev_output_dir:
+            self.dev_output_path = Path(dev_output_dir).expanduser().resolve()
+            if not self.dev_output_path.exists():
+                sys.stderr.write(
+                    f"\nDirectory does not exist: {self.dev_output_path}\n"
+                )
+                sys.exit(1)
+
+        if self.dev_output_path:
+            self.config_file = self.dev_output_path / APP_CONFIG_FILE
+            self.output_csv = self.dev_output_path / APP_OUTPUT_CSV
         else:
             self.config_file = (
                 user_config_path(APP_NAME, appauthor=False, ensure_exists=True)
                 / APP_CONFIG_FILE
             )
-            self.data_file = (
+            self.output_csv = (
                 user_data_path(APP_NAME, appauthor=False, ensure_exists=True)
-                / APP_DATA_FILE
+                / APP_OUTPUT_CSV
             )
 
     def append_csv(self, csv_str: str) -> None:
-        if not self.data_file.exists():
-            self.data_file.write_text("date,time,action,message,duration,notes\n")
-        with self.data_file.open("a") as f:
+        if not self.output_csv.exists():
+            self.output_csv.write_text("date,time,action,message,duration,notes\n")
+        with self.output_csv.open("a") as f:
             f.write(f"{csv_str}\n")
 
     def csv_date_time(self, dt: datetime) -> str:

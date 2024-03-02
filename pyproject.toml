@@ -24,7 +24,13 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["textual", "plyer", "click", "platformdirs"]
+dependencies = [
+  "textual",
+  "plyer",
+  "click",
+  "platformdirs",
+  "python-dotenv",
+]
 
 [project.urls]
 Source = "https://github.com/wmelvin/pomodorable"

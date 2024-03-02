@@ -28,3 +28,7 @@
 # Run ui.py with textual --dev
 @tui:
   hatch run textual run --dev src/pomodorable/ui.py
+
+# Run 'textual colors' (color preview tool)
+@tcol:
+  hatch run textual colors
