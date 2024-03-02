@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
+from plyer import notification
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.reactive import reactive
@@ -251,6 +252,15 @@ class PomodorableApp(App):
             self.remove_class("running")
             countdown.reset()
             time_ending.sync_time(countdown.remaining_seconds())
+
+            #  Show plyer.notification.
+            # TODO: Configure notification - enable/disable, timeout, etc.
+            notification.notify(
+                title=APP_NAME,
+                message=f"{APP_NAME}:  Session finished.",
+                app_name=APP_NAME,
+                timeout=12,
+            )
 
     def action_ten_seconds(self) -> None:
         # For manual testing.
