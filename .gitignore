@@ -4,6 +4,8 @@ __pycache__/
 .ruff_cache/
 .vscode/
 dist/
+dev_output/
+
 .env
 *.pyc
 

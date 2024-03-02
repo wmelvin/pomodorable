@@ -1,13 +1,21 @@
 @default:
   @just --list
 
+# Run test, lint, check, hatch build
+@build: test lint check
+  hatch build
+
 # Check formatting
 @check:
   hatch fmt --check
 
-# Fix formatting
-@fix:
+# Apply formatting
+@format:
   hatch fmt
+
+# Lint with hatch
+@lint:
+  hatch fmt --linter
 
 # Run pytest
 @test:

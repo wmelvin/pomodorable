@@ -96,4 +96,7 @@ extend = "ruff_defaults.toml"
 extend-ignore = [
   "RUF012",  # typing.ClassVar annotation
   "DTZ005",  # datetime.now() w/o tz
+  "FBT001",  # boolean-typed arg
+  "FBT002",  # boolean arg default
+  "TCH003",  # move import to type-checking block
 ]

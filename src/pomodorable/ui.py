@@ -15,9 +15,13 @@ from textual.widgets import (
     Static,
 )
 
+from pomodorable.app_data import AppData, sec_to_hms
+
 APP_NAME = "Pomodorable"
 
 DEFAULT_SESSION_SECONDS = 25 * 60  # TODO: settings.default_session_minutes
+
+UPDATE_INTERVAL = 1 / 5  # seconds
 
 
 class CountdownDisplay(Static):
@@ -30,7 +34,7 @@ class CountdownDisplay(Static):
     seconds_added: int = 0
 
     def on_mount(self) -> None:
-        self.set_interval(1 / 5, self.update_countdown)
+        self.set_interval(UPDATE_INTERVAL, self.update_countdown)
 
     def update_countdown(self) -> None:
         if self.app.has_class("paused"):
@@ -43,15 +47,11 @@ class CountdownDisplay(Static):
             )
         self.seconds += self.seconds_added
         if self.seconds <= 0:
+            self.app.app_data.write_finish(datetime.now(), self.start_time)
             self.app.countdown_finished()
 
     def watch_seconds(self, seconds: datetime) -> None:
-        minutes, seconds = divmod(seconds, 60)
-        hours, minutes = divmod(minutes, 60)
-        if hours > 0:
-            self.update(f"{hours:02}:{minutes:02}:{seconds:02}")
-        else:
-            self.update(f"{minutes:02}:{seconds:02}")
+        self.update(sec_to_hms(seconds))
 
     def add_minutes(self, minutes: int) -> None:
         self.seconds += minutes * 60
@@ -67,20 +67,39 @@ class CountdownDisplay(Static):
     def set_start_time(self) -> None:
         self.start_time = datetime.now()
         self.start_seconds = self.seconds
+        self.app.app_data.write_start(
+            self.start_time,
+            self.app.query_one("#input-task").value,
+            self.seconds,
+        )
 
     def pause(self) -> None:
         self.pause_time = datetime.now()
 
     def resume(self) -> None:
+        duration = (datetime.now() - self.pause_time).seconds
+        self.app.app_data.write_pause(
+            self.pause_time,
+            self.app.query_one("#input-reason").value,
+            duration,
+            False,
+        )
         self.pause_time = None
 
     def extend(self) -> None:
         if self.pause_time:
             extend_secs = (datetime.now() - self.pause_time).seconds
             self.seconds_added += extend_secs
+            self.app.app_data.write_pause(
+                self.pause_time,
+                self.app.query_one("#input-reason").value,
+                extend_secs,
+                True,
+            )
         self.pause_time = None
 
     def remaining_seconds(self):
+        # TODO: just use self.seconds?
         return self.seconds
 
 
@@ -91,7 +110,7 @@ class TimeDisplay(Static):
     add_seconds: int = 0
 
     def on_mount(self) -> None:
-        self.set_interval(1 / 5, self.update_time)
+        self.set_interval(UPDATE_INTERVAL, self.update_time)
 
     def sync_time(self, add_seconds: int) -> None:
         self.add_seconds = add_seconds
@@ -108,6 +127,10 @@ class TimeDisplay(Static):
 
 
 class PomodorableApp(App):
+    def __init__(self) -> None:
+        self.app_data = AppData()
+        super().__init__()
+
     ENABLE_COMMAND_PALETTE = False
     # TODO: Explore this https://textual.textualize.io/guide/command_palette/
 
@@ -163,52 +186,64 @@ class PomodorableApp(App):
         time_disp = self.query_one("#time-ending")
         time_disp.sync_time(DEFAULT_SESSION_SECONDS)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        btn = event.button.id
-
+    def say(self, message: str) -> None:
         log = self.query_one(Log)
-        log.write_line(f"Button pressed [{btn}]")
+        log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
         countdown = self.query_one(CountdownDisplay)
         time_ending = self.query_one("#time-ending")
 
+        btn = event.button.id
         if btn == "btn-reset":
+            self.say("Reset.")
             countdown.reset()
 
         elif btn == "btn-plus-five":
+            self.say("Add 5 minutes.")
             countdown.add_minutes(5)
             time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-minus-five":
+            self.say("Subtract 5 minutes.")
             countdown.add_minutes(-5)
             time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-start":
+            self.say("Start.")
             countdown.set_start_time()
             self.add_class("running")
             time_ending.sync_time(countdown.remaining_seconds())
 
         elif btn == "btn-pause":
+            self.say("Pause.")
             if not self.has_class("paused"):
                 countdown.pause()
                 self.add_class("paused")
 
         elif btn == "btn-resume":
+            self.say("Resume.")
             countdown.resume()
             self.remove_class("paused")
 
         elif btn == "btn-extend":
+            self.say("Extend.")
             countdown.extend()
             time_ending.sync_time(countdown.remaining_seconds())
             self.remove_class("paused")
 
         elif btn == "btn-stop":
+            self.say("Stop.")
+            self.app_data.write_stop(
+                datetime.now(), self.query_one("#input-reason").value
+            )
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset()
             time_ending.sync_time(countdown.remaining_seconds())
 
     def countdown_finished(self):
+        self.say("Finished.")
         if self.has_class("running"):
             countdown = self.query_one(CountdownDisplay)
             time_ending = self.query_one("#time-ending")
