@@ -51,25 +51,13 @@ def configure(daily_csv_dir, clear_daily_csv, daily_md_dir, clear_daily_md) -> b
 
 @click.command()
 @click.version_option(get_app_version(), prog_name=DIST_NAME)
+@click.option("--daily-csv-dir", default=None, help="Directory for daily CSV files.")
+@click.option("--clear-daily-csv", is_flag=True, help="Clear the daily CSV directory.")
 @click.option(
-    "--daily-csv-dir",
-    default=None,
-    help="Directory for daily CSV files."
+    "--daily-md-dir", default=None, help="Directory for daily Markdown files."
 )
 @click.option(
-    "--clear-daily-csv",
-    is_flag=True,
-    help="Clear the daily CSV directory."
-)
-@click.option(
-    "--daily-md-dir",
-    default=None,
-    help="Directory for daily Markdown files."
-)
-@click.option(
-    "--clear-daily-md",
-    is_flag=True,
-    help="Clear the daily Markdown directory."
+    "--clear-daily-md", is_flag=True, help="Clear the daily Markdown directory."
 )
 def cli(daily_csv_dir, clear_daily_csv, daily_md_dir, clear_daily_md) -> None:
     if configure(daily_csv_dir, clear_daily_csv, daily_md_dir, clear_daily_md):
