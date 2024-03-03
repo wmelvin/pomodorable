@@ -134,8 +134,8 @@ class AppData:
         self.config.daily_csv_dir = daily_csv_dir
         self.config.save()
 
-    def set_daily_md_dir(self, daily_csv_dir: str | None) -> None:
-        self.config.daily_md_dir = daily_csv_dir
+    def set_daily_md_dir(self, daily_md_dir: str | None) -> None:
+        self.config.daily_md_dir = daily_md_dir
         self.config.save()
 
 
