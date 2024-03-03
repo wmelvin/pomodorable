@@ -18,29 +18,31 @@ APP_LOG_FILE = f"{APP_NAME}.log"
 class AppData:
     def __init__(self) -> None:
         dotenv.load_dotenv()
-        self.dev_output_path: Path | None = None
+        self._dev_output_path: Path | None = None
         dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
         if dev_output_dir:
-            self.dev_output_path = Path(dev_output_dir).expanduser().resolve()
-            if not self.dev_output_path.exists():
+            self._dev_output_path = Path(dev_output_dir).expanduser().resolve()
+            if not self._dev_output_path.exists():
                 sys.stderr.write(
-                    f"\nDirectory does not exist: {self.dev_output_path}\n"
+                    f"\nDirectory does not exist: {self._dev_output_path}\n"
                 )
                 sys.exit(1)
 
-        if self.dev_output_path:
-            self.config_file = self.dev_output_path / APP_CONFIG_FILE
-            self.output_csv = self.dev_output_path / APP_OUTPUT_CSV
-            self.log_file = self.dev_output_path / APP_LOG_FILE
+        if self._dev_output_path:
+            self.config_file = self._dev_output_path / APP_CONFIG_FILE
+            self.data_path = self._dev_output_path
         else:
             self.config_file = (
                 user_config_path(APP_NAME, appauthor=False, ensure_exists=True)
                 / APP_CONFIG_FILE
             )
-            data_path = user_data_path(APP_NAME, appauthor=False, ensure_exists=True)
-            self.output_csv = data_path / APP_OUTPUT_CSV
-            self.log_file = data_path / APP_LOG_FILE
+            self.data_path = user_data_path(
+                APP_NAME, appauthor=False, ensure_exists=True
+            )
 
+        self.output_csv = self.data_path / APP_OUTPUT_CSV
+
+        self.log_file = self.data_path / APP_LOG_FILE
         self._init_logging(self.log_file)
 
     def _init_logging(self, log_file: Path) -> None:
@@ -96,6 +98,14 @@ class AppData:
         dt_csv = self.csv_date_time(finish_time)
         start_note = f"Started at {start_time.strftime('%H:%M:%S')}"
         self._append_csv(f'{dt_csv},"Finish","","","{start_note}"')
+
+    def set_daily_csv_dir(self, daily_csv_dir: str | None) -> None:
+        # TODO: Implement this method
+        pass
+
+    def set_daily_md_dir(self, daily_csv_dir: str | None) -> None:
+        # TODO: Implement this method
+        pass
 
 
 def sec_to_hms(seconds: int) -> str:

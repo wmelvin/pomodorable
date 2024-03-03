@@ -1,4 +1,4 @@
-from pomodorable.cli import run
+from pomodorable.cli import cli
 
 if __name__ == "__main__":
-    run()
+    cli()

@@ -128,8 +128,11 @@ class TimeDisplay(Static):
 
 
 class PomodorableApp(App):
-    def __init__(self) -> None:
-        self.app_data = AppData()
+    def __init__(self, init_app_data: AppData = None) -> None:
+        if init_app_data:
+            self.app_data = init_app_data
+        else:
+            self.app_data = AppData()
         super().__init__()
 
     ENABLE_COMMAND_PALETTE = False
