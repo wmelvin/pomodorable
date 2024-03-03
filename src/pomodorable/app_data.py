@@ -8,15 +8,40 @@ from pathlib import Path
 
 import dotenv
 from platformdirs import user_config_path, user_data_path
+from tomlkit import document, dumps, parse
 
 APP_NAME = "pomodorable"
-APP_CONFIG_FILE = f"{APP_NAME}-config.json"
+APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
 APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
 APP_LOG_FILE = f"{APP_NAME}.log"
 
 
+class AppConfig:
+    def __init__(self, config_file: Path) -> None:
+        self.config_file = config_file
+        self.daily_csv_dir: str | None = None
+        self.daily_md_dir: str | None = None
+
+    def load(self) -> None:
+        if self.config_file.exists():
+            text = self.config_file.read_text()
+            doc = parse(text)
+            self.daily_csv_dir = doc.get("daily_csv_dir")
+            self.daily_md_dir = doc.get("daily_md_dir")
+        else:
+            # Save initial config.
+            self.save()
+
+    def save(self) -> None:
+        doc = document()
+        doc.add("daily_csv_dir", self.daily_csv_dir or "")
+        doc.add("daily_md_dir", self.daily_md_dir or "")
+        text = dumps(doc)
+        self.config_file.write_text(text)
+
+
 class AppData:
-    def __init__(self) -> None:
+    def __init__(self, init_app_config: AppConfig | None = None) -> None:
         dotenv.load_dotenv()
         self._dev_output_path: Path | None = None
         dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
@@ -44,6 +69,12 @@ class AppData:
 
         self.log_file = self.data_path / APP_LOG_FILE
         self._init_logging(self.log_file)
+
+        if init_app_config:
+            self.config = init_app_config
+        else:
+            self.config = AppConfig(self.config_file)
+            self.config.load()
 
     def _init_logging(self, log_file: Path) -> None:
         """Add a file handler to the root logger."""
@@ -100,12 +131,12 @@ class AppData:
         self._append_csv(f'{dt_csv},"Finish","","","{start_note}"')
 
     def set_daily_csv_dir(self, daily_csv_dir: str | None) -> None:
-        # TODO: Implement this method
-        pass
+        self.config.daily_csv_dir = daily_csv_dir
+        self.config.save()
 
     def set_daily_md_dir(self, daily_csv_dir: str | None) -> None:
-        # TODO: Implement this method
-        pass
+        self.config.daily_md_dir = daily_csv_dir
+        self.config.save()
 
 
 def sec_to_hms(seconds: int) -> str:

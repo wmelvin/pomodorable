@@ -30,6 +30,7 @@ dependencies = [
   "click",
   "platformdirs",
   "python-dotenv",
+  "tomlkit",
 ]
 
 [project.urls]
