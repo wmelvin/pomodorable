@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta
 
 from plyer import notification
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
+from textual.css.query import NoMatches
 from textual.reactive import reactive
 from textual.widgets import (
     Button,
@@ -17,6 +19,7 @@ from textual.widgets import (
 )
 
 from pomodorable.app_data import AppData, sec_to_hms
+from pomodorable.settings_screen import SettingsScreen
 
 APP_NAME = "Pomodorable"
 
@@ -141,7 +144,7 @@ class PomodorableApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
-        ("x", "exit_app", "Exit"),
+        ("ctrl+x", "exit_app", "Exit"),
         ("t", "ten_seconds", "Ten"),
         ("d", "toggle_dark", "Toggle dark mode"),
     ]
@@ -161,6 +164,7 @@ class PomodorableApp(App):
             Button("Reset", id="btn-reset"),
             Button("+ 5 min", id="btn-plus-five"),
             Button("- 5 min", id="btn-minus-five"),
+            Button("Settings...", id="btn-settings"),
             id="frm-set",
         )
         yield Horizontal(
@@ -193,10 +197,15 @@ class PomodorableApp(App):
     def say(self, message: str) -> None:
         log = self.query_one(Log)
         log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
+        logging.info(message)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        countdown = self.query_one(CountdownDisplay)
-        time_ending = self.query_one("#time-ending")
+        try:
+            countdown = self.query_one(CountdownDisplay)
+            time_ending = self.query_one("#time-ending")
+        except NoMatches:
+            logging.exception("Exception in app.on_button_pressed()")
+            return
 
         btn = event.button.id
         if btn == "btn-reset":
@@ -245,6 +254,9 @@ class PomodorableApp(App):
             self.remove_class("running")
             countdown.reset()
             time_ending.sync_time(countdown.remaining_seconds())
+        elif btn == "btn-settings":
+            if not self.has_class("running"):
+                self.push_screen(SettingsScreen(app_config=self.app_data.config))
 
     def countdown_finished(self):
         self.say("Finished.")

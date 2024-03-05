@@ -36,8 +36,18 @@ Button {
     border: solid gray;
 }
 
+#btn-reset {
+    margin: 0 1;
+}
+
+#btn-settings {
+    color: ansi_cyan;
+    dock: right;
+    margin: 0 2;
+}
+
 #btn-start {
-    color: green;
+    color: ansi_green;
 }
 
 #btn-pause {
@@ -86,4 +96,22 @@ Button {
 
 .paused #frm-paused {
     display: block;
+}
+
+SettingsScreen {
+    ScrollableContainer {
+        Label {
+            width: 1fr;
+        }
+        Input {
+            width: 4fr;
+        }
+        Button {
+            max-width: 5;
+        }
+    }
+    #btn-close {
+        border: solid darkgreen;
+        dock: right;
+    }
 }
