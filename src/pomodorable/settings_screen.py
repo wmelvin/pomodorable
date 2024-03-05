@@ -2,9 +2,20 @@
 from textual.app import ComposeResult
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Input, Label
+from textual.widgets import Button, Footer, Header, Input, Label, Static
 
 from pomodorable.app_data import AppConfig
+
+
+class SettingInput(Static):
+
+    def compose (self) -> ComposeResult:
+        yield Horizontal(
+            Label("setting"),
+            Input(placeholder="setting"),
+            Button("x", id="btn-clear"),
+        )
+        yield Label("(warnings)", id="warn")
 
 
 class SettingsScreen(Screen):
@@ -18,24 +29,14 @@ class SettingsScreen(Screen):
         yield Footer()
         yield Horizontal(
             Button("Close", id="btn-close"),
+            id="frm-buttons",
         )
         # TODO: Implement settings input.
         yield ScrollableContainer(
-            Horizontal(
-                Label("setting1"),
-                Input(placeholder="setting1"),
-                Button("x", id="btn-clr-1"),
-            ),
-            Horizontal(
-                Label("setting2"),
-                Input(placeholder="setting2"),
-                Button("x", id="btn-clr-2"),
-            ),
-            Horizontal(
-                Label("setting3"),
-                Input(placeholder="setting3"),
-                Button("x", id="btn-clr-3"),
-            ),
+            SettingInput(id="setting-1"),
+            SettingInput(id="setting-2"),
+            SettingInput(id="setting-3"),
+            SettingInput(id="setting-4"),
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

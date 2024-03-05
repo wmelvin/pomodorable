@@ -110,8 +110,22 @@ SettingsScreen {
             max-width: 5;
         }
     }
+    #frm-buttons {
+        height: 1;
+    }
     #btn-close {
-        border: solid darkgreen;
-        dock: right;
+        background: darkgreen;
+        border: none;
+        dock: left;
+    }
+}
+
+SettingInput {
+    border: solid gray;
+    margin: 0;
+
+    #warn {
+        color: yellow;
+        padding: 0;
     }
 }
