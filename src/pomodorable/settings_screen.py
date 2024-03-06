@@ -6,10 +6,10 @@ from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
-from textual.validation import Function
+from textual.validation import Function, Integer
 from textual.widgets import Button, Footer, Header, Input, Label, Static
 
-from pomodorable.app_data import AppConfig
+from pomodorable.app_data import LOG_RETENTION_MIN, AppConfig
 
 
 class SettingInput(Static):
@@ -85,7 +85,7 @@ class SettingsScreen(Screen):
         yield ScrollableContainer(
             SettingInput(id="set-csv-dir"),
             SettingInput(id="set-md-dir"),
-            # SettingInput(id="setting-3"),
+            SettingInput(id="set-log-ret"),
             # SettingInput(id="setting-4"),
         )
 
@@ -93,14 +93,26 @@ class SettingsScreen(Screen):
         set_csv_dir = self.query_one("#set-csv-dir")
         set_csv_dir.initialize(
             "Daily CSV Folder",
-            self.app_config.daily_csv_dir or "",
+            self.app_config.data.daily_csv_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
         set_md_dir = self.query_one("#set-md-dir")
         set_md_dir.initialize(
             "Daily Markdown Folder",
-            self.app_config.daily_md_dir or "",
+            self.app_config.data.daily_md_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
+        )
+        set_log_ret = self.query_one("#set-log-ret")
+        set_log_ret.initialize(
+            "Log Retention Days",
+            str(self.app_config.data.log_retention_days),
+            [
+                Integer(
+                    minimum=LOG_RETENTION_MIN,
+                    failure_description="Must be a number greater than "
+                    f"{LOG_RETENTION_MIN - 1}."
+                )
+            ],
         )
 
     def save_changes(self) -> None:
@@ -108,13 +120,19 @@ class SettingsScreen(Screen):
         set_csv_dir = self.query_one("#set-csv-dir")
         if set_csv_dir.has_valid_changes():
             inp_csv_dir = set_csv_dir.query_one(Input)
-            self.app_config.daily_csv_dir = inp_csv_dir.value
+            self.app_config.data.daily_csv_dir = inp_csv_dir.value
             has_changes = True
 
         set_md_dir = self.query_one("#set-md-dir")
         if set_md_dir.has_valid_changes():
             inp_md_dir = set_md_dir.query_one(Input)
-            self.app_config.daily_md_dir = inp_md_dir.value
+            self.app_config.data.daily_md_dir = inp_md_dir.value
+            has_changes = True
+
+        set_log_ret = self.query_one("#set-log-ret")
+        if set_log_ret.has_valid_changes():
+            inp_log_ret = set_log_ret.query_one(Input)
+            self.app_config.data.log_retention_days = int(inp_log_ret.value)
             has_changes = True
 
         if has_changes:

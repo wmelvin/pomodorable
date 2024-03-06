@@ -5,6 +5,7 @@ import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 import dotenv
@@ -17,11 +18,14 @@ APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
 APP_LOG_FILE = f"{APP_NAME}.log"
 APP_DATA_VERSION = "1"
 
+LOG_RETENTION_DEFAULT = 30
+LOG_RETENTION_MIN = 5
 
 @dataclass
 class ConfigData:
     daily_csv_dir: str = ""
     daily_md_dir: str = ""
+    log_retention_days: int = LOG_RETENTION_DEFAULT
 
 
 class AppConfig:
@@ -31,18 +35,24 @@ class AppConfig:
 
     def load(self) -> None:
         if self.config_file.exists():
+            logging.info("Loading '%s'", self.config_file)
             text = self.config_file.read_text()
             doc = parse(text)
             self.data.daily_csv_dir = doc.get("daily_csv_dir")
             self.data.daily_md_dir = doc.get("daily_md_dir")
+            self.data.log_retention_days = doc.get(
+                "log_retention_days", LOG_RETENTION_DEFAULT
+            )
         else:
             # Save initial config.
             self.save()
 
     def save(self) -> None:
+        logging.info("Saving '%s'", self.config_file)
         doc = document()
         doc.add("daily_csv_dir", self.data.daily_csv_dir or "")
         doc.add("daily_md_dir", self.data.daily_md_dir or "")
+        doc.add("log_retention_days", self.data.log_retention_days)
         text = dumps(doc)
         self.config_file.write_text(text)
 
@@ -85,8 +95,10 @@ class AppData:
 
         self.output_csv = self.data_path / APP_OUTPUT_CSV
 
+        self._log_handler = None
+        self._log_formatter = None
         self.log_file = self.data_path / APP_LOG_FILE
-        self._init_logging(self.log_file)
+        self._init_logging()
 
         if init_app_config:
             self.config = init_app_config
@@ -94,16 +106,39 @@ class AppData:
             self.config = AppConfig(self.config_file)
             self.config.load()
 
-    def _init_logging(self, log_file: Path) -> None:
-        """Add a file handler to the root logger."""
-        if not log_file:
+        self._update_logging()
+
+    def _init_logging(self) -> None:
+        """Add a file handler to the root logger. Do this before loading
+        configuration so any errors in that process are logged.
+        """
+        if not self.log_file:
             return
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        fh = logging.FileHandler(log_file)
-        fmt = logging.Formatter("%(asctime)s %(message)s")
-        fh.setFormatter(fmt)
-        logger.addHandler(fh)
+        self._log_handler = logging.FileHandler(self.log_file)
+        self._log_formatter = logging.Formatter("%(asctime)s %(message)s")
+        self._log_handler.setFormatter(self._log_formatter)
+        logger.addHandler(self._log_handler)
+
+    def _update_logging(self) -> None:
+        """Update logging after configuration is loaded. Replace the FileHandler
+        with a TimedRotatingFileHandler that rotates based on the configured
+        log retention days.
+        """
+        if not self.log_file:
+            return
+        logger = logging.getLogger()
+        if self._log_handler:
+            logger.removeHandler(self._log_handler)
+        self._log_handler = TimedRotatingFileHandler(
+            self.log_file,
+            interval=1,
+            when="D",
+            backupCount=self.config.data.log_retention_days
+        )
+        self._log_handler.setFormatter(self._log_formatter)
+        logger.addHandler(self._log_handler)
 
     def _append_data_csv(self, data_row: AppDataRow) -> None:
         """Append a line to the CSV file."""
