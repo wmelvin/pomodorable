@@ -28,6 +28,7 @@ class SettingInput(Static):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button.id
         if btn == "btn-undo":
+            event.stop()
             inp = self.query_one(Input)
             inp.clear()
             inp.insert_text_at_cursor(self.initial_value)
