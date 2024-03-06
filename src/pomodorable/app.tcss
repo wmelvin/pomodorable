@@ -107,7 +107,7 @@ SettingsScreen {
             width: 4fr;
         }
         Button {
-            max-width: 5;
+            max-width: 10;
         }
     }
     #frm-buttons {
@@ -124,8 +124,26 @@ SettingInput {
     border: solid gray;
     margin: 0;
 
-    #warn {
+    #lbl-setting {
+        text-align: right;
+    }
+
+    #lbl-warn {
         color: yellow;
+        display: none;
         padding: 0;
+        text-align: center;
+    }
+
+    #lbl-warn.show-warnings {
+        display: block;
+    }
+
+    #btn-undo {
+        visibility: hidden;
+    }
+    #btn-undo.data-changed {
+        visibility: visible;
     }
 }
+

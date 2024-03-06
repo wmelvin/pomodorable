@@ -103,12 +103,14 @@ class AppData:
     def _append_data_csv(self, data_row: DataRow) -> None:
         """Append a line to the CSV file."""
         csv_str = (
-            f'{data_row.version},{self._csv_date_time(data_row.date_time)},'
+            f"{data_row.version},{self._csv_date_time(data_row.date_time)},"
             f'"{data_row.time}","{data_row.action}","{data_row.message}",'
             f'"{data_row.duration}","{data_row.notes}"'
         )
         if not self.output_csv.exists():
-            self.output_csv.write_text("version,date,time,action,message,duration,notes\n")
+            self.output_csv.write_text(
+                "version,date,time,action,message,duration,notes\n"
+            )
         with self.output_csv.open("a") as f:
             f.write(f"{csv_str}\n")
 
@@ -126,7 +128,7 @@ class AppData:
                 date_time=start_time,
                 action="Start",
                 message=task,
-                duration=sec_to_hms(session_seconds)
+                duration=sec_to_hms(session_seconds),
             )
         )
 
@@ -143,17 +145,13 @@ class AppData:
                 action="Pause",
                 message=reason,
                 duration=sec_to_hms(pause_seconds),
-                notes="extended" if session_extended else ""
+                notes="extended" if session_extended else "",
             )
         )
 
     def write_stop(self, stop_time: datetime, reason: str) -> None:
         self._append_data_csv(
-            DataRow(
-                date_time=stop_time,
-                action="Stop",
-                message=reason
-            )
+            DataRow(date_time=stop_time, action="Stop", message=reason)
         )
 
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
@@ -161,7 +159,7 @@ class AppData:
             DataRow(
                 date_time=finish_time,
                 action="Finish",
-                notes=f"Started at {start_time.strftime('%H:%M:%S')}"
+                notes=f"Started at {start_time.strftime('%H:%M:%S')}",
             )
         )
 

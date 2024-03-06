@@ -1,25 +1,76 @@
+# import logging
 
+from pathlib import Path
+
+from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
+from textual.validation import Function
 from textual.widgets import Button, Footer, Header, Input, Label, Static
 
 from pomodorable.app_data import AppConfig
 
 
 class SettingInput(Static):
+    def __init__(self, *args, **kwargs) -> None:
+        self.initial_value = None
+        super().__init__(*args, **kwargs)
 
-    def compose (self) -> ComposeResult:
+    def compose(self) -> ComposeResult:
         yield Horizontal(
-            Label("setting"),
+            Label("setting", id="lbl-setting"),
             Input(placeholder="setting"),
-            Button("x", id="btn-clear"),
+            Button("undo", id="btn-undo"),
         )
-        yield Label("(warnings)", id="warn")
+        yield Label("(warnings)", id="lbl-warn")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        btn = event.button.id
+        if btn == "btn-undo":
+            inp = self.query_one(Input)
+            inp.clear()
+            inp.insert_text_at_cursor(self.initial_value)
+
+    def check_data_changed(self):
+        inp = self.query_one(Input)
+        btn = self.query_one(Button)
+        if inp.value == self.initial_value:
+            if btn.has_class("data-changed"):
+                btn.remove_class("data-changed")
+        elif not btn.has_class("data-changed"):
+            btn.add_class("data-changed")
+
+    @on(Input.Changed)
+    def show_validation_results(self, event: Input.Changed) -> None:
+        self.check_data_changed()
+
+        #  If no validators are set then validation_result is None.
+        if not event.validation_result:
+            return
+
+        wrn = self.query_one("#lbl-warn")
+        if event.validation_result.is_valid:
+            wrn.remove_class("show-warnings")
+        else:
+            wrn.update(" ".join(event.validation_result.failure_descriptions))
+            wrn.add_class("show-warnings")
+
+    def initialize(self, label: str, value: str, validators: list) -> None:
+        self.initial_value = value
+        lbl = self.query_one("#lbl-setting")
+        lbl.update(label)
+        inp = self.query_one(Input)
+        inp.insert_text_at_cursor(value)
+        if validators:
+            inp.validators = validators
+
+    def has_valid_changes(self) -> bool:
+        inp = self.query_one(Input)
+        return inp.is_valid and inp.value != self.initial_value
 
 
 class SettingsScreen(Screen):
-
     def __init__(self, app_config: AppConfig) -> None:
         self.app_config = app_config
         super().__init__()
@@ -31,15 +82,53 @@ class SettingsScreen(Screen):
             Button("Close", id="btn-close"),
             id="frm-buttons",
         )
-        # TODO: Implement settings input.
         yield ScrollableContainer(
-            SettingInput(id="setting-1"),
-            SettingInput(id="setting-2"),
-            SettingInput(id="setting-3"),
-            SettingInput(id="setting-4"),
+            SettingInput(id="set-csv-dir"),
+            SettingInput(id="set-md-dir"),
+            # SettingInput(id="setting-3"),
+            # SettingInput(id="setting-4"),
         )
+
+    def on_mount(self) -> None:
+        set_csv_dir = self.query_one("#set-csv-dir")
+        set_csv_dir.initialize(
+            "Daily CSV Folder",
+            self.app_config.daily_csv_dir or "",
+            [Function(is_valid_dir_or_empty, "Folder does not exist.")],
+        )
+        set_md_dir = self.query_one("#set-md-dir")
+        set_md_dir.initialize(
+            "Daily Markdown Folder",
+            self.app_config.daily_md_dir or "",
+            [Function(is_valid_dir_or_empty, "Folder does not exist.")],
+        )
+
+    def save_changes(self) -> None:
+        has_changes = False
+        set_csv_dir = self.query_one("#set-csv-dir")
+        if set_csv_dir.has_valid_changes():
+            inp_csv_dir = set_csv_dir.query_one(Input)
+            self.app_config.daily_csv_dir = inp_csv_dir.value
+            has_changes = True
+
+        set_md_dir = self.query_one("#set-md-dir")
+        if set_md_dir.has_valid_changes():
+            inp_md_dir = set_md_dir.query_one(Input)
+            self.app_config.daily_md_dir = inp_md_dir.value
+            has_changes = True
+
+        if has_changes:
+            self.app_config.save()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button.id
         if btn == "btn-close":
+            self.save_changes()
             self.app.pop_screen()
+
+
+def is_valid_dir_or_empty(path: str) -> bool:
+    if not path:
+        return True
+    p = Path(path).expanduser().resolve()
+    return p.exists() and p.is_dir()
