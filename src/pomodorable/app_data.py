@@ -19,7 +19,36 @@ APP_DATA_VERSION = "1"
 
 
 @dataclass
-class DataRow:
+class ConfigData:
+    daily_csv_dir: str = ""
+    daily_md_dir: str = ""
+
+
+class AppConfig:
+    def __init__(self, config_file: Path) -> None:
+        self.config_file = config_file
+        self.data = ConfigData()
+
+    def load(self) -> None:
+        if self.config_file.exists():
+            text = self.config_file.read_text()
+            doc = parse(text)
+            self.data.daily_csv_dir = doc.get("daily_csv_dir")
+            self.data.daily_md_dir = doc.get("daily_md_dir")
+        else:
+            # Save initial config.
+            self.save()
+
+    def save(self) -> None:
+        doc = document()
+        doc.add("daily_csv_dir", self.data.daily_csv_dir or "")
+        doc.add("daily_md_dir", self.data.daily_md_dir or "")
+        text = dumps(doc)
+        self.config_file.write_text(text)
+
+
+@dataclass
+class AppDataRow:
     version: str = APP_DATA_VERSION
     date_time: datetime = None
     time: str = ""
@@ -27,30 +56,6 @@ class DataRow:
     message: str = ""
     duration: str = ""
     notes: str = ""
-
-
-class AppConfig:
-    def __init__(self, config_file: Path) -> None:
-        self.config_file = config_file
-        self.daily_csv_dir: str | None = None
-        self.daily_md_dir: str | None = None
-
-    def load(self) -> None:
-        if self.config_file.exists():
-            text = self.config_file.read_text()
-            doc = parse(text)
-            self.daily_csv_dir = doc.get("daily_csv_dir")
-            self.daily_md_dir = doc.get("daily_md_dir")
-        else:
-            # Save initial config.
-            self.save()
-
-    def save(self) -> None:
-        doc = document()
-        doc.add("daily_csv_dir", self.daily_csv_dir or "")
-        doc.add("daily_md_dir", self.daily_md_dir or "")
-        text = dumps(doc)
-        self.config_file.write_text(text)
 
 
 class AppData:
@@ -100,7 +105,7 @@ class AppData:
         fh.setFormatter(fmt)
         logger.addHandler(fh)
 
-    def _append_data_csv(self, data_row: DataRow) -> None:
+    def _append_data_csv(self, data_row: AppDataRow) -> None:
         """Append a line to the CSV file."""
         csv_str = (
             f"{data_row.version},{self._csv_date_time(data_row.date_time)},"
@@ -124,7 +129,7 @@ class AppData:
         self, start_time: datetime, task: str, session_seconds: int
     ) -> None:
         self._append_data_csv(
-            DataRow(
+            AppDataRow(
                 date_time=start_time,
                 action="Start",
                 message=task,
@@ -140,7 +145,7 @@ class AppData:
         session_extended: bool,
     ) -> None:
         self._append_data_csv(
-            DataRow(
+            AppDataRow(
                 date_time=pause_time,
                 action="Pause",
                 message=reason,
@@ -151,24 +156,24 @@ class AppData:
 
     def write_stop(self, stop_time: datetime, reason: str) -> None:
         self._append_data_csv(
-            DataRow(date_time=stop_time, action="Stop", message=reason)
+            AppDataRow(date_time=stop_time, action="Stop", message=reason)
         )
 
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
         self._append_data_csv(
-            DataRow(
+            AppDataRow(
                 date_time=finish_time,
                 action="Finish",
                 notes=f"Started at {start_time.strftime('%H:%M:%S')}",
             )
         )
 
-    def set_daily_csv_dir(self, daily_csv_dir: str | None) -> None:
-        self.config.daily_csv_dir = daily_csv_dir
+    def set_daily_csv_dir(self, daily_csv_dir: str) -> None:
+        self.config.data.daily_csv_dir = daily_csv_dir
         self.config.save()
 
-    def set_daily_md_dir(self, daily_md_dir: str | None) -> None:
-        self.config.daily_md_dir = daily_md_dir
+    def set_daily_md_dir(self, daily_md_dir: str) -> None:
+        self.config.data.daily_md_dir = daily_md_dir
         self.config.save()
 
 
