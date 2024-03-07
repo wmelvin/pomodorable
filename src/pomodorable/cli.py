@@ -5,7 +5,7 @@ import click
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
-MOD_VERSION = "cli-240302.1"
+MOD_VERSION = "cli-240307.1"
 
 
 def get_app_version() -> str:

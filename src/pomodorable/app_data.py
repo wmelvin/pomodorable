@@ -21,6 +21,10 @@ APP_DATA_VERSION = "1"
 LOG_RETENTION_DEFAULT = 30
 LOG_RETENTION_MIN = 5
 
+KEY_DAILY_CSV_DIR = "daily_csv_dir"
+KEY_DAILY_MD_DIR = "daily_md_dir"
+KEY_LOG_RETENTION_DAYS = "log_retention_days"
+
 
 @dataclass
 class ConfigData:
@@ -36,24 +40,30 @@ class AppConfig:
 
     def load(self) -> None:
         if self.config_file.exists():
-            logging.info("Loading '%s'", self.config_file)
+            logging.info("Load '%s'", self.config_file)
             text = self.config_file.read_text()
             doc = parse(text)
-            self.data.daily_csv_dir = doc.get("daily_csv_dir")
-            self.data.daily_md_dir = doc.get("daily_md_dir")
+            self.data.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR)
+            self.data.daily_md_dir = doc.get(KEY_DAILY_MD_DIR)
             self.data.log_retention_days = doc.get(
-                "log_retention_days", LOG_RETENTION_DEFAULT
+                KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
             )
         else:
             # Save initial config.
             self.save()
 
     def save(self) -> None:
-        logging.info("Saving '%s'", self.config_file)
-        doc = document()
-        doc.add("daily_csv_dir", self.data.daily_csv_dir or "")
-        doc.add("daily_md_dir", self.data.daily_md_dir or "")
-        doc.add("log_retention_days", self.data.log_retention_days)
+        logging.info("Save '%s'", self.config_file)
+        if self.config_file.exists():
+            logging.info("Save to existing file")
+            text = self.config_file.read_text()
+            doc = parse(text)
+        else:
+            logging.info("Save to new file")
+            doc = document()
+        doc[KEY_DAILY_CSV_DIR] = self.data.daily_csv_dir
+        doc[KEY_DAILY_MD_DIR] = self.data.daily_md_dir
+        doc[KEY_LOG_RETENTION_DAYS] = self.data.log_retention_days
         text = dumps(doc)
         self.config_file.write_text(text)
 
