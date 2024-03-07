@@ -38,6 +38,9 @@ Source = "https://github.com/wmelvin/pomodorable"
 Documentation = "https://github.com/wmelvin/pomodorable#readme"
 # Issues = "https://github.com/wmelvin/pomodorable/issues"
 
+[project.scripts]
+pomodorable = "pomodorable.cli:cli"
+
 [tool.hatch.version]
 path = "src/pomodorable/__about__.py"
 

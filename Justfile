@@ -9,6 +9,11 @@
 @check:
   hatch fmt --check
 
+# Remove dist
+@clean:
+  rm dist/*
+  rmdir dist
+
 # Apply formatting
 @format:
   hatch fmt
