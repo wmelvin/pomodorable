@@ -52,6 +52,8 @@ class AppConfig:
                 logging.exception("Error parsing configuration.")
                 bad_file = self.config_file.with_suffix(".bad")
                 logging.info("Rename bad file to '%s'", bad_file)
+                if bad_file.exists():
+                    bad_file.unlink()
                 self.config_file.rename(bad_file)
                 return document()
         return document()
