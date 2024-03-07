@@ -50,7 +50,11 @@ class CountdownDisplay(Static):
                 self.start_seconds - (datetime.now() - self.start_time).seconds
             )
         self.seconds += self.seconds_added
-        if self.seconds <= 0:
+        if (
+            self.seconds <= 0
+            and self.app.has_class("running")
+            and not self.app.has_class("paused")
+        ):
             self.app.app_data.write_finish(datetime.now(), self.start_time)
             self.app.countdown_finished()
 
