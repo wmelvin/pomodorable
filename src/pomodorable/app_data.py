@@ -21,6 +21,7 @@ APP_DATA_VERSION = "1"
 LOG_RETENTION_DEFAULT = 30
 LOG_RETENTION_MIN = 5
 
+
 @dataclass
 class ConfigData:
     daily_csv_dir: str = ""
@@ -135,7 +136,7 @@ class AppData:
             self.log_file,
             interval=1,
             when="D",
-            backupCount=self.config.data.log_retention_days
+            backupCount=self.config.data.log_retention_days,
         )
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)

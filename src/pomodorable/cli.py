@@ -2,7 +2,6 @@ from importlib import metadata
 
 import click
 
-from pomodorable.app_data import AppData
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
@@ -23,8 +22,6 @@ def run() -> None:
 
 @click.command()
 @click.version_option(get_app_version(), prog_name=DIST_NAME)
-
-
 def cli() -> None:
     run()
 
