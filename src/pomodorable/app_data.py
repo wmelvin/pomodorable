@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import logging
 import os
 import sys
@@ -251,6 +252,26 @@ class AppData:
     def set_daily_md_dir(self, daily_md_dir: str) -> None:
         self.config.data.daily_md_dir = daily_md_dir
         self.config.save()
+
+    def get_latest_session_rows(self) -> list[dict]:
+        """Return the latest session rows from the CSV file."""
+        if not self.output_csv.exists():
+            return []
+        with self.output_csv.open() as f:
+            reader = csv.DictReader(f, )
+            rows = list(reader)
+
+        #  Get the index of the last row where action = "Start".
+        #  If there is a "Start" action, return the rows from that index to
+        #  the end of the list.
+        #  If there is no "Start" action, return an empty list.
+        last_start = None
+        for i, row in enumerate(rows):
+            if row["action"] == "Start":
+                last_start = i
+        if last_start is None:
+            return []
+        return rows[last_start:]
 
 
 def sec_to_hms(seconds: int) -> str:
