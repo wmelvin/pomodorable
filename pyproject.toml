@@ -110,3 +110,8 @@ extend-ignore = [
   "FBT002",  # boolean arg default
   "TCH003",  # move import to type-checking block
 ]
+
+[tool.ruff.extend-per-file-ignores]
+"test*.py" = [
+  "DTZ001",  # datetime.now() w/o tz
+]
