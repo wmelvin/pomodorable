@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pomodorable.app_data import AppData
+from pomodorable.app_data import AppData, get_date_from_str
 
 
 @pytest.fixture
@@ -52,3 +52,22 @@ def test_get_latest_session_rows(app_data_with_test_sessions):
     assert rows[0]["time"] == start_times[-1].strftime("%H:%M:%S")
     assert rows[1]["action"] == "Pause"
     assert rows[2]["action"] == "Finish"
+
+
+#  Date input may come fom command-line args, so should support both full and
+#  short date formats. TODO: Maybe more formats?
+@pytest.mark.parametrize("date_arg", ["2024-01-02", "24-01-02"])
+def test_get_session_rows_for_date(app_data_with_test_sessions, date_arg):
+    app_data, start_times = app_data_with_test_sessions
+    date_val = get_date_from_str(date_arg)
+    rows = app_data.get_session_rows_for_date(date_val)
+    assert rows
+    assert len(rows) == 6
+
+
+# TODO: Maybe some (but not all) of these should be valid?
+@pytest.mark.parametrize(
+    "date_arg", ["1/2/24", "04-MAY-23", "2024-13-01", "fatfingerdeathmunch"]
+)
+def test_bad_date_arg(date_arg):
+    assert get_date_from_str(date_arg) is None

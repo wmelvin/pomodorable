@@ -273,6 +273,15 @@ class AppData:
             return []
         return rows[last_start:]
 
+    def get_session_rows_for_date(self, date: datetime) -> list[dict]:
+        """Return the session rows for a given date from the CSV file."""
+        if not self.output_csv.exists():
+            return []
+        with self.output_csv.open() as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]
+
 
 def sec_to_hms(seconds: int) -> str:
     """Convert seconds to a string in the form "HH:MM:SS" or "MM:SS" if less
@@ -283,3 +292,20 @@ def sec_to_hms(seconds: int) -> str:
     if hours > 0:
         return f"{hours:02}:{minutes:02}:{seconds:02}"
     return f"{minutes:02}:{seconds:02}"
+
+
+def get_date_from_str(date_str: str) -> datetime | None:
+    """Return a date (as datetime) from a string.
+    The string may come from user input and should allow for several
+    formats, including:
+      "YYYY-MM-DD"
+      "YY-MM-DD"
+    If the string does not match any of the formats, return None.
+    """
+    date_formats = ["%Y-%m-%d", "%y-%m-%d"]
+    for date_format in date_formats:
+        try:
+            return datetime.strptime(date_str, date_format)  # noqa: DTZ007
+        except ValueError:
+            pass
+    return None
