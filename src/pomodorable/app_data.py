@@ -104,21 +104,27 @@ class AppDataRow:
 
 
 class AppData:
-    def __init__(self, init_app_config: AppConfig | None = None) -> None:
-        dotenv.load_dotenv()
-        self._dev_output_path: Path | None = None
-        dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
-        if dev_output_dir:
-            self._dev_output_path = Path(dev_output_dir).expanduser().resolve()
-            if not self._dev_output_path.exists():
-                sys.stderr.write(
-                    f"\nDirectory does not exist: {self._dev_output_path}\n"
-                )
-                sys.exit(1)
+    def __init__(
+        self,
+        init_app_config: AppConfig | None = None,
+        init_data_path: Path | None = None,
+    ) -> None:
+        self.data_path = init_data_path
 
-        if self._dev_output_path:
-            self.config_file = self._dev_output_path / APP_CONFIG_FILE
-            self.data_path = self._dev_output_path
+        if not self.data_path:
+            #  If init_data_path is not set, check the environment variable
+            #  POMODORABLE_DEV_OUTPUT_DIR. If it is set, use that as the
+            #  data path. This is for development and manual testing.
+            dotenv.load_dotenv()
+            dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
+            if dev_output_dir:
+                self.data_path = Path(dev_output_dir).expanduser().resolve()
+                if not self.data_path.exists():
+                    sys.stderr.write(f"\nDirectory does not exist: {self.data_path}\n")
+                    sys.exit(1)
+
+        if self.data_path:
+            self.config_file = self.data_path / APP_CONFIG_FILE
         else:
             self.config_file = (
                 user_config_path(APP_NAME, appauthor=False, ensure_exists=True)
@@ -179,7 +185,7 @@ class AppData:
         """Append a line to the CSV file."""
         csv_str = (
             f"{data_row.version},{self._csv_date_time(data_row.date_time)},"
-            f'"{data_row.time}","{data_row.action}","{data_row.message}",'
+            f'"{data_row.action}","{data_row.message}",'
             f'"{data_row.duration}","{data_row.notes}"'
         )
         if not self.output_csv.exists():
