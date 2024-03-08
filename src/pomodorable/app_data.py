@@ -258,7 +258,7 @@ class AppData:
         if not self.output_csv.exists():
             return []
         with self.output_csv.open() as f:
-            reader = csv.DictReader(f, )
+            reader = csv.DictReader(f)
             rows = list(reader)
 
         #  Get the index of the last row where action = "Start".
