@@ -5,9 +5,7 @@ __pycache__/
 .vscode/
 dist/
 dev_output/
+xplor/
 
 .env
 *.pyc
-
-try_*.py
-try_*.tcss

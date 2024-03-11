@@ -71,3 +71,15 @@ def test_get_session_rows_for_date(app_data_with_test_sessions, date_arg):
 )
 def test_bad_date_arg(date_arg):
     assert get_date_from_str(date_arg) is None
+
+
+def test_writes_daily_csv_file(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_csv_dir(str(tmp_path))
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    app_data.write_start(start_time, "Test session", 10)
+    app_data.write_finish(
+        finish_time=start_time + timedelta(seconds=10), start_time=start_time
+    )
+    csv_file = tmp_path / "2024-01-02.csv"
+    assert csv_file.exists()
