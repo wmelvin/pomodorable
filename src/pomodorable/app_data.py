@@ -253,4 +253,4 @@ class AppData:
                 sys.stderr.write(f"\nToo many files for {date_str}\n")
                 sys.exit(1)
 
-        write_to_daily_csv(csv_file, rows)
+        write_to_daily_csv(csv_file, rows, start_num=1)
