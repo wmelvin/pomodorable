@@ -43,11 +43,15 @@ class AppData:
         self.data_path = init_data_path
 
         if not self.data_path:
-            #  If init_data_path is not set, check the environment variable
-            #  POMODORABLE_DEV_OUTPUT_DIR. If it is set, use that as the
-            #  data path. This is for development and manual testing.
+            #  If init_data_path is not set, check environment variables for
+            #  values to use as the data path.
+            #  POMODORABLE_TEST_DATA_DIR is used by the test suite. It takes
+            #  precedence over POMODORABLE_DEV_OUTPUT_DIR which is used for
+            #  development and manual testing.
             dotenv.load_dotenv()
-            dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
+            dev_output_dir = os.environ.get("POMODORABLE_TEST_DATA_DIR")
+            if not dev_output_dir:
+                dev_output_dir = os.environ.get("POMODORABLE_DEV_OUTPUT_DIR")
             if dev_output_dir:
                 self.data_path = Path(dev_output_dir).expanduser().resolve()
                 if not self.data_path.exists():
@@ -226,4 +230,27 @@ class AppData:
 
         date_str = rows[0]["date"]
         csv_file = Path(self.config.data.daily_csv_dir) / f"{date_str}.csv"
+        write_to_daily_csv(csv_file, rows)
+
+    def export_daily_csv(self, export_date: datetime) -> None:
+        if not self.config.data.daily_csv_dir:
+            return
+
+        rows = self.get_session_rows_for_date(export_date)
+        if not rows:
+            return
+
+        date_str = rows[0]["date"]
+        csv_file = Path(self.config.data.daily_csv_dir) / f"{date_str}.csv"
+        max_num = 99
+        next_num = 1
+        while csv_file.exists():
+            csv_file = (
+                Path(self.config.data.daily_csv_dir) / f"{date_str}_{next_num}.csv"
+            )
+            next_num += 1
+            if next_num > max_num:
+                sys.stderr.write(f"\nToo many files for {date_str}\n")
+                sys.exit(1)
+
         write_to_daily_csv(csv_file, rows)

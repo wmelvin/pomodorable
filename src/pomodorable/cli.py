@@ -1,11 +1,14 @@
+import sys
 from importlib import metadata
 
 import click
 
+from pomodorable.app_data import AppData
+from pomodorable.app_utils import get_date_from_str
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
-MOD_VERSION = "cli-240307.1"
+MOD_VERSION = "cli-240312.1"
 
 
 def get_app_version() -> str:
@@ -17,8 +20,13 @@ def get_app_version() -> str:
 
 def handled_option(csv_date) -> bool:
     if csv_date is not None:
-        print(f"{csv_date =}")  # noqa: T201
-        # TODO: Handle it.
+        date_val = get_date_from_str(csv_date)
+        if date_val is None:
+            sys.stderr.write(f"\nInvalid date: {csv_date}\n")
+            sys.exit(1)
+
+        app_data = AppData()
+        app_data.export_daily_csv(date_val)
         return True
     return False
 
