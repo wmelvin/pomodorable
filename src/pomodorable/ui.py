@@ -273,13 +273,15 @@ class PomodorableApp(App):
             time_ending.sync_time(countdown.remaining_seconds())
 
             #  Show plyer.notification.
-            # TODO: Configure notification - enable/disable, timeout, etc.
             notification.notify(
                 title=APP_NAME,
                 message=f"{APP_NAME}:  Session finished.",
                 app_name=APP_NAME,
                 timeout=12,
             )
+            # TODO: Configure notification - enable/disable, timeout, etc.
+            # If there is no timeout will notification stay on screen until
+            # dismissed?
 
     def action_ten_seconds(self) -> None:
         # For manual testing.
