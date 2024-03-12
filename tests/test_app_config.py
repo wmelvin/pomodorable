@@ -1,4 +1,5 @@
-from pomodorable.app_data import AppConfig, AppData
+from pomodorable.app_config import AppConfig
+from pomodorable.app_data import AppData
 
 
 def test_app_config_load_creates_new_file(tmp_path):

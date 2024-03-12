@@ -9,7 +9,7 @@ from textual.screen import Screen
 from textual.validation import Function, Integer
 from textual.widgets import Button, Footer, Header, Input, Label, Static
 
-from pomodorable.app_data import LOG_RETENTION_MIN, AppConfig
+from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 
 
 class SettingInput(Static):

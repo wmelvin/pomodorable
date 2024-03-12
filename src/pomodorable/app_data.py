@@ -11,86 +11,14 @@ from pathlib import Path
 
 import dotenv
 from platformdirs import user_config_path, user_data_path
-from tomlkit import document, dumps, parse
+
+from pomodorable.app_config import AppConfig
 
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
 APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
 APP_LOG_FILE = f"{APP_NAME}.log"
 APP_DATA_VERSION = "1"
-
-LOG_RETENTION_DEFAULT = 30
-LOG_RETENTION_MIN = 5
-
-KEY_DAILY_CSV_DIR = "daily_csv_dir"
-KEY_DAILY_MD_DIR = "daily_md_dir"
-KEY_LOG_RETENTION_DAYS = "log_retention_days"
-
-
-@dataclass
-class ConfigData:
-    daily_csv_dir: str = ""
-    daily_md_dir: str = ""
-    log_retention_days: int = LOG_RETENTION_DEFAULT
-
-
-class AppConfig:
-    def __init__(self, config_file: Path) -> None:
-        self.config_file = config_file
-        self.data = ConfigData()
-
-    def _load_toml_doc(self) -> document:
-        """Load the TOML document from the configuration file. If the file
-        doesn't exist or there is an error parsing it, return an empty
-        document. If there is an error parsing the file, rename it with a
-        '.bad' extension before returning the empty document.
-        """
-        if self.config_file.exists():
-            try:
-                text = self.config_file.read_text()
-                return parse(text)
-            except Exception:
-                logging.exception("Error parsing configuration.")
-                bad_file = self.config_file.with_suffix(".bad")
-                logging.info("Rename bad file to '%s'", bad_file)
-                if bad_file.exists():
-                    bad_file.unlink()
-                self.config_file.rename(bad_file)
-                return document()
-        return document()
-
-    def load(self) -> None:
-        if self.config_file.exists():
-            logging.info("Load '%s'", self.config_file)
-            try:
-                doc = self._load_toml_doc()
-                self.data.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
-                self.data.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
-                self.data.log_retention_days = doc.get(
-                    KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
-                )
-            except Exception:
-                logging.exception("Error loading configuration.")
-        else:
-            # Save initial config.
-            self.save()
-
-    def save(self) -> None:
-        logging.info("Save '%s'", self.config_file)
-        try:
-            if self.config_file.exists():
-                logging.info("Save to existing file")
-                doc = self._load_toml_doc()
-            else:
-                logging.info("Save to new file")
-                doc = document()
-            doc[KEY_DAILY_CSV_DIR] = self.data.daily_csv_dir
-            doc[KEY_DAILY_MD_DIR] = self.data.daily_md_dir
-            doc[KEY_LOG_RETENTION_DAYS] = self.data.log_retention_days
-            text = dumps(doc)
-            self.config_file.write_text(text)
-        except Exception:
-            logging.exception("Error saving configuration.")
 
 
 @dataclass
