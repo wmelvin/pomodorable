@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from csv import DictReader
 from datetime import datetime, timedelta
 
 import pytest
@@ -40,6 +41,22 @@ def app_data_with_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
         )
 
     return (app_data, start_times)
+
+
+def test_data_csv_fields(app_data_with_test_sessions):
+    app_data, start_times = app_data_with_test_sessions
+    with app_data.output_csv.open() as f:
+        reader = DictReader(f)
+        fields = reader.fieldnames
+        assert fields == [
+            "version",
+            "date",
+            "time",
+            "action",
+            "message",
+            "duration",
+            "notes",
+        ]
 
 
 def test_get_latest_session_rows(app_data_with_test_sessions):
@@ -84,3 +101,7 @@ def test_writes_daily_csv_file(tmp_path):
     )
     csv_file = tmp_path / "2024-01-02.csv"
     assert csv_file.exists()
+    with csv_file.open() as f:
+        reader = DictReader(f)
+        fields = reader.fieldnames
+        assert fields == ["date", "time", "num", "task", "message", "notes"]
