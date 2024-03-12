@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pomodorable.app_data import AppData, get_date_from_str
+from pomodorable.app_data import AppData
+from pomodorable.app_utils import get_date_from_str
 
 
 @pytest.fixture
