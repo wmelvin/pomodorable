@@ -212,26 +212,7 @@ class AppData:
             rows = list(reader)
         return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]
 
-    def write_session_to_daily_csv(self) -> None:
-        #  This must be called after write_finish.
-
-        if not self.config.data.daily_csv_dir:
-            return
-
-        rows = self.get_latest_session_rows()
-        if not rows:
-            # TODO: Log an error? Seems like this should not happen.
-            return
-
-        date = datetime.strptime(rows[0]["date"], "%Y-%m-%d")  # noqa: DTZ007
-        csv_file = Path(
-            self.config.data.daily_csv_dir
-        ) / f"{date.strftime('%Y-%m-%d')}.csv"
-        # TODO: This round-trip from string to date to string is not
-        # really necessary. It could afford changing the format
-        # on one side or the other. Probably YAGNI.
-        # Perhaps just use rows[0]["date"] directly.
-
+    def write_to_daily_csv(self, csv_file: Path, data_rows: list[dict]) -> None:
         #  Note: Output CSV layout is different from the Data CSV.
 
         #  Write the header row when the file is created.
@@ -242,7 +223,7 @@ class AppData:
         #  The num column is left blank in this case.
         with csv_file.open("a") as f:
             writer = csv.writer(f)
-            for row in rows:
+            for row in data_rows:
                 out_row = None
                 if row["action"] == "Start":
                     out_row = [
@@ -286,3 +267,18 @@ class AppData:
                     ]
                 if out_row:
                     writer.writerow(out_row)
+
+    def write_session_to_daily_csv(self) -> None:
+        #  This must be called after write_finish.
+
+        if not self.config.data.daily_csv_dir:
+            return
+
+        rows = self.get_latest_session_rows()
+        if not rows:
+            # TODO: Log an error? Seems like this should not happen.
+            return
+
+        date_str = rows[0]["date"]
+        csv_file = Path(self.config.data.daily_csv_dir) / f"{date_str}.csv"
+        self.write_to_daily_csv(csv_file, rows)
