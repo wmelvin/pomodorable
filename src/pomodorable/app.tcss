@@ -120,6 +120,38 @@ SettingsScreen {
     }
 }
 
+SettingSwitch {
+    border: solid gray;
+    margin: 0;
+
+    #lbl-setting {
+        padding: 0 1;
+        text-align: left;
+    }
+
+    #swt-setting {
+        margin: 0 2;
+    }
+
+    #lbl-warn {
+        color: yellow;
+        display: none;
+        padding: 0;
+        text-align: center;
+    }
+
+    #lbl-warn.show-warnings {
+        display: block;
+    }
+
+    #btn-undo {
+        visibility: hidden;
+    }
+    #btn-undo.data-changed {
+        visibility: visible;
+    }
+}
+
 SettingInput {
     border: solid gray;
     margin: 0;

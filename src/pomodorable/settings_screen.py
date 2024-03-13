@@ -6,9 +6,56 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
 from textual.validation import Function, Integer
-from textual.widgets import Button, Footer, Header, Input, Label, Static
+from textual.widgets import Button, Footer, Header, Input, Label, Static, Switch
 
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
+
+
+class SettingSwitch(Static):
+    def __init__(self, *args, **kwargs) -> None:
+        self.initial_value = None
+        super().__init__(*args, **kwargs)
+
+    def compose(self) -> ComposeResult:
+        yield Label("setting", id="lbl-setting")
+        yield Horizontal(
+            Switch(id="swt-setting"),
+            Button("undo", id="btn-undo"),
+        )
+        yield Label("(warnings)", id="lbl-warn")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        btn = event.button.id
+        if btn == "btn-undo":
+            event.stop()
+            switch = self.query_one(Switch)
+            switch.value = self.initial_value
+
+    def check_data_changed(self):
+        switch = self.query_one(Switch)
+        btn = self.query_one(Button)
+        if switch.value == self.initial_value:
+            if btn.has_class("data-changed"):
+                btn.remove_class("data-changed")
+        elif not btn.has_class("data-changed"):
+            btn.add_class("data-changed")
+
+    @on(Switch.Changed)
+    def show_validation_results(self) -> None:
+        self.check_data_changed()
+
+    def initialize(self, label: str, value: bool, validators: list) -> None:
+        self.initial_value = value
+        lbl = self.query_one("#lbl-setting")
+        lbl.update(label)
+        switch = self.query_one(Switch)
+        switch.value = value
+        if validators:
+            switch.validators = validators
+
+    def has_valid_changes(self) -> bool:
+        switch = self.query_one(Switch)
+        return switch.value != self.initial_value
 
 
 class SettingInput(Static):
@@ -86,6 +133,7 @@ class SettingsScreen(Screen):
             SettingInput(id="set-csv-dir"),
             SettingInput(id="set-md-dir"),
             SettingInput(id="set-md-heading"),
+            SettingSwitch(id="set-md-append"),
             SettingInput(id="set-log-ret"),
         )
 
@@ -109,6 +157,13 @@ class SettingsScreen(Screen):
             "Daily Markdown Heading",
             self.app_config.daily_md_heading or "",
             [],  # TODO: Add a validator, or auto-prefix missing '#'?
+        )
+
+        set_md_append = self.query_one("#set-md-append")
+        set_md_append.initialize(
+            "Daily Markdown Append-only (file is created by another application)",
+            self.app_config.daily_md_append,
+            [],
         )
 
         set_log_ret = self.query_one("#set-log-ret")
@@ -136,6 +191,18 @@ class SettingsScreen(Screen):
         if set_md_dir.has_valid_changes():
             inp_md_dir = set_md_dir.query_one(Input)
             self.app_config.daily_md_dir = inp_md_dir.value
+            has_changes = True
+
+        set_md_heading = self.query_one("#set-md-heading")
+        if set_md_heading.has_valid_changes():
+            inp_md_heading = set_md_heading.query_one(Input)
+            self.app_config.daily_md_heading = inp_md_heading.value
+            has_changes = True
+
+        set_md_append = self.query_one("#set-md-append")
+        if set_md_append.has_valid_changes():
+            switch_md_append = set_md_append.query_one(Switch)
+            self.app_config.daily_md_append = switch_md_append.value
             has_changes = True
 
         set_log_ret = self.query_one("#set-log-ret")
