@@ -113,7 +113,7 @@ class AppData:
             self.log_file,
             interval=1,
             when="D",
-            backupCount=self.config.data.log_retention_days,
+            backupCount=self.config.log_retention_days,
         )
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
@@ -192,13 +192,13 @@ class AppData:
         self.write_session_to_daily_files()
 
     def set_daily_csv_dir(self, daily_csv_dir: str) -> None:
-        self.config.data.daily_csv_dir = daily_csv_dir
+        self.config.daily_csv_dir = daily_csv_dir
         self.config.save()
 
     def get_daily_csv_path(self) -> Path | None:
-        if not self.config.data.daily_csv_dir:
+        if not self.config.daily_csv_dir:
             return None
-        path = Path(self.config.data.daily_csv_dir).expanduser().resolve()
+        path = Path(self.config.daily_csv_dir).expanduser().resolve()
         if not path.exists():
             logging.error("Directory does not exist: %s", path)
             self._errors.append(f"Directory does not exist: {path}")
@@ -206,13 +206,13 @@ class AppData:
         return path
 
     def set_daily_md_dir(self, daily_md_dir: str) -> None:
-        self.config.data.daily_md_dir = daily_md_dir
+        self.config.daily_md_dir = daily_md_dir
         self.config.save()
 
     def get_daily_md_path(self) -> Path | None:
-        if not self.config.data.daily_md_dir:
+        if not self.config.daily_md_dir:
             return None
-        path = Path(self.config.data.daily_md_dir).expanduser().resolve()
+        path = Path(self.config.daily_md_dir).expanduser().resolve()
         if not path.exists():
             logging.error("Directory does not exist: %s", path)
             self._errors.append(f"Directory does not exist: {path}")

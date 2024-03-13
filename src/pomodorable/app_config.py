@@ -1,5 +1,4 @@
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 
 from tomlkit import document, dumps, parse
@@ -12,17 +11,12 @@ KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_LOG_RETENTION_DAYS = "log_retention_days"
 
 
-@dataclass
-class ConfigData:
-    daily_csv_dir: str = ""
-    daily_md_dir: str = ""
-    log_retention_days: int = LOG_RETENTION_DEFAULT
-
-
 class AppConfig:
     def __init__(self, config_file: Path) -> None:
         self.config_file = config_file
-        self.data = ConfigData()
+        self.daily_csv_dir: str = ""
+        self.daily_md_dir: str = ""
+        self.log_retention_days: int = LOG_RETENTION_DEFAULT
 
     def _load_toml_doc(self) -> document:
         """Load the TOML document from the configuration file. If the file
@@ -49,9 +43,9 @@ class AppConfig:
             logging.info("Load '%s'", self.config_file)
             try:
                 doc = self._load_toml_doc()
-                self.data.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
-                self.data.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
-                self.data.log_retention_days = doc.get(
+                self.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
+                self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
+                self.log_retention_days = doc.get(
                     KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
                 )
             except Exception:
@@ -69,9 +63,9 @@ class AppConfig:
             else:
                 logging.info("Save to new file")
                 doc = document()
-            doc[KEY_DAILY_CSV_DIR] = self.data.daily_csv_dir
-            doc[KEY_DAILY_MD_DIR] = self.data.daily_md_dir
-            doc[KEY_LOG_RETENTION_DAYS] = self.data.log_retention_days
+            doc[KEY_DAILY_CSV_DIR] = self.daily_csv_dir
+            doc[KEY_DAILY_MD_DIR] = self.daily_md_dir
+            doc[KEY_LOG_RETENTION_DAYS] = self.log_retention_days
             text = dumps(doc)
             self.config_file.write_text(text)
         except Exception:

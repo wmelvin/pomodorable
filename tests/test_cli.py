@@ -29,7 +29,7 @@ def test_export_csv_for_date(app_data_with_test_sessions, monkeypatch):
     runner = CliRunner()
     result = runner.invoke(cli, ["--csv-date", "2024-01-02"])
     assert result.exit_code == 0
-    csv_file = Path(app_data.config.data.daily_csv_dir) / "2024-01-02.csv"
+    csv_file = Path(app_data.config.daily_csv_dir) / "2024-01-02.csv"
     assert csv_file.exists()
     rows = csv_file.read_text().strip().split("\n")
     assert len(rows) == 7  # 1 header + 6 data rows

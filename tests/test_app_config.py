@@ -16,8 +16,8 @@ def test_app_config_load_reads_file(tmp_path):
     )
     app_config = AppConfig(config_file)
     app_config.load()
-    assert app_config.data.daily_csv_dir == "/path/to/csv"
-    assert app_config.data.daily_md_dir == "/path/to/md"
+    assert app_config.daily_csv_dir == "/path/to/csv"
+    assert app_config.daily_md_dir == "/path/to/md"
 
 
 def test_app_config_save_load(tmp_path):
@@ -28,5 +28,5 @@ def test_app_config_save_load(tmp_path):
     app_data.set_daily_md_dir("/path/to/md")
     app_config.save()
     app_config.load()
-    assert app_config.data.daily_csv_dir == "/path/to/csv"
-    assert app_config.data.daily_md_dir == "/path/to/md"
+    assert app_config.daily_csv_dir == "/path/to/csv"
+    assert app_config.daily_md_dir == "/path/to/md"
