@@ -1,5 +1,4 @@
-# import logging
-
+import logging
 from pathlib import Path
 
 from textual import on
@@ -149,5 +148,9 @@ class SettingsScreen(Screen):
 def is_valid_dir_or_empty(path: str) -> bool:
     if not path:
         return True
-    p = Path(path).expanduser().resolve()
-    return p.exists() and p.is_dir()
+    try:
+        p = Path(path).expanduser().resolve()
+        return p.exists() and p.is_dir()
+    except Exception:
+        logging.exception("Path validation failed")
+        return False
