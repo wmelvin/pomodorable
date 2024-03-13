@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 def write_to_daily_md(md_file: Path, data_rows: list[dict]) -> None:
-
     date_str = data_rows[0]["date"]
 
     #  Write the header when the file is created.

@@ -17,8 +17,8 @@ class SettingInput(Static):
         super().__init__(*args, **kwargs)
 
     def compose(self) -> ComposeResult:
+        yield Label("setting", id="lbl-setting")
         yield Horizontal(
-            Label("setting", id="lbl-setting"),
             Input(placeholder="setting"),
             Button("undo", id="btn-undo"),
         )
@@ -46,7 +46,7 @@ class SettingInput(Static):
         self.check_data_changed()
 
         #  If no validators are set then validation_result is None.
-        if not event.validation_result:
+        if event.validation_result is None:
             return
 
         wrn = self.query_one("#lbl-warn")
@@ -85,8 +85,8 @@ class SettingsScreen(Screen):
         yield ScrollableContainer(
             SettingInput(id="set-csv-dir"),
             SettingInput(id="set-md-dir"),
+            SettingInput(id="set-md-heading"),
             SettingInput(id="set-log-ret"),
-            # SettingInput(id="setting-4"),
         )
 
     def on_mount(self) -> None:
@@ -96,12 +96,21 @@ class SettingsScreen(Screen):
             self.app_config.daily_csv_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
+
         set_md_dir = self.query_one("#set-md-dir")
         set_md_dir.initialize(
             "Daily Markdown Folder",
             self.app_config.daily_md_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
+
+        set_md_heading = self.query_one("#set-md-heading")
+        set_md_heading.initialize(
+            "Daily Markdown Heading",
+            self.app_config.daily_md_heading or "",
+            [],  # TODO: Add a validator, or auto-prefix missing '#'?
+        )
+
         set_log_ret = self.query_one("#set-log-ret")
         set_log_ret.initialize(
             "Log Retention Days",

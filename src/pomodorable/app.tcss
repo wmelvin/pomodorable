@@ -125,7 +125,8 @@ SettingInput {
     margin: 0;
 
     #lbl-setting {
-        text-align: right;
+        padding: 0 1;
+        text-align: left;
     }
 
     #lbl-warn {

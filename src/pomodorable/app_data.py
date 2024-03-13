@@ -285,9 +285,7 @@ class AppData:
         max_num = 99
         next_num = 1
         while csv_file.exists():
-            csv_file = (
-                path / f"{date_str}_{next_num}.csv"
-            )
+            csv_file = path / f"{date_str}_{next_num}.csv"
             next_num += 1
             if next_num > max_num:
                 logging.error("Too many files for %s", date_str)

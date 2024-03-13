@@ -26,7 +26,13 @@ def test_app_config_save_load(tmp_path):
     app_data = AppData(app_config)
     app_data.set_daily_csv_dir("/path/to/csv")
     app_data.set_daily_md_dir("/path/to/md")
+    app_config.daily_md_heading = "# Daily Markdown"
+    app_config.daily_md_append = True
+    app_config.log_retention_days = 7
     app_config.save()
     app_config.load()
     assert app_config.daily_csv_dir == "/path/to/csv"
     assert app_config.daily_md_dir == "/path/to/md"
+    assert app_config.daily_md_heading == "# Daily Markdown"
+    assert app_config.daily_md_append is True
+    assert app_config.log_retention_days == 7
