@@ -71,3 +71,17 @@ def test_writes_daily_csv_file(tmp_path):
         reader = DictReader(f)
         fields = reader.fieldnames
         assert fields == ["date", "time", "num", "task", "message", "notes"]
+
+
+def test_writes_daily_markdown_file(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_md_dir(str(tmp_path))
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    app_data.write_start(start_time, "Test session", 10)
+    app_data.write_finish(
+        finish_time=start_time + timedelta(seconds=10), start_time=start_time
+    )
+    md_file = tmp_path / "2024-01-02.md"
+    assert md_file.exists()
+    md_text = md_file.read_text()
+    assert "# 2024-01-02" in md_text

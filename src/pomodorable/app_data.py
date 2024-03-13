@@ -15,6 +15,7 @@ from platformdirs import user_config_path, user_data_path
 from pomodorable.app_config import AppConfig
 from pomodorable.app_utils import sec_to_hms
 from pomodorable.output_csv import write_to_daily_csv
+from pomodorable.output_md import write_to_daily_md
 
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
@@ -40,6 +41,7 @@ class AppData:
         init_app_config: AppConfig | None = None,
         init_data_path: Path | None = None,
     ) -> None:
+        self._errors = []
         self.data_path = init_data_path
 
         if not self.data_path:
@@ -136,6 +138,15 @@ class AppData:
         """
         return f'"{dt.strftime("%Y-%m-%d")}","{dt.strftime("%H:%M:%S")}"'
 
+    def has_errors(self) -> bool:
+        return bool(self._errors)
+
+    def get_errors(self) -> list[str]:
+        return list(self._errors)
+
+    def clear_errors(self) -> None:
+        self._errors.clear()
+
     def write_start(
         self, start_time: datetime, task: str, session_seconds: int
     ) -> None:
@@ -178,15 +189,35 @@ class AppData:
                 notes=f"Started at {start_time.strftime('%H:%M:%S')}",
             )
         )
-        self.write_session_to_daily_csv()
+        self.write_session_to_daily_files()
 
     def set_daily_csv_dir(self, daily_csv_dir: str) -> None:
         self.config.data.daily_csv_dir = daily_csv_dir
         self.config.save()
 
+    def get_daily_csv_path(self) -> Path | None:
+        if not self.config.data.daily_csv_dir:
+            return None
+        path = Path(self.config.data.daily_csv_dir).expanduser().resolve()
+        if not path.exists():
+            logging.error("Directory does not exist: %s", path)
+            self._errors.append(f"Directory does not exist: {path}")
+            return None
+        return path
+
     def set_daily_md_dir(self, daily_md_dir: str) -> None:
         self.config.data.daily_md_dir = daily_md_dir
         self.config.save()
+
+    def get_daily_md_path(self) -> Path | None:
+        if not self.config.data.daily_md_dir:
+            return None
+        path = Path(self.config.data.daily_md_dir).expanduser().resolve()
+        if not path.exists():
+            logging.error("Directory does not exist: %s", path)
+            self._errors.append(f"Directory does not exist: {path}")
+            return None
+        return path
 
     def get_latest_session_rows(self) -> list[dict]:
         """Return the latest session rows from the CSV file."""
@@ -217,23 +248,32 @@ class AppData:
             rows = list(reader)
         return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]
 
-    def write_session_to_daily_csv(self) -> None:
+    def write_session_to_daily_files(self) -> None:
         #  This must be called after write_finish.
-
-        if not self.config.data.daily_csv_dir:
-            return
-
         rows = self.get_latest_session_rows()
         if not rows:
-            # TODO: Log an error? Seems like this should not happen.
+            logging.error("Call to get_latest_session_rows returned no rows.")
             return
+        self.write_session_to_daily_csv(rows)
+        self.write_session_to_daily_md(rows)
 
-        date_str = rows[0]["date"]
-        csv_file = Path(self.config.data.daily_csv_dir) / f"{date_str}.csv"
-        write_to_daily_csv(csv_file, rows)
+    def write_session_to_daily_csv(self, rows: list[dict]) -> None:
+        path = self.get_daily_csv_path()
+        if path:
+            date_str = rows[0]["date"]
+            csv_file = path / f"{date_str}.csv"
+            write_to_daily_csv(csv_file, rows)
+
+    def write_session_to_daily_md(self, rows: list[dict]) -> None:
+        path = self.get_daily_md_path()
+        if path:
+            date_str = rows[0]["date"]
+            md_file = path / f"{date_str}.md"
+            write_to_daily_md(md_file, rows)
 
     def export_daily_csv(self, export_date: datetime) -> None:
-        if not self.config.data.daily_csv_dir:
+        path = self.get_daily_csv_path()
+        if not path:
             return
 
         rows = self.get_session_rows_for_date(export_date)
@@ -241,16 +281,17 @@ class AppData:
             return
 
         date_str = rows[0]["date"]
-        csv_file = Path(self.config.data.daily_csv_dir) / f"{date_str}.csv"
+        csv_file = path / f"{date_str}.csv"
         max_num = 99
         next_num = 1
         while csv_file.exists():
             csv_file = (
-                Path(self.config.data.daily_csv_dir) / f"{date_str}_{next_num}.csv"
+                path / f"{date_str}_{next_num}.csv"
             )
             next_num += 1
             if next_num > max_num:
-                sys.stderr.write(f"\nToo many files for {date_str}\n")
-                sys.exit(1)
+                logging.error("Too many files for %s", date_str)
+                self._errors.append(f"Too many files for {date_str}")
+                return
 
         write_to_daily_csv(csv_file, rows, start_num=1)
