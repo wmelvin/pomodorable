@@ -203,6 +203,11 @@ class PomodorableApp(App):
         log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
         logging.info(message)
 
+    def show_queued_errors(self) -> None:
+        errs = self.app_data.retrieve_error_list()
+        for err in errs:
+            self.say(err)
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         try:
             countdown = self.query_one(CountdownDisplay)
@@ -258,6 +263,8 @@ class PomodorableApp(App):
             self.remove_class("running")
             countdown.reset()
             time_ending.sync_time(countdown.remaining_seconds())
+            self.show_queued_errors()
+
         elif btn == "btn-settings":
             if not self.has_class("running"):
                 self.push_screen(SettingsScreen(app_config=self.app_data.config))
@@ -282,6 +289,8 @@ class PomodorableApp(App):
             # TODO: Configure notification - enable/disable, timeout, etc.
             # If there is no timeout will notification stay on screen until
             # dismissed?
+
+            self.show_queued_errors()
 
     def action_ten_seconds(self) -> None:
         # For manual testing.

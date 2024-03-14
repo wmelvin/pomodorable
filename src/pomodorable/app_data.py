@@ -138,14 +138,12 @@ class AppData:
         """
         return f'"{dt.strftime("%Y-%m-%d")}","{dt.strftime("%H:%M:%S")}"'
 
-    def has_errors(self) -> bool:
-        return bool(self._errors)
-
-    def get_errors(self) -> list[str]:
-        return list(self._errors)
-
-    def clear_errors(self) -> None:
-        self._errors.clear()
+    def retrieve_error_list(self) -> list[str]:
+        if self._errors:
+            err_list = list(self._errors)
+            self._errors.clear()
+            return err_list
+        return []
 
     def write_start(
         self, start_time: datetime, task: str, session_seconds: int
