@@ -130,6 +130,7 @@ class SettingsScreen(Screen):
             id="frm-buttons",
         )
         yield ScrollableContainer(
+            SettingInput(id="set-minutes"),
             SettingInput(id="set-csv-dir"),
             SettingInput(id="set-md-dir"),
             SettingInput(id="set-md-heading"),
@@ -138,6 +139,18 @@ class SettingsScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        set_minutes = self.query_one("#set-minutes")
+        set_minutes.initialize(
+            "Session Minutes",
+            str(self.app_config.session_minutes),
+            [
+                Integer(
+                    minimum=1,
+                    failure_description="Must be a number greater than 1.",
+                )
+            ],
+        )
+
         set_csv_dir = self.query_one("#set-csv-dir")
         set_csv_dir.initialize(
             "Daily CSV Folder",
@@ -156,7 +169,7 @@ class SettingsScreen(Screen):
         set_md_heading.initialize(
             "Daily Markdown Heading",
             self.app_config.daily_md_heading or "",
-            [],  # TODO: Add a validator, or auto-prefix missing '#'?
+            [],
         )
 
         set_md_append = self.query_one("#set-md-append")
@@ -181,6 +194,13 @@ class SettingsScreen(Screen):
 
     def save_changes(self) -> None:
         has_changes = False
+
+        set_minutes = self.query_one("#set-minutes")
+        if set_minutes.has_valid_changes():
+            inp_minutes = set_minutes.query_one(Input)
+            self.app_config.session_minutes = int(inp_minutes.value)
+            has_changes = True
+
         set_csv_dir = self.query_one("#set-csv-dir")
         if set_csv_dir.has_valid_changes():
             inp_csv_dir = set_csv_dir.query_one(Input)

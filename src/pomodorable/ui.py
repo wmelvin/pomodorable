@@ -23,9 +23,9 @@ from pomodorable.settings_screen import SettingsScreen
 
 APP_NAME = "Pomodorable"
 
-DEFAULT_SESSION_SECONDS = 25 * 60  # TODO: settings.default_session_minutes
+DEFAULT_SESSION_SECONDS = 25 * 60
 
-UPDATE_INTERVAL = 1 / 5  # seconds
+UPDATE_INTERVAL = 1 / 4  # Update four times per second.
 
 
 class CountdownDisplay(Static):
@@ -38,6 +38,9 @@ class CountdownDisplay(Static):
     seconds_added: int = 0
 
     def on_mount(self) -> None:
+        secs = self.app.app_data.config.session_seconds
+        self.seconds = secs
+        self.start_seconds = secs
         self.set_interval(UPDATE_INTERVAL, self.update_countdown)
 
     def update_countdown(self) -> None:
@@ -67,7 +70,7 @@ class CountdownDisplay(Static):
             self.seconds = 0
 
     def reset(self) -> None:
-        self.seconds = DEFAULT_SESSION_SECONDS
+        self.seconds = self.app.app_data.config.session_seconds
         self.start_time = None
         self.pause_time = None
         self.seconds_added = 0
@@ -196,7 +199,7 @@ class PomodorableApp(App):
         log = self.query_one(Log)
         log.write_line("Hello.")
         time_disp = self.query_one("#time-ending")
-        time_disp.sync_time(DEFAULT_SESSION_SECONDS)
+        time_disp.sync_time(self.app_data.config.session_seconds)
 
     def say(self, message: str) -> None:
         log = self.query_one(Log)

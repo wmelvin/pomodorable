@@ -5,7 +5,9 @@ from tomlkit import document, dumps, parse
 
 LOG_RETENTION_DEFAULT = 30
 LOG_RETENTION_MIN = 5
+SESSION_MINUTES_DEFAULT = 25
 
+KEY_SESSION_MINUTES = "session_minutes"
 KEY_DAILY_CSV_DIR = "daily_csv_dir"
 KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_DAILY_MD_HEADING = "daily_md_heading"
@@ -16,6 +18,7 @@ KEY_LOG_RETENTION_DAYS = "log_retention_days"
 class AppConfig:
     def __init__(self, config_file: Path) -> None:
         self.config_file = config_file
+        self.session_minutes: int = SESSION_MINUTES_DEFAULT
         self.daily_csv_dir: str = ""
         self.daily_md_dir: str = ""
         self.daily_md_heading: str = ""
@@ -57,6 +60,9 @@ class AppConfig:
             logging.info("Load '%s'", self.config_file)
             try:
                 doc = self._load_toml_doc()
+                self.session_minutes = doc.get(
+                    KEY_SESSION_MINUTES, SESSION_MINUTES_DEFAULT
+                )
                 self.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
                 self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
                 self.daily_md_heading = doc.get(KEY_DAILY_MD_HEADING, "")
@@ -80,6 +86,7 @@ class AppConfig:
             else:
                 logging.info("Save to new file")
                 doc = document()
+            doc[KEY_SESSION_MINUTES] = self.session_minutes
             doc[KEY_DAILY_CSV_DIR] = self.daily_csv_dir
             doc[KEY_DAILY_MD_DIR] = self.daily_md_dir
             doc[KEY_DAILY_MD_HEADING] = self.daily_md_heading
@@ -89,3 +96,7 @@ class AppConfig:
             self.config_file.write_text(text)
         except Exception:
             logging.exception("Error saving configuration.")
+
+    @property
+    def session_seconds(self) -> int:
+        return self.session_minutes * 60
