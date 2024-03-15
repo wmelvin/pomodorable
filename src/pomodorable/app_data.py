@@ -267,7 +267,9 @@ class AppData:
         if path:
             date_str = rows[0]["date"]
             md_file = path / f"{date_str}.md"
-            write_to_daily_md(md_file, rows)
+            write_to_daily_md(
+                md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
+            )
 
     def export_daily_csv(self, export_date: datetime) -> None:
         path = self.get_daily_csv_path()

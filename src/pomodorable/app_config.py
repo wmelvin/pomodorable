@@ -42,6 +42,16 @@ class AppConfig:
                 return document()
         return document()
 
+    def _fix_daily_md_heading(self):
+        """If the daily markdown heading has a value, it needs to start with
+        a '#' character. It can be configured as a heading at any level, but
+        it will default to a top-level heading.
+        """
+        if not self.daily_md_heading:
+            return
+        if not self.daily_md_heading.startswith("#"):
+            self.daily_md_heading = f"# {self.daily_md_heading}"
+
     def load(self) -> None:
         if self.config_file.exists():
             logging.info("Load '%s'", self.config_file)
@@ -54,6 +64,7 @@ class AppConfig:
                 self.log_retention_days = doc.get(
                     KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
                 )
+                self._fix_daily_md_heading()
             except Exception:
                 logging.exception("Error loading configuration.")
         else:

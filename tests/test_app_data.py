@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from csv import DictReader
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
 
 from pomodorable.app_data import AppData
 from pomodorable.app_utils import get_date_from_str
+from pomodorable.output_md import write_to_daily_md
 
 
 def test_data_csv_fields(app_data_with_test_sessions):
@@ -84,4 +86,68 @@ def test_writes_daily_markdown_file(tmp_path):
     md_file = tmp_path / "2024-01-02.md"
     assert md_file.exists()
     md_text = md_file.read_text()
-    assert "# 2024-01-02" in md_text
+    assert "# Pomodori 2024-01-02" in md_text
+
+
+def test_does_not_create_md_file_when_append_only(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.config.daily_md_append = True
+    app_data.set_daily_md_dir(str(tmp_path))
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    app_data.write_start(start_time, "Test session", 10)
+    app_data.write_finish(
+        finish_time=start_time + timedelta(seconds=10), start_time=start_time
+    )
+    md_files = list(tmp_path.glob("*.md"))
+    assert not md_files
+
+
+def test_write_to_daily_md(app_data_with_test_sessions):
+    app_data, start_times = app_data_with_test_sessions
+    p = app_data.data_path
+    md_file: Path = p / "test.md"
+
+    rows = app_data.get_session_rows_for_date(start_times[0])
+    assert len(rows) == 6
+
+    write_to_daily_md(
+        md_file=md_file, heading="", append_only=False, data_rows=rows[:3]
+    )
+
+    # Make a copy for manual review in tmp location.
+    (p / "test-1.md").write_text(md_file.read_text())
+
+    write_to_daily_md(
+        md_file=md_file, heading="", append_only=False, data_rows=rows[3:]
+    )
+
+
+def test_append_to_daily_md(app_data_with_test_sessions):
+    app_data, start_times = app_data_with_test_sessions
+    p = app_data.data_path
+    md_file: Path = p / "test.md"
+
+    rows = app_data.get_session_rows_for_date(start_times[0])
+    assert len(rows) == 6
+
+    a = "# Blah\n\nblah blah\n\n# Pomodori\n"
+    b = "\n# Other blah\n\n"
+
+    md_file.write_text(f"{a}{b}")
+
+    # Make a copy for manual review in tmp location.
+    (p / "test-0.md").write_text(md_file.read_text())
+
+    write_to_daily_md(
+        md_file=md_file, heading="# Pomodori", append_only=True, data_rows=rows[:3]
+    )
+
+    (p / "test-1.md").write_text(md_file.read_text())
+
+    write_to_daily_md(
+        md_file=md_file, heading="# Pomodori", append_only=True, data_rows=rows[3:]
+    )
+
+    s = md_file.read_text()
+    assert s.startswith(a)
+    assert s.endswith(b)
