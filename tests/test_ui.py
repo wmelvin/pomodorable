@@ -1,3 +1,4 @@
+from pomodorable.app_data import AppData
 from pomodorable.ui import PomodorableApp
 
 
@@ -8,8 +9,9 @@ async def test_app_is_created():
         assert footer
 
 
-async def test_minus_5_button_stops_at_zero():
-    app = PomodorableApp()
+async def test_minus_5_button_stops_at_zero(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app = PomodorableApp(init_app_data=app_data)
     async with app.run_test() as pilot:
         countdown = pilot.app.query_one("#countdown")
         assert countdown.seconds == 25 * 60  # Should be 25 minutes by default.
