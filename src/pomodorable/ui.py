@@ -23,7 +23,9 @@ from pomodorable.settings_screen import SettingsScreen
 
 APP_NAME = "Pomodorable"
 
-DEFAULT_SESSION_SECONDS = 25 * 60
+ONE_MINUTE = 60
+FIVE_MINUTES = 5 * ONE_MINUTE
+DEFAULT_SESSION_SECONDS = 25 * ONE_MINUTE
 
 UPDATE_INTERVAL = 1 / 4  # Update four times per second.
 
@@ -64,10 +66,26 @@ class CountdownDisplay(Static):
     def watch_seconds(self, seconds: datetime) -> None:
         self.update(sec_to_hms(seconds))
 
-    def add_minutes(self, minutes: int) -> None:
-        self.seconds += minutes * 60
-        if self.seconds < 0:
-            self.seconds = 0
+    def seconds_up(self) -> None:
+        """Add 5 minutes to the countdown. Set to 5 minutes if the current value
+        is less than that.
+        """
+        if self.seconds < FIVE_MINUTES:
+            self.seconds = FIVE_MINUTES
+        else:
+            self.seconds += FIVE_MINUTES
+
+    def seconds_down(self) -> None:
+        """Subtract 5 minutes from the countdown. If the current value
+        is 5 minutes or less, set use a 1 minute increment.
+        Do not go below 1 minute.
+        """
+        if self.seconds <= FIVE_MINUTES:
+            if self.seconds <= ONE_MINUTE:
+                return
+            self.seconds -= ONE_MINUTE
+        else:
+            self.seconds -= FIVE_MINUTES
 
     def reset(self) -> None:
         self.seconds = self.app.app_data.config.session_seconds
@@ -108,10 +126,6 @@ class CountdownDisplay(Static):
                 True,
             )
         self.pause_time = None
-
-    def remaining_seconds(self):
-        # TODO: just use self.seconds?
-        return self.seconds
 
 
 class TimeDisplay(Static):
@@ -226,19 +240,19 @@ class PomodorableApp(App):
 
         elif btn == "btn-plus-five":
             self.say("Add 5 minutes.")
-            countdown.add_minutes(5)
-            time_ending.sync_time(countdown.remaining_seconds())
+            countdown.seconds_up()
+            time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-minus-five":
             self.say("Subtract 5 minutes.")
-            countdown.add_minutes(-5)
-            time_ending.sync_time(countdown.remaining_seconds())
+            countdown.seconds_down()
+            time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-start":
             self.say("Start.")
             countdown.set_start_time()
             self.add_class("running")
-            time_ending.sync_time(countdown.remaining_seconds())
+            time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-pause":
             self.say("Pause.")
@@ -254,7 +268,7 @@ class PomodorableApp(App):
         elif btn == "btn-extend":
             self.say("Extend.")
             countdown.extend()
-            time_ending.sync_time(countdown.remaining_seconds())
+            time_ending.sync_time(countdown.seconds)
             self.remove_class("paused")
 
         elif btn == "btn-stop":
@@ -265,7 +279,7 @@ class PomodorableApp(App):
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset()
-            time_ending.sync_time(countdown.remaining_seconds())
+            time_ending.sync_time(countdown.seconds)
             self.show_queued_errors()
 
         elif btn == "btn-settings":
@@ -280,7 +294,7 @@ class PomodorableApp(App):
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset()
-            time_ending.sync_time(countdown.remaining_seconds())
+            time_ending.sync_time(countdown.seconds)
 
             #  Show plyer.notification.
             notification.notify(

@@ -57,9 +57,9 @@ def app_data_with_six_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
         datetime.fromisoformat("2024-02-01T08:30:01"),
         datetime.fromisoformat("2024-02-01T09:30:01"),
         datetime.fromisoformat("2024-02-01T10:05:01"),
-        datetime.fromisoformat("2024-02-03T08:35:01"),
-        datetime.fromisoformat("2024-02-04T09:05:01"),
-        datetime.fromisoformat("2024-02-04T10:35:01"),
+        datetime.fromisoformat("2024-02-02T08:35:01"),
+        datetime.fromisoformat("2024-02-02T09:05:01"),
+        datetime.fromisoformat("2024-02-02T10:35:01"),
     ]
 
     for n, start_time in enumerate(start_times, start=1):

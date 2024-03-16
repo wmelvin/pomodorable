@@ -32,9 +32,20 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         await pilot.click("#btn-minus-five")
         assert countdown.seconds == 5 * 60
 
+        # Should switch to 1 minute increments below 5 minutes.
         await pilot.click("#btn-minus-five")
-        assert countdown.seconds == 0
+        assert countdown.seconds == 4 * 60
 
-        # Should stop at zero.
         await pilot.click("#btn-minus-five")
-        assert countdown.seconds == 0
+        assert countdown.seconds == 3 * 60
+
+        # Press 5 more times.
+        await pilot.click("#btn-minus-five")
+        await pilot.click("#btn-minus-five")
+        await pilot.click("#btn-minus-five")
+        await pilot.click("#btn-minus-five")
+        await pilot.click("#btn-minus-five")
+
+        # Should have stopped at one minute.
+        await pilot.click("#btn-minus-five")
+        assert countdown.seconds == 60
