@@ -180,3 +180,20 @@ SettingInput {
     }
 }
 
+TimerBar {
+    content-align: center middle;
+    height: 3;
+    padding: 0;
+    background: ansi_red;
+    color: white;
+    width: 1fr;
+    #numbers {
+        content-align: center middle;
+    }
+    #scale {
+        color: white;
+        content-align: center middle;
+        text-align: center;
+        width: 1fr;
+    }
+}

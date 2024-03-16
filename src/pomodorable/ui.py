@@ -20,6 +20,7 @@ from textual.widgets import (
 
 from pomodorable.app_data import AppData, sec_to_hms
 from pomodorable.settings_screen import SettingsScreen
+from pomodorable.timerbar import TimerBar
 
 APP_NAME = "Pomodorable"
 
@@ -38,6 +39,7 @@ class CountdownDisplay(Static):
     start_time: datetime | None = None
     pause_time: datetime | None = None
     seconds_added: int = 0
+    last_minute: int = 0
 
     def on_mount(self) -> None:
         secs = self.app.app_data.config.session_seconds
@@ -54,7 +56,15 @@ class CountdownDisplay(Static):
             self.seconds = (
                 self.start_seconds - (datetime.now() - self.start_time).seconds
             )
+
         self.seconds += self.seconds_added
+
+        # Update the TimerBar when the minute changes.
+        minute = int(self.seconds / 60)
+        if minute != self.last_minute:
+            self.app.query_one(TimerBar).update_bar(minute)
+            self.last_minute = minute
+
         if (
             self.seconds <= 0
             and self.app.has_class("running")
@@ -77,7 +87,7 @@ class CountdownDisplay(Static):
 
     def seconds_down(self) -> None:
         """Subtract 5 minutes from the countdown. If the current value
-        is 5 minutes or less, set use a 1 minute increment.
+        is 5 minutes or less, then use a 1 minute increment.
         Do not go below 1 minute.
         """
         if self.seconds <= FIVE_MINUTES:
@@ -181,6 +191,7 @@ class PomodorableApp(App):
             TimeDisplay("14:30:00", id="time-ending"),
             id="frm-times",
         )
+        yield TimerBar()
         yield Horizontal(
             Button("Reset", id="btn-reset"),
             Button("+ 5 min", id="btn-plus-five"),
