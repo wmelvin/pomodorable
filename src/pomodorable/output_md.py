@@ -6,25 +6,22 @@ from pathlib import Path
 def rows_as_md(data_rows: list[dict]) -> list[str]:
     md = []
     for row in data_rows:
-        out_str = None
         if row["action"] == "Start":
-            out_str = f"- {row['message']}"
-            out_str += f"    - Start {row['time']}"
+            msg = "(?)" if not row["message"] else row["message"]
+            md.append(f"- **{msg}**")
+            md.append(f"    - Start {row['time']}")
 
         elif row["action"] == "Pause":
-            if row["notes"] == "extended":
-                msg = "Pause (extended):"
-            else:
-                msg = "Pause (resumed):"
-            out_str = f"    - {msg} {row['message']}"
+            act = (
+                f"extend {row['duration']}" if row["notes"] == "extended" else "resume"
+            )
+            md.append(f"    - Pause {row['time']} '{row['message']}' ({act})")
 
         elif row["action"] == "Stop":
-            out_str = f"    - Stop: {row['message']}"
+            md.append(f"    - STOP {row['time']} '{row['message']}'")
 
         elif row["action"] == "Finish":
-            out_str = f"    - Finish: {row['notes']}"
-        if out_str is not None:
-            md.append(out_str)
+            md.append(f"    - Finish {row['time']} ({row['notes']})")
     return md
 
 
@@ -73,7 +70,12 @@ def write_to_daily_md(
 
     md = [md_heading, ""] if heading_index is None else []
 
-    md.extend(rows_as_md(data_rows))
+    if heading_index is None:
+        md.extend(rows_as_md(data_rows))
+    else:
+        md_rows = rows_as_md(data_rows)
+        section_rows = lines[hx:insert_index]
+        md.extend([row for row in md_rows if row not in section_rows])
 
     a = lines[:insert_index]
     b = lines[insert_index:]

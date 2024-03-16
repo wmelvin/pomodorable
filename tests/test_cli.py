@@ -20,8 +20,8 @@ def test_cli_help():
     assert "Show this message and exit." in result.output
 
 
-def test_export_csv_for_date(app_data_with_test_sessions, monkeypatch):
-    app_data, _ = app_data_with_test_sessions
+def test_export_csv_for_date(app_data_with_four_test_sessions, monkeypatch):
+    app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_daily_csv_dir(data_dir)
     monkeypatch.setenv("POMODORABLE_TEST_DATA_DIR", data_dir)

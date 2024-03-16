@@ -11,8 +11,8 @@ from pomodorable.app_utils import get_date_from_str
 from pomodorable.output_md import write_to_daily_md
 
 
-def test_data_csv_fields(app_data_with_test_sessions):
-    app_data, start_times = app_data_with_test_sessions
+def test_data_csv_fields(app_data_with_four_test_sessions):
+    app_data, start_times = app_data_with_four_test_sessions
     with app_data.output_csv.open() as f:
         reader = DictReader(f)
         fields = reader.fieldnames
@@ -27,8 +27,8 @@ def test_data_csv_fields(app_data_with_test_sessions):
         ]
 
 
-def test_get_latest_session_rows(app_data_with_test_sessions):
-    app_data, start_times = app_data_with_test_sessions
+def test_get_latest_session_rows(app_data_with_four_test_sessions):
+    app_data, start_times = app_data_with_four_test_sessions
 
     rows = app_data.get_latest_session_rows()
     assert rows
@@ -43,8 +43,8 @@ def test_get_latest_session_rows(app_data_with_test_sessions):
 #  Date input may come fom command-line args, so should support both full and
 #  short date formats. TODO: Maybe more formats?
 @pytest.mark.parametrize("date_arg", ["2024-01-02", "24-01-02"])
-def test_get_session_rows_for_date(app_data_with_test_sessions, date_arg):
-    app_data, start_times = app_data_with_test_sessions
+def test_get_session_rows_for_date(app_data_with_four_test_sessions, date_arg):
+    app_data, start_times = app_data_with_four_test_sessions
     date_val = get_date_from_str(date_arg)
     rows = app_data.get_session_rows_for_date(date_val)
     assert rows
@@ -102,8 +102,8 @@ def test_does_not_create_md_file_when_append_only(tmp_path):
     assert not md_files
 
 
-def test_write_to_daily_md(app_data_with_test_sessions):
-    app_data, start_times = app_data_with_test_sessions
+def test_write_to_daily_md(app_data_with_four_test_sessions):
+    app_data, start_times = app_data_with_four_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
 
@@ -122,32 +122,66 @@ def test_write_to_daily_md(app_data_with_test_sessions):
     )
 
 
-def test_append_to_daily_md(app_data_with_test_sessions):
-    app_data, start_times = app_data_with_test_sessions
+def test_append_to_daily_md(app_data_with_six_test_sessions):
+    app_data, start_times = app_data_with_six_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
 
     rows = app_data.get_session_rows_for_date(start_times[0])
-    assert len(rows) == 6
+    assert len(rows) == 12
 
-    a = "# Blah\n\nblah blah\n\n# Pomodori\n"
-    b = "\n# Other blah\n\n"
+    a = "# Blah\n\nblah blah\n\n## Pomodori\n"
+    b = "\n# More blah\n\n"
 
     md_file.write_text(f"{a}{b}")
 
-    # Make a copy for manual review in tmp location.
     (p / "test-0.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="# Pomodori", append_only=True, data_rows=rows[:3]
+        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows[:6]
     )
 
     (p / "test-1.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="# Pomodori", append_only=True, data_rows=rows[3:]
+        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
     )
 
     s = md_file.read_text()
     assert s.startswith(a)
     assert s.endswith(b)
+    assert "Test session 1" in s
+    assert "Test session 2" in s
+    assert "Test session 3" in s
+
+
+def test_append_to_daily_md_created_after_session(app_data_with_six_test_sessions):
+    app_data, start_times = app_data_with_six_test_sessions
+    p = app_data.data_path
+    md_file: Path = p / "test.md"
+
+    rows = app_data.get_session_rows_for_date(start_times[0])
+    assert len(rows) == 12
+
+    write_to_daily_md(
+        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
+    )
+
+    assert not md_file.exists()
+
+    a = "# Blah\n\nblah blah\n\n## Pomodori\n"
+    b = "\n# More blah\n\n"
+    md_file.write_text(f"{a}{b}")
+
+    (p / "test-1.md").write_text(md_file.read_text())
+
+    write_to_daily_md(
+        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
+    )
+
+    s = md_file.read_text()
+    assert s.startswith(a)
+    assert s.endswith(b)
+    assert "Test session 1" in s
+    assert "Test session 2" in s
+    assert "Test session 3" in s

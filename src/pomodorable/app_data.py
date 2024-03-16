@@ -13,7 +13,7 @@ import dotenv
 from platformdirs import user_config_path, user_data_path
 
 from pomodorable.app_config import AppConfig
-from pomodorable.app_utils import sec_to_hms
+from pomodorable.app_utils import get_date_from_str, sec_to_hms
 from pomodorable.output_csv import write_to_daily_csv
 from pomodorable.output_md import write_to_daily_md
 
@@ -253,7 +253,7 @@ class AppData:
             logging.error("Call to get_latest_session_rows returned no rows.")
             return
         self.write_session_to_daily_csv(rows)
-        self.write_session_to_daily_md(rows)
+        self.write_sessions_to_daily_md()
 
     def write_session_to_daily_csv(self, rows: list[dict]) -> None:
         path = self.get_daily_csv_path()
@@ -262,14 +262,32 @@ class AppData:
             csv_file = path / f"{date_str}.csv"
             write_to_daily_csv(csv_file, rows)
 
-    def write_session_to_daily_md(self, rows: list[dict]) -> None:
+    def write_sessions_to_daily_md(self) -> None:
+        """Write sessions to the daily markdown file.
+        In the case where the append-only option is set, there may have been
+        sessions completed before the file was created by an external
+        application, so all rows for the date are passed to the write_to_daily_md
+        function.
+        """
         path = self.get_daily_md_path()
-        if path:
-            date_str = rows[0]["date"]
-            md_file = path / f"{date_str}.md"
-            write_to_daily_md(
-                md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
-            )
+        if not path:
+            return
+        #  Get the date from the latest session.
+        rows = self.get_latest_session_rows()
+        if not rows:
+            logging.error("Call to get_latest_session_rows returned no rows.")
+            return
+        date_str = rows[0]["date"]
+        date_val = get_date_from_str(date_str)
+        #  Get the rows for that date.
+        rows = self.get_session_rows_for_date(date=date_val)
+        if not rows:
+            logging.error("Call to get_session_rows_for_date returned no rows.")
+            return
+        md_file = path / f"{date_str}.md"
+        write_to_daily_md(
+            md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
+        )
 
     def export_daily_csv(self, export_date: datetime) -> None:
         path = self.get_daily_csv_path()
