@@ -9,3 +9,5 @@ xplor/
 
 .env
 *.pyc
+
+snapshot_report.html

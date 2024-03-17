@@ -50,6 +50,7 @@ dependencies = [
   "pytest",
   "pytest-asyncio",
   "textual-dev",
+  "pytest-textual-snapshot",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"

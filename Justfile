@@ -37,3 +37,7 @@
 # Run 'textual colors' (color preview tool)
 @tcol:
   hatch run textual colors
+
+# Take a screenshot using textual --screenshot.
+@tss:
+  hatch run textual run src/pomodorable/ui.py --screenshot 5
