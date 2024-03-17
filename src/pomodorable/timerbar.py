@@ -17,10 +17,10 @@ class TimerBar(Static):
 
     def on_mount(self) -> None:
         scale = self.query_one("#scale")
-        s = "." * (self.bar_mid)
+        s = "_" * (self.bar_mid)
         # s += "^"
         s += "\u25B2"  #  "BLACK UP-POINTING TRIANGLE"
-        s += "." * (self.bar_mid - 1)
+        s += "_" * (self.bar_mid - 1)
         scale.update(s)
         self.update_bar(0)
 
@@ -29,7 +29,7 @@ class TimerBar(Static):
             return
         self.last_counter = counter
         label_interval = 5
-        bar = [" " for _ in range(self.bar_size)]
+        bar = ["." for _ in range(self.bar_size)]
         for i in range(self.bar_size):
             x = counter + (i - self.bar_mid)
             if x < 0:

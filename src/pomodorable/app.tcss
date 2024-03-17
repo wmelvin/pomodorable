@@ -4,6 +4,10 @@ HeaderIcon {
     display: none;
 }
 
+Header {
+    background: darkgreen;
+}
+
 Horizontal {
     height: 3;
 }
@@ -37,33 +41,56 @@ Button {
 }
 
 #btn-reset {
+    margin: 0 3;
+}
+
+#btn-plus-five {
+    margin: 0 1;
+}
+
+#btn-minus-five {
     margin: 0 1;
 }
 
 #btn-settings {
-    color: ansi_cyan;
+    color: darkseagreen;
     dock: right;
-    margin: 0 2;
+    margin: 0 3;
 }
 
 #btn-start {
-    color: ansi_green;
+    color: green;
+    margin: 0 3;
 }
 
 #btn-pause {
     color: yellow;
+    margin: 0 3;
+}
+
+.paused #btn-pause {
+    color: gray;
 }
 
 #btn-resume {
-    color: green;
+    color: darkgoldenrod;
+    margin: 0 3;
 }
 
 #btn-extend {
-    color: teal;
+    color: green;
+    margin: 0 3;
 }
 
 #btn-stop {
     color: red;
+    margin: 0 3;
+}
+
+#input-task {
+    border: solid gray;
+    margin: 0;
+    width: 1fr;
 }
 
 #frm-set {
@@ -181,19 +208,30 @@ SettingInput {
 }
 
 TimerBar {
+    align: center bottom;
     content-align: center middle;
     height: 3;
     padding: 0;
-    background: ansi_red;
+    background: darkred;
     color: white;
     width: 1fr;
+
     #numbers {
         content-align: center middle;
+        opacity: 80%;
+        text-style: bold;
     }
     #scale {
-        color: white;
         content-align: center middle;
-        text-align: center;
         width: 1fr;
     }
 }
+
+/*
+#log {
+    background: brown;
+    scrollbar-background: darkred;
+    scrollbar-color: red;
+    scrollbar-corner-color: firebrick;
+}
+*/

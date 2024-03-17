@@ -191,7 +191,6 @@ class PomodorableApp(App):
             TimeDisplay("14:30:00", id="time-ending"),
             id="frm-times",
         )
-        yield TimerBar()
         yield Horizontal(
             Button("Reset", id="btn-reset"),
             Button("+ 5 min", id="btn-plus-five"),
@@ -210,12 +209,13 @@ class PomodorableApp(App):
             id="frm-pause",
         )
         yield Horizontal(
-            Button("Resume", id="btn-resume"),
             Button("Extend", id="btn-extend"),
+            Button("Resume", id="btn-resume"),
             Button("Stop", id="btn-stop"),
             id="frm-paused",
         )
-        yield Log()
+        yield TimerBar()
+        yield Log(id="log")
         yield Footer()
 
     def on_mount(self) -> None:
