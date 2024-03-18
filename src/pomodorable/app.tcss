@@ -48,14 +48,6 @@ Button {
     margin: 0 3;
 }
 
-#btn-plus-five {
-    margin: 0 1;
-}
-
-#btn-minus-five {
-    margin: 0 1;
-}
-
 #btn-settings {
     color: darkseagreen;
     dock: right;
@@ -131,11 +123,6 @@ Button {
 
 SettingsScreen {
     ScrollableContainer {
-        /*
-        Label {
-            width: 1fr;
-        }
-        */
         Input {
             width: 4fr;
         }

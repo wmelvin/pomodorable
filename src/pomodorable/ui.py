@@ -184,15 +184,15 @@ class PomodorableApp(App):
         yield Horizontal(
             Button("Reset", id="btn-reset"),
             Button("+5", id="btn-plus-five", classes="updn"),
-            Button("-5", id="btn-minus-five", classes="updn"),
             Button("+1", id="btn-plus-one", classes="updn"),
             Button("-1", id="btn-minus-one", classes="updn"),
+            Button("-5", id="btn-minus-five", classes="updn"),
             Button("Settings...", id="btn-settings"),
             id="frm-set",
         )
         yield Horizontal(
-            Button("Start", id="btn-start"),
             Input(id="input-task", placeholder="(task description)"),
+            Button("Start", id="btn-start"),
             id="frm-start",
         )
         yield Horizontal(
@@ -217,6 +217,7 @@ class PomodorableApp(App):
         log.write_line("Hello.")
         time_disp = self.query_one("#time-ending")
         time_disp.sync_time(self.app_data.config.session_seconds)
+        self.query_one("#input-task").focus()
 
     def say(self, message: str) -> None:
         log = self.query_one(Log)
@@ -227,6 +228,23 @@ class PomodorableApp(App):
         errs = self.app_data.retrieve_error_list()
         for err in errs:
             self.say(err)
+
+    def update_widgets_enabled(self) -> None:
+        paused = self.has_class("paused")
+        running = self.has_class("running")
+        self.query_one("#btn-start").disabled = running
+        self.query_one("#btn-pause").disabled = not running
+        self.query_one("#btn-resume").disabled = not paused
+        self.query_one("#btn-extend").disabled = not paused
+        self.query_one("#btn-stop").disabled = not paused
+        self.query_one("#input-task").disabled = running
+        self.query_one("#input-reason").disabled = not paused
+        self.query_one("#btn-settings").disabled = running
+        self.query_one("#btn-reset").disabled = running
+        self.query_one("#btn-plus-five").disabled = running
+        self.query_one("#btn-plus-one").disabled = running
+        self.query_one("#btn-minus-one").disabled = running
+        self.query_one("#btn-minus-five").disabled = running
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         try:
@@ -266,23 +284,31 @@ class PomodorableApp(App):
             countdown.set_start_time()
             self.add_class("running")
             time_ending.sync_time(countdown.seconds)
+            self.update_widgets_enabled()
+            self.query_one("#btn-pause").focus()
 
         elif btn == "btn-pause":
             self.say("Pause.")
             if not self.has_class("paused"):
                 countdown.pause()
                 self.add_class("paused")
+                self.update_widgets_enabled()
+                self.query_one("#input-reason").focus()
 
         elif btn == "btn-resume":
             self.say("Resume.")
             countdown.resume()
             self.remove_class("paused")
+            self.update_widgets_enabled()
+            self.query_one("#btn-pause").focus()
 
         elif btn == "btn-extend":
             self.say("Extend.")
             countdown.extend()
             time_ending.sync_time(countdown.seconds)
             self.remove_class("paused")
+            self.update_widgets_enabled()
+            self.query_one("#btn-pause").focus()
 
         elif btn == "btn-stop":
             self.say("Stop.")
@@ -294,6 +320,8 @@ class PomodorableApp(App):
             countdown.reset()
             time_ending.sync_time(countdown.seconds)
             self.show_queued_errors()
+            self.update_widgets_enabled()
+            self.query_one("#input-task").focus()
 
         elif btn == "btn-settings":
             if not self.has_class("running"):
@@ -306,6 +334,7 @@ class PomodorableApp(App):
             time_ending = self.query_one("#time-ending")
             self.remove_class("paused")
             self.remove_class("running")
+            self.update_widgets_enabled()
             countdown.reset()
             time_ending.sync_time(countdown.seconds)
 
@@ -321,6 +350,7 @@ class PomodorableApp(App):
             # dismissed?
 
             self.show_queued_errors()
+            self.query_one("#input-task").focus()
 
     # def action_ten_seconds(self) -> None:
     #     # For manual testing.
