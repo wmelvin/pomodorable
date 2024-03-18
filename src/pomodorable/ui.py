@@ -280,7 +280,8 @@ class PomodorableApp(App):
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-start":
-            self.say("Start.")
+            task = self.query_one("#input-task").value
+            self.say(f"Start '{task}'")
             countdown.set_start_time()
             self.add_class("running")
             time_ending.sync_time(countdown.seconds)
@@ -296,14 +297,16 @@ class PomodorableApp(App):
                 self.query_one("#input-reason").focus()
 
         elif btn == "btn-resume":
-            self.say("Resume.")
+            reason = self.query_one("#input-reason").value
+            self.say(f"Resume '{reason}'")
             countdown.resume()
             self.remove_class("paused")
             self.update_widgets_enabled()
             self.query_one("#btn-pause").focus()
 
         elif btn == "btn-extend":
-            self.say("Extend.")
+            reason = self.query_one("#input-reason").value
+            self.say(f"Extend '{reason}'")
             countdown.extend()
             time_ending.sync_time(countdown.seconds)
             self.remove_class("paused")
@@ -311,7 +314,8 @@ class PomodorableApp(App):
             self.query_one("#btn-pause").focus()
 
         elif btn == "btn-stop":
-            self.say("Stop.")
+            reason = self.query_one("#input-reason").value
+            self.say(f"STOP '{reason}'")
             self.app_data.write_stop(
                 datetime.now(), self.query_one("#input-reason").value
             )

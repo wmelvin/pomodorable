@@ -4,9 +4,9 @@ A **pomodoro timer** built using Textual.
 
 > Development work in progress.
 
-## Screenshot
+## Screenshots
 
-![screenshot of the running app](./readme_images/app-1.png)
+![screenshot animation](./readme_images/app-1.gif)
 
 ## Reference
 
