@@ -166,8 +166,8 @@ class PomodorableApp(App):
 
     BINDINGS = [
         ("ctrl+x", "exit_app", "Exit"),
-        ("t", "ten_seconds", "Ten"),
         ("d", "toggle_dark", "Toggle dark mode"),
+        # ("t", "ten_seconds", "Ten"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -322,10 +322,10 @@ class PomodorableApp(App):
 
             self.show_queued_errors()
 
-    def action_ten_seconds(self) -> None:
-        # For manual testing.
-        countdown = self.query_one(CountdownDisplay)
-        countdown.seconds = 10
+    # def action_ten_seconds(self) -> None:
+    #     # For manual testing.
+    #     countdown = self.query_one(CountdownDisplay)
+    #     countdown.seconds = 10
 
     def action_exit_app(self) -> None:
         self.exit()

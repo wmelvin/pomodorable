@@ -4,6 +4,10 @@ A **pomodoro timer** built using Textual.
 
 > Development work in progress.
 
+## Screenshot
+
+![screenshot of the running app](./readme_images/app-1.png)
+
 ## Reference
 
 - [Pomodoro Technique - Wikipedia](https://en.wikipedia.org/wiki/Pomodoro_Technique)
