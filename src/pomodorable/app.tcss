@@ -5,7 +5,7 @@ HeaderIcon {
 }
 
 Header {
-    background: darkgreen;
+    background: darkolivegreen;
 }
 
 Horizontal {
@@ -40,6 +40,10 @@ Button {
     border: solid gray;
 }
 
+.updn {
+    max-width: 6;
+}
+
 #btn-reset {
     margin: 0 3;
 }
@@ -55,7 +59,7 @@ Button {
 #btn-settings {
     color: darkseagreen;
     dock: right;
-    margin: 0 3;
+    margin: 0 1;
 }
 
 #btn-start {
@@ -87,7 +91,7 @@ Button {
     margin: 0 3;
 }
 
-#input-task {
+#input-task, #input-reason {
     border: solid gray;
     margin: 0;
     width: 1fr;
@@ -127,9 +131,11 @@ Button {
 
 SettingsScreen {
     ScrollableContainer {
+        /*
         Label {
             width: 1fr;
         }
+        */
         Input {
             width: 4fr;
         }
@@ -141,7 +147,7 @@ SettingsScreen {
         height: 1;
     }
     #btn-close {
-        background: darkgreen;
+        background: green;
         border: none;
         dock: left;
     }
@@ -163,7 +169,7 @@ SettingSwitch {
     #lbl-warn {
         color: yellow;
         display: none;
-        padding: 0;
+        padding: 0 3;
         text-align: center;
     }
 
@@ -191,7 +197,7 @@ SettingInput {
     #lbl-warn {
         color: yellow;
         display: none;
-        padding: 0;
+        padding: 0 3;
         text-align: center;
     }
 
@@ -227,11 +233,9 @@ TimerBar {
     }
 }
 
-/*
 #log {
     background: brown;
     scrollbar-background: darkred;
     scrollbar-color: red;
     scrollbar-corner-color: firebrick;
 }
-*/

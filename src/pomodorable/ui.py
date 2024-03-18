@@ -76,26 +76,16 @@ class CountdownDisplay(Static):
     def watch_seconds(self, seconds: datetime) -> None:
         self.update(sec_to_hms(seconds))
 
-    def seconds_up(self) -> None:
-        """Add 5 minutes to the countdown. Set to 5 minutes if the current value
-        is less than that.
-        """
-        if self.seconds < FIVE_MINUTES:
-            self.seconds = FIVE_MINUTES
+    def seconds_up(self, secs_up: int) -> None:
+        if self.seconds < secs_up:
+            self.seconds = secs_up
         else:
-            self.seconds += FIVE_MINUTES
+            self.seconds += secs_up
 
-    def seconds_down(self) -> None:
-        """Subtract 5 minutes from the countdown. If the current value
-        is 5 minutes or less, then use a 1 minute increment.
-        Do not go below 1 minute.
-        """
-        if self.seconds <= FIVE_MINUTES:
-            if self.seconds <= ONE_MINUTE:
-                return
-            self.seconds -= ONE_MINUTE
-        else:
-            self.seconds -= FIVE_MINUTES
+    def seconds_down(self, secs_down: int) -> None:
+        if self.seconds < (secs_down + ONE_MINUTE):
+            return
+        self.seconds -= secs_down
 
     def reset(self) -> None:
         self.seconds = self.app.app_data.config.session_seconds
@@ -193,8 +183,10 @@ class PomodorableApp(App):
         )
         yield Horizontal(
             Button("Reset", id="btn-reset"),
-            Button("+ 5 min", id="btn-plus-five"),
-            Button("- 5 min", id="btn-minus-five"),
+            Button("+5", id="btn-plus-five", classes="updn"),
+            Button("-5", id="btn-minus-five", classes="updn"),
+            Button("+1", id="btn-plus-one", classes="updn"),
+            Button("-1", id="btn-minus-one", classes="updn"),
             Button("Settings...", id="btn-settings"),
             id="frm-set",
         )
@@ -251,12 +243,22 @@ class PomodorableApp(App):
 
         elif btn == "btn-plus-five":
             self.say("Add 5 minutes.")
-            countdown.seconds_up()
+            countdown.seconds_up(FIVE_MINUTES)
+            time_ending.sync_time(countdown.seconds)
+
+        elif btn == "btn-plus-one":
+            self.say("Add 1 minute.")
+            countdown.seconds_up(ONE_MINUTE)
+            time_ending.sync_time(countdown.seconds)
+
+        elif btn == "btn-minus-one":
+            self.say("Subtract 1 minute.")
+            countdown.seconds_down(ONE_MINUTE)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-minus-five":
             self.say("Subtract 5 minutes.")
-            countdown.seconds_down()
+            countdown.seconds_down(FIVE_MINUTES)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-start":

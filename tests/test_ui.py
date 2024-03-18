@@ -1,4 +1,4 @@
-import pytest
+# import pytest
 
 from pomodorable.app_data import AppData
 from pomodorable.ui import PomodorableApp
@@ -53,6 +53,7 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         assert countdown.seconds == 60
 
 
-@pytest.mark.xfail(reason="Not ready to capture baseline snapshot")
-def test_snap_ui(snap_compare):
-    assert snap_compare("../src/pomodorable/ui.py")
+#  TODO: Add snapshot tests for the UI.
+# @pytest.mark.xfail(reason="Not ready to capture baseline snapshot")
+# def test_snap_ui(snap_compare):
+#     assert snap_compare("../src/pomodorable/ui.py")
