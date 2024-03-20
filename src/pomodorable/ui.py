@@ -14,11 +14,12 @@ from textual.widgets import (
     Header,
     Input,
     Label,
-    Log,
+    RichLog,
     Static,
 )
 
 from pomodorable.app_data import AppData, sec_to_hms
+from pomodorable.app_utils import q_text
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
 
@@ -167,7 +168,7 @@ class PomodorableApp(App):
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
         ("ctrl+q", "exit_app", "Quit"),
-        # ("t", "ten_seconds", "Ten"),
+        # ("ctrl+t", "manual_testing", "Testing")
     ]
 
     def compose(self) -> ComposeResult:
@@ -207,27 +208,30 @@ class PomodorableApp(App):
             id="frm-paused",
         )
         yield TimerBar()
-        yield Log(id="log")
+        yield RichLog(id="log", markup=True)
         yield Footer()
 
     def on_mount(self) -> None:
         self.title = APP_NAME
         self.sub_title = ""
-        log = self.query_one(Log)
-        log.write_line("Hello.")
+        log = self.query_one(RichLog)
+        # log.write_line("Hello.")
+        log.write("Hello.")
         time_disp = self.query_one("#time-ending")
         time_disp.sync_time(self.app_data.config.session_seconds)
         self.query_one("#input-task").focus()
 
-    def say(self, message: str) -> None:
-        log = self.query_one(Log)
-        log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
+    def say(self, message: str, console_text: str = "") -> None:
+        log = self.query_one(RichLog)
+        msg = message if console_text == "" else console_text
+        # log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
+        log.write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
         logging.info(message)
 
     def show_queued_errors(self) -> None:
         errs = self.app_data.retrieve_error_list()
         for err in errs:
-            self.say(err)
+            self.say(err, console_text=f"[bold italic]{err}")
 
     def update_widgets_enabled(self) -> None:
         paused = self.has_class("paused")
@@ -256,32 +260,32 @@ class PomodorableApp(App):
 
         btn = event.button.id
         if btn == "btn-reset":
-            self.say("Reset.")
+            self.say("Reset")
             countdown.reset()
 
         elif btn == "btn-plus-five":
-            self.say("Add 5 minutes.")
+            self.say("Add 5 minutes")
             countdown.seconds_up(FIVE_MINUTES)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-plus-one":
-            self.say("Add 1 minute.")
+            self.say("Add 1 minute")
             countdown.seconds_up(ONE_MINUTE)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-minus-one":
-            self.say("Subtract 1 minute.")
+            self.say("Subtract 1 minute")
             countdown.seconds_down(ONE_MINUTE)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-minus-five":
-            self.say("Subtract 5 minutes.")
+            self.say("Subtract 5 minutes")
             countdown.seconds_down(FIVE_MINUTES)
             time_ending.sync_time(countdown.seconds)
 
         elif btn == "btn-start":
             task = self.query_one("#input-task").value
-            self.say(f"Start '{task}'")
+            self.say(f"Start{q_text(task)}")
             countdown.set_start_time()
             self.add_class("running")
             time_ending.sync_time(countdown.seconds)
@@ -289,7 +293,7 @@ class PomodorableApp(App):
             self.query_one("#btn-pause").focus()
 
         elif btn == "btn-pause":
-            self.say("Pause.")
+            self.say("Pause...")
             if not self.has_class("paused"):
                 countdown.pause()
                 self.add_class("paused")
@@ -298,7 +302,7 @@ class PomodorableApp(App):
 
         elif btn == "btn-resume":
             reason = self.query_one("#input-reason").value
-            self.say(f"Resume '{reason}'")
+            self.say(f"Resume{q_text(reason)}")
             countdown.resume()
             self.remove_class("paused")
             self.update_widgets_enabled()
@@ -306,7 +310,7 @@ class PomodorableApp(App):
 
         elif btn == "btn-extend":
             reason = self.query_one("#input-reason").value
-            self.say(f"Extend '{reason}'")
+            self.say(f"Extend{q_text(reason)}")
             countdown.extend()
             time_ending.sync_time(countdown.seconds)
             self.remove_class("paused")
@@ -315,7 +319,10 @@ class PomodorableApp(App):
 
         elif btn == "btn-stop":
             reason = self.query_one("#input-reason").value
-            self.say(f"STOP '{reason}'")
+            self.say(
+                f"STOP{q_text(reason)}",
+                console_text=f"[bold on black]STOP '{reason}'"
+            )
             self.app_data.write_stop(
                 datetime.now(), self.query_one("#input-reason").value
             )
@@ -332,7 +339,7 @@ class PomodorableApp(App):
                 self.push_screen(SettingsScreen(app_config=self.app_data.config))
 
     def countdown_finished(self):
-        self.say("Finished.")
+        self.say("Finished", console_text="[bold]Finished")
         if self.has_class("running"):
             countdown = self.query_one(CountdownDisplay)
             time_ending = self.query_one("#time-ending")
@@ -356,10 +363,13 @@ class PomodorableApp(App):
             self.show_queued_errors()
             self.query_one("#input-task").focus()
 
-    # def action_ten_seconds(self) -> None:
-    #     # For manual testing.
-    #     countdown = self.query_one(CountdownDisplay)
-    #     countdown.seconds = 10
+    def action_manual_testing(self) -> None:
+        # Short countdown to observe Finish.
+        countdown = self.query_one(CountdownDisplay)
+        countdown.seconds = 7
+        # Fake error messages in app_data.
+        for i in range(3):
+            self.app_data.queue_error(f"Fake error {i + 1}")
 
     def action_exit_app(self) -> None:
         self.exit()

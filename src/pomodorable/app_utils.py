@@ -29,3 +29,13 @@ def get_date_from_str(date_str: str) -> datetime | None:
         except ValueError:
             pass
     return None
+
+
+def q_text(text: str) -> str:
+    """Return the text, preceded by a space and surrounded by single quotes,
+    or an empty string if the text is empty.
+    """
+    s = text.strip()
+    if s:
+        return f" '{s}'"
+    return ""

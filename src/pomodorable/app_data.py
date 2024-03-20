@@ -138,6 +138,9 @@ class AppData:
         """
         return f'"{dt.strftime("%Y-%m-%d")}","{dt.strftime("%H:%M:%S")}"'
 
+    def queue_error(self, error: str) -> None:
+        self._errors.append(error)
+
     def retrieve_error_list(self) -> list[str]:
         if self._errors:
             err_list = list(self._errors)
@@ -200,7 +203,7 @@ class AppData:
         path = Path(self.config.daily_csv_dir).expanduser().resolve()
         if not path.exists():
             logging.error("Directory does not exist: %s", path)
-            self._errors.append(f"Directory does not exist: {path}")
+            self.queue_error(f"Directory does not exist: {path}")
             return None
         return path
 
@@ -214,7 +217,7 @@ class AppData:
         path = Path(self.config.daily_md_dir).expanduser().resolve()
         if not path.exists():
             logging.error("Directory does not exist: %s", path)
-            self._errors.append(f"Directory does not exist: {path}")
+            self.queue_error(f"Directory does not exist: {path}")
             return None
         return path
 
@@ -308,7 +311,7 @@ class AppData:
             next_num += 1
             if next_num > max_num:
                 logging.error("Too many files for %s", date_str)
-                self._errors.append(f"Too many files for {date_str}")
+                self.queue_error(f"Too many files for {date_str}")
                 return
 
         write_to_daily_csv(csv_file, rows, start_num=1)
