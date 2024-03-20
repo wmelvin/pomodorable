@@ -178,6 +178,7 @@ class AppData:
         self._append_data_csv(
             AppDataRow(date_time=stop_time, action="Stop", message=reason)
         )
+        self.write_session_to_daily_files()
 
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
         self._append_data_csv(

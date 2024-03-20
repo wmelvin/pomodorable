@@ -62,17 +62,50 @@ def test_bad_date_arg(date_arg):
 def test_writes_daily_csv_file(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app_data.set_daily_csv_dir(str(tmp_path))
+
+    # Write first session with pauses and finish.
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
-    app_data.write_start(start_time, "Test session", 10)
-    app_data.write_finish(
-        finish_time=start_time + timedelta(seconds=10), start_time=start_time
+
+    app_data.write_start(start_time, "Test session 1", 10)
+
+    t = start_time + timedelta(seconds=5)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
     )
+
+    t = start_time + timedelta(seconds=12)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+    )
+
+    t = start_time + timedelta(seconds=15)
+    app_data.write_finish(
+        finish_time=t, start_time=start_time
+    )
+
+    # Write second session with stop.
+    start_time = datetime.fromisoformat("2024-01-02T09:00:00")
+
+    app_data.write_start(start_time, "Test session 2", 10)
+
+    t = start_time + timedelta(seconds=5)
+    app_data.write_stop(stop_time=t, reason="Test stop")
+
     csv_file = tmp_path / "2024-01-02.csv"
     assert csv_file.exists()
     with csv_file.open() as f:
         reader = DictReader(f)
         fields = reader.fieldnames
-        assert fields == ["date", "time", "num", "task", "message", "notes"]
+        assert fields == ["date", "act", "time", "task", "message", "notes"]
+    text = csv_file.read_text()
+    assert "Test session 1" in text
+    assert "Pause, extended" in text
+    assert "Pause, resume" in text
+    assert "Finish" in text
+    assert "Test session 2" in text
+    assert "Test stop" in text
+
+
 
 
 def test_writes_daily_markdown_file(tmp_path):
