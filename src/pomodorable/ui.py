@@ -320,8 +320,7 @@ class PomodorableApp(App):
         elif btn == "btn-stop":
             reason = self.query_one("#input-reason").value
             self.say(
-                f"STOP{q_text(reason)}",
-                console_text=f"[bold on black]STOP '{reason}'"
+                f"STOP{q_text(reason)}", console_text=f"[bold on black]STOP '{reason}'"
             )
             self.app_data.write_stop(
                 datetime.now(), self.query_one("#input-reason").value

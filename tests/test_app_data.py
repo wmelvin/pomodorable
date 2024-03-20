@@ -79,9 +79,7 @@ def test_writes_daily_csv_file(tmp_path):
     )
 
     t = start_time + timedelta(seconds=15)
-    app_data.write_finish(
-        finish_time=t, start_time=start_time
-    )
+    app_data.write_finish(finish_time=t, start_time=start_time)
 
     # Write second session with stop.
     start_time = datetime.fromisoformat("2024-01-02T09:00:00")
@@ -104,8 +102,6 @@ def test_writes_daily_csv_file(tmp_path):
     assert "Finish" in text
     assert "Test session 2" in text
     assert "Test stop" in text
-
-
 
 
 def test_writes_daily_markdown_file(tmp_path):

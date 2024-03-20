@@ -38,6 +38,7 @@ def run() -> None:
 
 CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
+
 @click.command(context_settings=CLICK_CONTEXT_SETTINGS)
 @click.version_option(get_app_version(), prog_name=DIST_NAME)
 @click.option(
