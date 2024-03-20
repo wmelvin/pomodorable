@@ -9,5 +9,5 @@ xplor/
 
 .env
 *.pyc
-
+.coverage*
 snapshot_report.html

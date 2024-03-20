@@ -165,8 +165,8 @@ class PomodorableApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
-        ("ctrl+x", "exit_app", "Exit"),
         ("d", "toggle_dark", "Toggle dark mode"),
+        ("ctrl+q", "exit_app", "Quit"),
         # ("t", "ten_seconds", "Ten"),
     ]
 

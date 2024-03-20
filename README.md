@@ -27,3 +27,9 @@ A **pomodoro timer** built using Textual.
 - [Ruff](https://docs.astral.sh/ruff/) - linter and code formatter (integrated with Hatch)
 - [pytest](https://docs.pytest.org/en/stable/) - testing framework
 - [Just](https://github.com/casey/just) - command runner
+
+#### Textual Development Tools
+
+- Textual [Devtools](https://textual.textualize.io/guide/devtools/)
+- [tcss-vscode-extension](https://github.com/Textualize/tcss-vscode-extension#readme): VS Code extension that enables syntax highlighting for Textual CSS files.
+- [pytest-textual-snapshot](https://github.com/Textualize/pytest-textual-snapshot#readme): Snapshot testing for Textual applications
