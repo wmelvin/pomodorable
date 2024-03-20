@@ -11,11 +11,14 @@ def write_to_daily_csv(
 
     #  Write the header row when the file is created.
     if not csv_file.exists():
-        csv_file.write_text("date,time,num,task,message,notes\n")
+        csv_file.write_text("date,act,time,task,message,notes\n")
 
     #  If start_num is greater than 0, then session_num will be
-    #  incremented at each "Start" row. Otherwise, the "num"
-    #  field will be empty.
+    #  incremented at each 'Start' row, and the session_num will
+    #  be in the 'act' column for the 'Start' action. Otherwise,
+    #  and for other actions, the 'act' column will contain a
+    #  single character code for the action.
+    #
     session_num = start_num
 
     #  Append data rows.
@@ -26,8 +29,8 @@ def write_to_daily_csv(
             if row["action"] == "Start":
                 out_row = [
                     row["date"],
+                    session_num or "S",
                     row["time"],
-                    session_num or "",
                     row["message"],
                     "",
                     "",
@@ -36,13 +39,15 @@ def write_to_daily_csv(
                     session_num += 1
             elif row["action"] == "Pause":
                 if row["notes"] == "extended":
+                    act = "E"
                     msg = "Pause (extended)"
                 else:
+                    act = "R"
                     msg = "Pause (resumed)"
                 out_row = [
                     row["date"],
+                    act,
                     row["time"],
-                    "",
                     "",
                     msg,
                     row["message"],
@@ -50,8 +55,8 @@ def write_to_daily_csv(
             elif row["action"] == "Stop":
                 out_row = [
                     row["date"],
+                    "X",
                     row["time"],
-                    "",
                     "",
                     "Stop",
                     row["message"],
@@ -59,8 +64,8 @@ def write_to_daily_csv(
             elif row["action"] == "Finish":
                 out_row = [
                     row["date"],
+                    "F",
                     row["time"],
-                    "",
                     "",
                     "Finish",
                     row["notes"],
