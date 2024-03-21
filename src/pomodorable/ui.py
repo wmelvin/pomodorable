@@ -46,7 +46,7 @@ class CountdownDisplay(Static):
         secs = self.app.app_data.config.session_seconds
         self.seconds = secs
         self.start_seconds = secs
-        self.set_interval(UPDATE_INTERVAL, self.update_countdown)
+        self.update_timer = self.set_interval(UPDATE_INTERVAL, self.update_countdown)
 
     def update_countdown(self) -> None:
         if self.app.has_class("paused"):
@@ -335,7 +335,15 @@ class PomodorableApp(App):
 
         elif btn == "btn-settings":
             if not self.has_class("running"):
-                self.push_screen(SettingsScreen(app_config=self.app_data.config))
+                countdown.update_timer.pause()
+                self.push_screen(
+                    SettingsScreen(app_config=self.app_data.config),
+                    self.settings_closed,
+                )
+
+    def settings_closed(self, msg: str) -> None:
+        self.say(msg)
+        self.query_one(CountdownDisplay).update_timer.resume()
 
     def countdown_finished(self):
         self.say("Finished", console_text="[bold]Finished")

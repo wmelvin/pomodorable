@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 
 from textual import on
-from textual.app import ComposeResult
+from textual.app import ComposeResult  # noqa: TCH002
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
 from textual.validation import Function, Integer
@@ -53,9 +55,13 @@ class SettingSwitch(Static):
         if validators:
             switch.validators = validators
 
-    def has_valid_changes(self) -> bool:
+    def get_status(self) -> tuple[bool, bool, bool]:
+        """Return a tuple of (changed, is_valid, value).
+        The Switch widget does not have validation, so is_valid is always True.
+        """
         switch = self.query_one(Switch)
-        return switch.value != self.initial_value
+        changed = switch.value != self.initial_value
+        return (changed, True, switch.value)
 
 
 class SettingInput(Static):
@@ -112,12 +118,14 @@ class SettingInput(Static):
         if validators:
             inp.validators = validators
 
-    def has_valid_changes(self) -> bool:
+    def get_status(self) -> tuple[bool, bool, str]:
+        """Return a tuple of (changed, is_valid, value)."""
         inp = self.query_one(Input)
-        return inp.is_valid and inp.value != self.initial_value
+        changed = inp.value != self.initial_value
+        return (changed, inp.is_valid, inp.value)
 
 
-class SettingsScreen(Screen):
+class SettingsScreen(Screen[str]):
     def __init__(self, app_config: AppConfig) -> None:
         self.app_config = app_config
         super().__init__()
@@ -192,53 +200,79 @@ class SettingsScreen(Screen):
             ],
         )
 
-    def save_changes(self) -> None:
+    def save_changes(self) -> tuple[bool, bool]:
+        """Return a tuple of (has_changes, has_errors).
+
+        has_changes is True if any settings were changed.
+
+        If has_changes is False, then no data was written to file.
+
+        has_errors is True if any settings have validation errors.
+
+        Changed settings without validation errors are saved even
+        if other settings have errors.
+        """
         has_changes = False
+        has_errors = False
 
-        set_minutes = self.query_one("#set-minutes")
-        if set_minutes.has_valid_changes():
-            inp_minutes = set_minutes.query_one(Input)
-            self.app_config.session_minutes = int(inp_minutes.value)
+        changed, is_valid, value = self.query_one("#set-minutes").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.session_minutes = int(value)
             has_changes = True
 
-        set_csv_dir = self.query_one("#set-csv-dir")
-        if set_csv_dir.has_valid_changes():
-            inp_csv_dir = set_csv_dir.query_one(Input)
-            self.app_config.daily_csv_dir = inp_csv_dir.value
+        changed, is_valid, value = self.query_one("#set-csv-dir").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.daily_csv_dir = value
             has_changes = True
 
-        set_md_dir = self.query_one("#set-md-dir")
-        if set_md_dir.has_valid_changes():
-            inp_md_dir = set_md_dir.query_one(Input)
-            self.app_config.daily_md_dir = inp_md_dir.value
+        changed, is_valid, value = self.query_one("#set-md-dir").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.daily_md_dir = value
             has_changes = True
 
-        set_md_heading = self.query_one("#set-md-heading")
-        if set_md_heading.has_valid_changes():
-            inp_md_heading = set_md_heading.query_one(Input)
-            self.app_config.daily_md_heading = inp_md_heading.value
+        changed, is_valid, value = self.query_one("#set-md-heading").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.daily_md_heading = value
             has_changes = True
 
-        set_md_append = self.query_one("#set-md-append")
-        if set_md_append.has_valid_changes():
-            switch_md_append = set_md_append.query_one(Switch)
-            self.app_config.daily_md_append = switch_md_append.value
+        changed, is_valid, value = self.query_one("#set-md-append").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.daily_md_append = value
             has_changes = True
 
-        set_log_ret = self.query_one("#set-log-ret")
-        if set_log_ret.has_valid_changes():
-            inp_log_ret = set_log_ret.query_one(Input)
-            self.app_config.log_retention_days = int(inp_log_ret.value)
+        changed, is_valid, value = self.query_one("#set-log-ret").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.log_retention_days = int(value)
             has_changes = True
 
         if has_changes:
             self.app_config.save()
 
+        return (has_changes, has_errors)
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button.id
         if btn == "btn-close":
-            self.save_changes()
-            self.app.pop_screen()
+            has_changes, has_errors = self.save_changes()
+            if has_changes:
+                msg = "Saved changes."
+                if has_errors:
+                    msg += " Settings with validation errors not saved."
+            else:
+                msg = "No settings changed."
+            self.dismiss(msg)
 
 
 def is_valid_dir_or_empty(path: str) -> bool:
