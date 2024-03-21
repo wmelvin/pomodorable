@@ -1,4 +1,4 @@
-# import pytest
+import pytest
 
 from pomodorable.app_data import AppData
 from pomodorable.ui import PomodorableApp
@@ -54,7 +54,29 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         assert countdown.seconds == 60
 
 
-#  TODO: Add snapshot tests for the UI.
-# @pytest.mark.xfail(reason="Not ready to capture baseline snapshot")
-# def test_snap_ui(snap_compare):
-#     assert snap_compare("../src/pomodorable/ui.py")
+async def test_open_settings_screen(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app = PomodorableApp(init_app_data=app_data)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.click("#btn-settings")
+        await pilot.pause()
+        settings_input = pilot.app.query_one("#set-log-ret")
+        assert settings_input
+
+
+# @pytest.mark.xfail(reason="Not ready to capture reference snapshot")
+@pytest.mark.skip(reason="Not ready to capture reference snapshot")
+def test_snap_settings_screen(snap_compare):
+    async def focus_settings_screen(pilot):
+        await pilot.pause()
+        await pilot.click("#btn-settings")
+        await pilot.pause()
+
+    assert snap_compare("../src/pomodorable/ui.py", run_before=focus_settings_screen)
+
+
+# @pytest.mark.xfail(reason="Not ready to capture reference snapshot")
+@pytest.mark.skip(reason="Not ready to capture reference snapshot")
+def test_snap_ui(snap_compare):
+    assert snap_compare("../src/pomodorable/ui.py")
