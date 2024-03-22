@@ -57,8 +57,10 @@ class CountdownDisplay(Static):
             self.seconds = (
                 self.start_seconds - (datetime.now() - self.start_time).seconds
             )
-
         self.seconds += self.seconds_added
+
+    def watch_seconds(self, seconds: datetime) -> None:
+        self.update(sec_to_hms(seconds))
 
         # Update the TimerBar when the minute changes.
         minute = int(self.seconds / 60)
@@ -66,6 +68,7 @@ class CountdownDisplay(Static):
             self.app.query_one(TimerBar).update_bar(minute)
             self.last_minute = minute
 
+        # Finish the session when running and no seconds remain.
         if (
             self.seconds <= 0
             and self.app.has_class("running")
@@ -74,9 +77,6 @@ class CountdownDisplay(Static):
             self.update_timer.pause()
             self.app.countdown_finished()
             self.update_timer.resume()
-
-    def watch_seconds(self, seconds: datetime) -> None:
-        self.update(sec_to_hms(seconds))
 
     def seconds_up(self, secs_up: int) -> None:
         if self.seconds < secs_up:
@@ -90,10 +90,12 @@ class CountdownDisplay(Static):
         self.seconds -= secs_down
 
     def reset(self) -> None:
+        self.update_timer.pause()
         self.seconds = self.app.app_data.config.session_seconds
         self.start_time = None
         self.pause_time = None
         self.seconds_added = 0
+        self.update_timer.resume()
 
     def set_start_time(self) -> None:
         self.start_time = datetime.now()
@@ -169,7 +171,7 @@ class PomodorableApp(App):
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
         ("ctrl+q", "exit_app", "Quit"),
-        # ("ctrl+t", "manual_testing", "Testing")
+        # ("ctrl+t", "manual_testing", "Testing"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -381,9 +383,9 @@ class PomodorableApp(App):
         # Short countdown to observe Finish.
         countdown = self.query_one(CountdownDisplay)
         countdown.seconds = 7
-        # Fake error messages in app_data.
-        for i in range(3):
-            self.app_data.queue_error(f"Fake error {i + 1}")
+        # # Fake error messages in app_data.
+        # for i in range(3):
+        #     self.app_data.queue_error(f"Fake error {i + 1}")
 
     def action_exit_app(self) -> None:
         self.exit()
