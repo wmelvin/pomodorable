@@ -29,7 +29,7 @@ ONE_MINUTE = 60
 FIVE_MINUTES = 5 * ONE_MINUTE
 DEFAULT_SESSION_SECONDS = 25 * ONE_MINUTE
 
-UPDATE_INTERVAL = 1 / 4  # Update four times per second.
+UPDATE_INTERVAL = 1 / 3  # Update three times per second.
 
 
 class CountdownDisplay(Static):
@@ -71,8 +71,9 @@ class CountdownDisplay(Static):
             and self.app.has_class("running")
             and not self.app.has_class("paused")
         ):
-            self.app.app_data.write_finish(datetime.now(), self.start_time)
+            self.update_timer.pause()
             self.app.countdown_finished()
+            self.update_timer.resume()
 
     def watch_seconds(self, seconds: datetime) -> None:
         self.update(sec_to_hms(seconds))
@@ -349,6 +350,7 @@ class PomodorableApp(App):
         self.say("Finished", console_text="[bold]Finished")
         if self.has_class("running"):
             countdown = self.query_one(CountdownDisplay)
+            self.app_data.write_finish(datetime.now(), countdown.start_time)
             time_ending = self.query_one("#time-ending")
             self.remove_class("paused")
             self.remove_class("running")
@@ -356,16 +358,21 @@ class PomodorableApp(App):
             countdown.reset()
             time_ending.sync_time(countdown.seconds)
 
-            #  Show plyer.notification.
-            notification.notify(
-                title=APP_NAME,
-                message=f"{APP_NAME}:  Session finished.",
-                app_name=APP_NAME,
-                timeout=12,
-            )
             # TODO: Configure notification - enable/disable, timeout, etc.
             # If there is no timeout will notification stay on screen until
             # dismissed?
+
+            #  Show plyer.notification.
+            try:
+                notification.notify(
+                    title=APP_NAME,
+                    message=f"{APP_NAME}:  Session finished.",
+                    app_name=APP_NAME,
+                    timeout=15,
+                )
+            except Exception as e:
+                logging.exception("Exception in notification")
+                self.say(f"Notification error: {e}")
 
             self.show_queued_errors()
             self.query_one("#input-task").focus()
