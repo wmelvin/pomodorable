@@ -14,6 +14,7 @@ from platformdirs import user_config_path, user_data_path
 
 from pomodorable.app_config import AppConfig
 from pomodorable.app_utils import get_date_from_str, sec_to_hms
+from pomodorable.mru_list import MRUList
 from pomodorable.output_csv import write_to_daily_csv
 from pomodorable.output_md import write_to_daily_md
 
@@ -85,6 +86,9 @@ class AppData:
             self.config.load()
 
         self._update_logging()
+
+        self.mru_list = MRUList(self.data_path)
+        self.mru_list.load()
 
     def _init_logging(self) -> None:
         """Add a file handler to the root logger. Do this before loading
