@@ -163,6 +163,8 @@ class AppData:
                 duration=sec_to_hms(session_seconds),
             )
         )
+        self.mru_list.add_task(task)
+        self.mru_list.save()
 
     def write_pause(
         self,
@@ -180,12 +182,15 @@ class AppData:
                 notes="extended" if session_extended else "",
             )
         )
+        self.mru_list.add_reason(reason)
+        self.mru_list.save()
 
     def write_stop(self, stop_time: datetime, reason: str) -> None:
         self._append_data_csv(
             AppDataRow(date_time=stop_time, action="Stop", message=reason)
         )
         self.write_session_to_daily_files()
+        # Stop should be infrequent, so do not add reason to the MRU list.
 
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
         self._append_data_csv(

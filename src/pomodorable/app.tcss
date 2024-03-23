@@ -226,3 +226,22 @@ TimerBar {
     scrollbar-color: red;
     scrollbar-corner-color: firebrick;
 }
+
+MRUScreen {
+
+    align: center middle;
+
+    Select {
+        margin: 0 1;
+        max-width: 58;
+    }
+
+    #btn-back {
+        margin: 0 1;
+    }
+
+    #dialog {
+        height: 16;
+        width: 60;
+    }
+}

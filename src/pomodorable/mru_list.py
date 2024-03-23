@@ -37,6 +37,8 @@ class MRUList:
                 writer.writerow(["reason", item])
 
     def add_task(self, task: str) -> None:
+        if not task:
+            return
         if task in self._mru_task:
             self._mru_task.remove(task)
         self._mru_task.insert(0, task)
@@ -44,6 +46,8 @@ class MRUList:
             self._mru_task = self._mru_task[:MRU_LIST_MAX]
 
     def add_reason(self, reason: str) -> None:
+        if not reason:
+            return
         if reason in self._mru_reason:
             self._mru_reason.remove(reason)
         self._mru_reason.insert(0, reason)

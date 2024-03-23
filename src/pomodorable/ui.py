@@ -20,6 +20,7 @@ from textual.widgets import (
 
 from pomodorable.app_data import AppData, sec_to_hms
 from pomodorable.app_utils import q_text
+from pomodorable.mru_screen import MRUScreen
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
 
@@ -169,7 +170,8 @@ class PomodorableApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
-        ("d", "toggle_dark", "Toggle dark mode"),
+        # ("d", "toggle_dark", "Toggle dark mode"),
+        ("down", "select_input", "Recent inputs"),
         ("ctrl+q", "exit_app", "Quit"),
         # ("ctrl+t", "manual_testing", "Testing"),
     ]
@@ -322,9 +324,7 @@ class PomodorableApp(App):
 
         elif btn == "btn-stop":
             reason = self.query_one("#input-reason").value
-            self.say(
-                f"STOP{q_text(reason)}", console_text=f"[bold on black]STOP '{reason}'"
-            )
+            self.say(f"STOP '{reason}'", console_text=f"[bold]STOP{q_text(reason)}")
             self.app_data.write_stop(
                 datetime.now(), self.query_one("#input-reason").value
             )
@@ -386,6 +386,30 @@ class PomodorableApp(App):
         # # Fake error messages in app_data.
         # for i in range(3):
         #     self.app_data.queue_error(f"Fake error {i + 1}")
+
+    def action_select_input(self) -> None:
+        mru = None
+        if self.has_class("paused"):
+            mru = self.app_data.mru_list.get_reasons()
+        elif not self.has_class("running"):
+            mru = self.app_data.mru_list.get_tasks()
+        if mru:
+            countdown = self.query_one(CountdownDisplay)
+            countdown.update_timer.pause()
+            self.push_screen(
+                MRUScreen(mru),
+                self.mru_closed,
+            )
+
+    def mru_closed(self, text: str) -> None:
+        if text:
+            if self.has_class("paused"):
+                inp: Input = self.query_one("#input-reason")
+            else:
+                inp: Input = self.query_one("#input-task")
+            inp.clear()
+            inp.insert_text_at_cursor(text)
+        self.query_one(CountdownDisplay).update_timer.resume()
 
     def action_exit_app(self) -> None:
         self.exit()
