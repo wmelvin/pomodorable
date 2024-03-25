@@ -236,7 +236,7 @@ def test_purge_log_files(tmp_path):
     # Run the private method to purge older log files.
     app_data._purge_log_files()  # noqa: SLF001
 
-    # Check that all but 5 most recent were purged when app_data was initialized.
+    # Check that all but 5 most recent were purged.
     log_files = sorted(tmp_path.glob("*.log"))
     assert len(log_files) == 5
     assert log_files[0].name == "pomodorable-20240105.log"
