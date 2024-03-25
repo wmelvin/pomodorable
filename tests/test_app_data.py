@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from pomodorable.app_config import AppConfig
 from pomodorable.app_data import AppData
 from pomodorable.app_utils import get_date_from_str
 from pomodorable.output_md import write_to_daily_md
@@ -214,3 +215,30 @@ def test_append_to_daily_md_created_after_session(app_data_with_six_test_session
     assert "Test session 1" in s
     assert "Test session 2" in s
     assert "Test session 3" in s
+
+
+def test_purge_log_files(tmp_path):
+    config_file = tmp_path / "pomodorable-config.toml"
+    app_config = AppConfig(config_file)
+    app_data = AppData(init_app_config=app_config, init_data_path=tmp_path)
+
+    # Make 8 fake log files.
+    for i in range(8):
+        p = tmp_path / f"pomodorable-2024010{i+1}.log"
+        p.write_text("")
+
+    # Should create a new log file.
+    assert app_data.log_file.exists()
+
+    # Default retention days is 30. Change it to 5.
+    app_data.config.log_retention_days = 5
+
+    # Run the private method to purge older log files.
+    app_data._purge_log_files()  # noqa: SLF001
+
+    # Check that all but 5 most recent were purged when app_data was initialized.
+    log_files = sorted(tmp_path.glob("*.log"))
+    assert len(log_files) == 5
+    assert log_files[0].name == "pomodorable-20240105.log"
+    assert log_files[-2].name == "pomodorable-20240108.log"
+    assert log_files[-1].name == app_data.log_file.name

@@ -6,13 +6,12 @@ import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 import dotenv
 from platformdirs import user_config_path, user_data_path
 
-from pomodorable.app_config import AppConfig
+from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 from pomodorable.app_utils import get_date_from_str, sec_to_hms
 from pomodorable.mru_list import MRUList
 from pomodorable.output_csv import write_to_daily_csv
@@ -21,7 +20,6 @@ from pomodorable.output_md import write_to_daily_md
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
 APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
-APP_LOG_FILE = f"{APP_NAME}.log"
 APP_DATA_VERSION = "1"
 
 
@@ -76,7 +74,8 @@ class AppData:
 
         self._log_handler = None
         self._log_formatter = None
-        self.log_file = self.data_path / APP_LOG_FILE
+        log_name = f"{APP_NAME}-{datetime.now().strftime('%Y%m%d')}.log"
+        self.log_file = self.data_path / log_name
         self._init_logging()
 
         if init_app_config:
@@ -85,7 +84,7 @@ class AppData:
             self.config = AppConfig(self.config_file)
             self.config.load()
 
-        self._update_logging()
+        self._purge_log_files()
 
         self.mru_list = MRUList(self.data_path)
         self.mru_list.load()
@@ -103,24 +102,18 @@ class AppData:
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
 
-    def _update_logging(self) -> None:
-        """Update logging after configuration is loaded. Replace the FileHandler
-        with a TimedRotatingFileHandler that rotates based on the configured
-        log retention days.
-        """
-        if not self.log_file:
+    def _purge_log_files(self) -> None:
+        """Purge log files older than the configured retention period."""
+
+        if self.config.log_retention_days < LOG_RETENTION_MIN:
+            logging.error("Log retention days is less than the minimum.")
             return
-        logger = logging.getLogger()
-        if self._log_handler:
-            logger.removeHandler(self._log_handler)
-        self._log_handler = TimedRotatingFileHandler(
-            self.log_file,
-            interval=1,
-            when="D",
-            backupCount=self.config.log_retention_days,
-        )
-        self._log_handler.setFormatter(self._log_formatter)
-        logger.addHandler(self._log_handler)
+
+        # Purge based on distinct dates in filenames (not by date range).
+        log_files = sorted(self.log_file.parent.glob(f"{APP_NAME}-*.log"))
+        if len(log_files) > self.config.log_retention_days:
+            for file in log_files[: -self.config.log_retention_days]:
+                file.unlink()
 
     def _append_data_csv(self, data_row: AppDataRow) -> None:
         """Append a line to the CSV file."""
