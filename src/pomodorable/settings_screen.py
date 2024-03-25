@@ -8,7 +8,7 @@ from textual.app import ComposeResult  # noqa: TCH002
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
 from textual.validation import Function, Integer
-from textual.widgets import Button, Footer, Header, Input, Label, Static, Switch
+from textual.widgets import Button, Header, Input, Label, Static, Switch
 
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 
@@ -132,11 +132,6 @@ class SettingsScreen(Screen[str]):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Footer()
-        yield Horizontal(
-            Button("Close", id="btn-close"),
-            id="frm-buttons",
-        )
         yield ScrollableContainer(
             SettingInput(id="set-minutes"),
             SettingInput(id="set-csv-dir"),
@@ -145,8 +140,13 @@ class SettingsScreen(Screen[str]):
             SettingSwitch(id="set-md-append"),
             SettingInput(id="set-log-ret"),
         )
+        yield Horizontal(
+            Button("Close", id="btn-close"),
+            id="frm-buttons",
+        )
 
     def on_mount(self) -> None:
+        self.title = "Settings"
         set_minutes = self.query_one("#set-minutes")
         set_minutes.initialize(
             "Session Minutes",
