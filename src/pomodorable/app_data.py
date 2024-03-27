@@ -295,8 +295,8 @@ class AppData:
             md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
         )
 
-    def export_daily_csv(self, export_date: datetime) -> None:
-        path = self.get_daily_csv_path()
+    def export_daily_csv(self, export_date: datetime, export_path: Path | None) -> None:
+        path = export_path if export_path else self.get_daily_csv_path()
         if not path:
             return
 
@@ -306,6 +306,8 @@ class AppData:
 
         date_str = rows[0]["date"]
         csv_file = path / f"{date_str}.csv"
+
+        # Do not overwrite existing files.
         max_num = 99
         next_num = 1
         while csv_file.exists():
@@ -317,3 +319,32 @@ class AppData:
                 return
 
         write_to_daily_csv(csv_file, rows, start_num=1)
+
+    def export_daily_markdown(
+        self, export_date: datetime, export_path: Path | None
+    ) -> None:
+        path = export_path if export_path else self.get_daily_md_path()
+        if not path:
+            return
+
+        rows = self.get_session_rows_for_date(export_date)
+        if not rows:
+            return
+
+        date_str = rows[0]["date"]
+        md_file = path / f"{date_str}.md"
+
+        # Do not overwrite existing files.
+        max_num = 99
+        next_num = 1
+        while md_file.exists():
+            md_file = path / f"{date_str}_{next_num}.md"
+            next_num += 1
+            if next_num > max_num:
+                logging.error("Too many files for %s", date_str)
+                self.queue_error(f"Too many files for {date_str}")
+                return
+
+        heading = self.config.daily_md_heading or "# Pomodori"
+
+        write_to_daily_md(md_file, heading, append_only=False, data_rows=rows)
