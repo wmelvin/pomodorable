@@ -388,6 +388,9 @@ class PomodorableApp(App):
         #     self.app_data.queue_error(f"Fake error {i + 1}")
 
     def action_select_input(self) -> None:
+        """Open the MRUScreen for the focused input field."""
+        if self.focused.id not in ["input-task", "input-reason"]:
+            return
         mru = None
         if self.has_class("paused"):
             mru = self.app_data.mru_list.get_reasons()
