@@ -9,7 +9,7 @@ from pomodorable.app_utils import get_date_from_str
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
-MOD_VERSION = "cli-240312.1"
+MOD_VERSION = "cli-240328.1"
 
 
 def get_app_version() -> str:
@@ -54,10 +54,10 @@ def handled_option(csv_date, md_date, export_path) -> bool:
     app_data = AppData()
 
     if csv_date is not None:
-        app_data.export_daily_csv(csv_date, export_path)
+        app_data.cli_export_daily_csv(csv_date, export_path)
 
     if md_date is not None:
-        app_data.export_daily_markdown(md_date, export_path)
+        app_data.cli_export_daily_markdown(md_date, export_path)
 
     return True
 

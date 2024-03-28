@@ -295,13 +295,20 @@ class AppData:
             md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
         )
 
-    def export_daily_csv(self, export_date: datetime, export_path: Path | None) -> None:
+    def cli_export_daily_csv(
+        self, export_date: datetime, export_path: Path | None
+    ) -> None:
+        """Export a daily CSV file for a given date. If export_path is not
+        provided, use the configured 'Daily CSV Folder'. If the folder is not
+        configured, return without exporting."""
+
         path = export_path if export_path else self.get_daily_csv_path()
         if not path:
             return
 
         rows = self.get_session_rows_for_date(export_date)
         if not rows:
+            print("\nNo data found for given date.\n")  # noqa: T201
             return
 
         date_str = rows[0]["date"]
@@ -318,17 +325,24 @@ class AppData:
                 self.queue_error(f"Too many files for {date_str}")
                 return
 
+        print(f"\nExporting to {csv_file}\n")  # noqa: T201
+
         write_to_daily_csv(csv_file, rows, start_num=1)
 
-    def export_daily_markdown(
+    def cli_export_daily_markdown(
         self, export_date: datetime, export_path: Path | None
     ) -> None:
+        """Export a daily markdown file for a given date. If export_path is not
+        provided, use the configured 'Daily Markdown Folder'. If the folder is
+        not configured, return without exporting."""
+
         path = export_path if export_path else self.get_daily_md_path()
         if not path:
             return
 
         rows = self.get_session_rows_for_date(export_date)
         if not rows:
+            print("\nNo data found for given date.\n")  # noqa: T201
             return
 
         date_str = rows[0]["date"]
@@ -346,5 +360,7 @@ class AppData:
                 return
 
         heading = self.config.daily_md_heading or "# Pomodori"
+
+        print(f"\nExporting to {md_file}\n")  # noqa: T201
 
         write_to_daily_md(md_file, heading, append_only=False, data_rows=rows)
