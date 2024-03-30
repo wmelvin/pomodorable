@@ -165,7 +165,7 @@ class PomodorableApp(App):
         super().__init__()
 
     ENABLE_COMMAND_PALETTE = False
-    # TODO: Explore this https://textual.textualize.io/guide/command_palette/
+    # See: https://textual.textualize.io/guide/command_palette/
 
     CSS_PATH = "app.tcss"
 

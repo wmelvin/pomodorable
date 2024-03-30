@@ -1,7 +1,9 @@
 
-/* Do not show the icon character in the header. */
+/* Make the header icon character invisible. Clicking it opens
+   the Command Palette, which is disabled in this app.
+*/
 HeaderIcon {
-    display: none;
+    text-opacity: 0;
 }
 
 Header {
