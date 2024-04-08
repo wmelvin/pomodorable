@@ -54,6 +54,17 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         assert countdown.seconds == 60
 
 
+async def test_open_about_screen(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app = PomodorableApp(init_app_data=app_data)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.click("#btn-about")
+        await pilot.pause()
+        close_btn = pilot.app.query_one("#about-close")
+        assert close_btn
+
+
 async def test_open_settings_screen(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app = PomodorableApp(init_app_data=app_data)

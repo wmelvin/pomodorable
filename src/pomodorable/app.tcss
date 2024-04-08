@@ -50,10 +50,16 @@ Button {
     margin: 0 3;
 }
 
+#btn-about {
+    color: darkcyan;
+    max-width: 5;
+    margin-left: 3;
+}
+
 #btn-settings {
     color: darkseagreen;
-    dock: right;
-    margin: 0 1;
+    /* dock: right; */
+    margin: 0 3;
 }
 
 #btn-start {
@@ -218,4 +224,42 @@ MRUScreen {
         height: 16;
         width: 60;
     }
+}
+
+AboutScreen {
+    align: center middle;
+}
+
+#about-dialog {
+    height: 19;
+    width: 70;
+}
+
+#about-about {
+    background: green;
+    color: white;
+    text-align: center;
+    text-style: bold;
+}
+
+#about-title {
+    color: #FFFF00;
+    margin: 1;
+    text-align: center;
+    text-style: bold;
+}
+
+#about-version {
+    color: cyan;
+    margin: 1;
+    text-align: center;
+}
+
+#about-buttons {
+    align: center middle;
+}
+
+.about-info {
+    color: silver;
+    margin: 1;
 }

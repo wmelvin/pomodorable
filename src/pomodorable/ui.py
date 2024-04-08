@@ -18,6 +18,7 @@ from textual.widgets import (
     Static,
 )
 
+from pomodorable.about_screen import AboutScreen
 from pomodorable.app_data import AppData, sec_to_hms
 from pomodorable.app_utils import q_text
 from pomodorable.mru_screen import MRUScreen
@@ -193,6 +194,7 @@ class PomodorableApp(App):
             Button("+1", id="btn-plus-one", classes="updn"),
             Button("-1", id="btn-minus-one", classes="updn"),
             Button("-5", id="btn-minus-five", classes="updn"),
+            Button("?", id="btn-about"),
             Button("Settings...", id="btn-settings"),
             id="frm-set",
         )
@@ -220,7 +222,6 @@ class PomodorableApp(App):
         self.title = APP_NAME
         self.sub_title = ""
         log = self.query_one(RichLog)
-        # log.write_line("Hello.")
         log.write("Hello.")
         time_disp = self.query_one("#time-ending")
         time_disp.sync_time(self.app_data.config.session_seconds)
@@ -229,7 +230,6 @@ class PomodorableApp(App):
     def say(self, message: str, console_text: str = "") -> None:
         log = self.query_one(RichLog)
         msg = message if console_text == "" else console_text
-        # log.write_line(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
         log.write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
         logging.info(message)
 
@@ -249,6 +249,7 @@ class PomodorableApp(App):
         self.query_one("#input-task").disabled = running
         self.query_one("#input-reason").disabled = not paused
         self.query_one("#btn-settings").disabled = running
+        self.query_one("#btn-about").disabled = running
         self.query_one("#btn-reset").disabled = running
         self.query_one("#btn-plus-five").disabled = running
         self.query_one("#btn-plus-one").disabled = running
@@ -336,6 +337,14 @@ class PomodorableApp(App):
             self.update_widgets_enabled()
             self.query_one("#input-task").focus()
 
+        elif btn == "btn-about":
+            if not self.has_class("running"):
+                countdown.update_timer.pause()
+                self.push_screen(
+                    AboutScreen(),
+                    self.about_closed,
+                )
+
         elif btn == "btn-settings":
             if not self.has_class("running"):
                 countdown.update_timer.pause()
@@ -343,6 +352,11 @@ class PomodorableApp(App):
                     SettingsScreen(app_config=self.app_data.config),
                     self.settings_closed,
                 )
+
+    def about_closed(self, msg: str) -> None:
+        # The about dialog returns the app version.
+        self.say(msg)
+        self.query_one(CountdownDisplay).update_timer.resume()
 
     def settings_closed(self, msg: str) -> None:
         self.say(msg)
