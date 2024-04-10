@@ -15,25 +15,24 @@ class AboutScreen(ModalScreen[str]):
     ]
 
     def compose(self) -> ComposeResult:
-        yield Vertical(
-            Static("About", id="about-about"),
-            Static(self.app.title, id="about-title"),
-            Static(f"version {__version__}", id="about-version"),
-            Horizontal(Button("GitHub", id="about-source"), classes="about-buttons"),
-            VerticalScroll(
-                Static(
+        with Vertical(id="about-dialog"):
+            yield Static("About", id="about-about")
+            yield Static(self.app.title, id="about-title")
+            yield Static(f"version {__version__}", id="about-version")
+            with Horizontal(classes="about-buttons"):
+                yield Button("GitHub", id="about-source")
+            with VerticalScroll(id="about-scroll"):
+                yield Static(
                     f"[b]Data path:[/b] {self.app.app_data.data_path}",
                     classes="about-info",
-                ),
-                Static(
+                )
+                yield Static(
                     f"[b]Configuration:[/b] {self.app.app_data.config_file}",
                     classes="about-info",
-                ),
-                id="about-scroll",
-            ),
-            Horizontal(Button("Close", id="about-close"), classes="about-buttons"),
-            id="about-dialog",
-        )
+                )
+            with Horizontal(classes="about-buttons"):
+                yield Button("Close", id="about-close")
+
 
     def on_mount(self) -> None:
         self.query_one("#about-close").focus()
