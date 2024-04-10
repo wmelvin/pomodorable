@@ -19,7 +19,7 @@ from pomodorable.output_md import write_to_daily_md
 
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
-APP_OUTPUT_CSV = f"{APP_NAME}-data.csv"
+APP_DATA_CSV = f"{APP_NAME}-data.csv"
 APP_DATA_VERSION = "1"
 
 
@@ -70,7 +70,7 @@ class AppData:
                 APP_NAME, appauthor=False, ensure_exists=True
             )
 
-        self.output_csv = self.data_path / APP_OUTPUT_CSV
+        self._data_csv = self.data_path / APP_DATA_CSV
 
         self._log_handler = None
         self._log_formatter = None
@@ -90,8 +90,10 @@ class AppData:
         self.mru_list.load()
 
     def _init_logging(self) -> None:
-        """Add a file handler to the root logger. Do this before loading
-        configuration so any errors in that process are logged.
+        """Add a file handler to the root logger.
+
+        Do this before loading configuration so any errors in that process
+        are logged.
         """
         if not self.log_file:
             return
@@ -122,23 +124,22 @@ class AppData:
             f'"{data_row.action}","{data_row.message}",'
             f'"{data_row.duration}","{data_row.notes}"'
         )
-        if not self.output_csv.exists():
-            self.output_csv.write_text(
+        if not self._data_csv.exists():
+            self._data_csv.write_text(
                 "version,date,time,action,message,duration,notes\n"
             )
-        with self.output_csv.open("a") as f:
+        with self._data_csv.open("a") as f:
             f.write(f"{csv_str}\n")
 
     def _csv_date_time(self, dt: datetime) -> str:
-        """Return a datetime as a CSV string where the date and time are in
-        separate columns.
-        """
+        """Return datetime as CSV string with the date and time in separate columns."""
         return f'"{dt.strftime("%Y-%m-%d")}","{dt.strftime("%H:%M:%S")}"'
 
     def queue_error(self, error: str) -> None:
         self._errors.append(error)
 
     def retrieve_error_list(self) -> list[str]:
+        """Return the list of errors and clear the list."""
         if self._errors:
             err_list = list(self._errors)
             self._errors.clear()
@@ -225,9 +226,9 @@ class AppData:
 
     def get_latest_session_rows(self) -> list[dict]:
         """Return the latest session rows from the CSV file."""
-        if not self.output_csv.exists():
+        if not self._data_csv.exists():
             return []
-        with self.output_csv.open() as f:
+        with self._data_csv.open() as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -245,15 +246,18 @@ class AppData:
 
     def get_session_rows_for_date(self, date: datetime) -> list[dict]:
         """Return the session rows for a given date from the CSV file."""
-        if not self.output_csv.exists():
+        if not self._data_csv.exists():
             return []
-        with self.output_csv.open() as f:
+        with self._data_csv.open() as f:
             reader = csv.DictReader(f)
             rows = list(reader)
         return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]
 
     def write_session_to_daily_files(self) -> None:
-        #  This must be called after write_finish.
+        """Write the latest session to the daily CSV and markdown files.
+
+        This must be called after write_finish.
+        """
         rows = self.get_latest_session_rows()
         if not rows:
             logging.error("Call to get_latest_session_rows returned no rows.")
@@ -262,6 +266,7 @@ class AppData:
         self.write_sessions_to_daily_md()
 
     def write_session_to_daily_csv(self, rows: list[dict]) -> None:
+        """Write the latest session to the daily CSV file."""
         path = self.get_daily_csv_path()
         if path:
             date_str = rows[0]["date"]
@@ -270,6 +275,7 @@ class AppData:
 
     def write_sessions_to_daily_md(self) -> None:
         """Write sessions to the daily markdown file.
+
         In the case where the append-only option is set, there may have been
         sessions completed before the file was created by an external
         application, so all rows for the date are passed to the write_to_daily_md
@@ -298,10 +304,11 @@ class AppData:
     def cli_export_daily_csv(
         self, export_date: datetime, export_path: Path | None
     ) -> None:
-        """Export a daily CSV file for a given date. If export_path is not
-        provided, use the configured 'Daily CSV Folder'. If the folder is not
-        configured, return without exporting."""
+        """Export a daily CSV file for a given date.
 
+        If export_path is not provided, use the configured 'Daily CSV Folder'.
+        If the folder is not configured, return without exporting.
+        """
         path = export_path if export_path else self.get_daily_csv_path()
         if not path:
             return
@@ -332,10 +339,11 @@ class AppData:
     def cli_export_daily_markdown(
         self, export_date: datetime, export_path: Path | None
     ) -> None:
-        """Export a daily markdown file for a given date. If export_path is not
-        provided, use the configured 'Daily Markdown Folder'. If the folder is
-        not configured, return without exporting."""
+        """Export a daily markdown file for a given date.
 
+        If export_path is not provided, use the configured 'Daily Markdown Folder'.
+        If the folder is not configured, return without exporting.
+        """
         path = export_path if export_path else self.get_daily_md_path()
         if not path:
             return

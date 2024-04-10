@@ -14,7 +14,7 @@ from pomodorable.output_md import write_to_daily_md
 
 def test_data_csv_fields(app_data_with_four_test_sessions):
     app_data, start_times = app_data_with_four_test_sessions
-    with app_data.output_csv.open() as f:
+    with app_data._data_csv.open() as f:  # noqa: SLF001
         reader = DictReader(f)
         fields = reader.fieldnames
         assert fields == [

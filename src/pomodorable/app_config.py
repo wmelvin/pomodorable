@@ -17,7 +17,7 @@ KEY_LOG_RETENTION_DAYS = "log_retention_days"
 
 class AppConfig:
     def __init__(self, config_file: Path) -> None:
-        self.config_file = config_file
+        self._config_file = config_file
         self.session_minutes: int = SESSION_MINUTES_DEFAULT
         self.daily_csv_dir: str = ""
         self.daily_md_dir: str = ""
@@ -31,17 +31,17 @@ class AppConfig:
         document. If there is an error parsing the file, rename it with a
         '.bad' extension before returning the empty document.
         """
-        if self.config_file.exists():
+        if self._config_file.exists():
             try:
-                text = self.config_file.read_text()
+                text = self._config_file.read_text()
                 return parse(text)
             except Exception:
                 logging.exception("Error parsing configuration.")
-                bad_file = self.config_file.with_suffix(".bad")
+                bad_file = self._config_file.with_suffix(".bad")
                 logging.info("Rename bad file to '%s'", bad_file)
                 if bad_file.exists():
                     bad_file.unlink()
-                self.config_file.rename(bad_file)
+                self._config_file.rename(bad_file)
                 return document()
         return document()
 
@@ -56,8 +56,8 @@ class AppConfig:
             self.daily_md_heading = f"# {self.daily_md_heading}"
 
     def load(self) -> None:
-        if self.config_file.exists():
-            logging.info("Load '%s'", self.config_file)
+        if self._config_file.exists():
+            logging.info("Load '%s'", self._config_file)
             try:
                 doc = self._load_toml_doc()
                 self.session_minutes = doc.get(
@@ -78,9 +78,9 @@ class AppConfig:
             self.save()
 
     def save(self) -> None:
-        logging.info("Save '%s'", self.config_file)
+        logging.info("Save '%s'", self._config_file)
         try:
-            if self.config_file.exists():
+            if self._config_file.exists():
                 logging.info("Save to existing file")
                 doc = self._load_toml_doc()
             else:
@@ -93,10 +93,11 @@ class AppConfig:
             doc[KEY_DAILY_MD_APPEND] = self.daily_md_append
             doc[KEY_LOG_RETENTION_DAYS] = self.log_retention_days
             text = dumps(doc)
-            self.config_file.write_text(text)
+            self._config_file.write_text(text)
         except Exception:
             logging.exception("Error saving configuration.")
 
     @property
     def session_seconds(self) -> int:
+        """Return the configured session_minutes as seconds."""
         return self.session_minutes * 60
