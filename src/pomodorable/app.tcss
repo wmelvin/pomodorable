@@ -231,7 +231,7 @@ AboutScreen {
 }
 
 #about-dialog {
-    height: 19;
+    height: 20;
     width: 70;
 }
 
@@ -243,23 +243,31 @@ AboutScreen {
 }
 
 #about-title {
-    color: #FFFF00;
-    margin: 1;
+    color: gold;
+    margin-top: 1;
     text-align: center;
     text-style: bold;
 }
 
 #about-version {
-    color: cyan;
-    margin: 1;
+    color: limegreen;
+    margin: 0;
     text-align: center;
 }
 
-#about-buttons {
+#about-source {
+    border: none;
+}
+
+#about-scroll {
+    border: solid gray;
+}
+
+.about-buttons {
     align: center middle;
 }
 
 .about-info {
-    color: silver;
+    color: khaki;
     margin: 1;
 }
