@@ -33,7 +33,6 @@ class AboutScreen(ModalScreen[str]):
             with Horizontal(classes="about-buttons"):
                 yield Button("Close", id="about-close")
 
-
     def on_mount(self) -> None:
         self.query_one("#about-close").focus()
 
