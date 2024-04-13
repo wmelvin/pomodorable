@@ -53,13 +53,9 @@ class CountdownDisplay(Static):
     def update_countdown(self) -> None:
         secs = self.seconds
         if self.app.has_class("paused"):
-            secs = (
-                self.start_seconds - (self.pause_time - self.start_time).seconds
-            )
+            secs = self.start_seconds - (self.pause_time - self.start_time).seconds
         elif self.app.has_class("running"):
-            secs = (
-                self.start_seconds - (datetime.now() - self.start_time).seconds
-            )
+            secs = self.start_seconds - (datetime.now() - self.start_time).seconds
         secs += self.seconds_added
         self.seconds = secs
 
