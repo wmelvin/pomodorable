@@ -51,15 +51,17 @@ class CountdownDisplay(Static):
         self.update_timer = self.set_interval(UPDATE_INTERVAL, self.update_countdown)
 
     def update_countdown(self) -> None:
+        secs = self.seconds
         if self.app.has_class("paused"):
-            self.seconds = (
+            secs = (
                 self.start_seconds - (self.pause_time - self.start_time).seconds
             )
         elif self.app.has_class("running"):
-            self.seconds = (
+            secs = (
                 self.start_seconds - (datetime.now() - self.start_time).seconds
             )
-        self.seconds += self.seconds_added
+        secs += self.seconds_added
+        self.seconds = secs
 
     def watch_seconds(self, seconds: datetime) -> None:
         self.update(sec_to_hms(seconds))
@@ -87,6 +89,10 @@ class CountdownDisplay(Static):
             self.seconds += secs_up
 
     def seconds_down(self, secs_down: int) -> None:
+        if self.seconds == ONE_MINUTE and secs_down == FIVE_MINUTES:
+            # Set short countdown to observe finish.
+            self.seconds = 5
+            return
         if self.seconds < (secs_down + ONE_MINUTE):
             return
         self.seconds -= secs_down
@@ -112,6 +118,7 @@ class CountdownDisplay(Static):
         self.pause_time = datetime.now()
 
     def resume(self) -> None:
+        self.update_timer.pause()
         duration = (datetime.now() - self.pause_time).seconds
         self.app.app_data.write_pause(
             self.pause_time,
@@ -120,9 +127,11 @@ class CountdownDisplay(Static):
             False,
         )
         self.pause_time = None
+        self.update_timer.resume()
 
     def extend(self) -> None:
         if self.pause_time:
+            self.update_timer.pause()
             extend_secs = (datetime.now() - self.pause_time).seconds
             self.seconds_added += extend_secs
             self.app.app_data.write_pause(
@@ -131,6 +140,7 @@ class CountdownDisplay(Static):
                 extend_secs,
                 True,
             )
+            self.update_timer.resume()
         self.pause_time = None
 
 
