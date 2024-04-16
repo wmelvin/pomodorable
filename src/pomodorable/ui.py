@@ -75,7 +75,9 @@ class CountdownDisplay(Static):
             and not self.app.has_class("paused")
         ):
             self.update_timer.pause()
+            logging.debug("watch_seconds: call countdown_finished()")
             self.app.countdown_finished()
+            logging.debug("watch_seconds: call update_timer.resume()")
             self.update_timer.resume()
 
     def seconds_up(self, secs_up: int) -> None:
@@ -94,6 +96,7 @@ class CountdownDisplay(Static):
         self.seconds -= secs_down
 
     def reset(self) -> None:
+        logging.debug("CountdownDisplay.reset()")
         self.update_timer.pause()
         self.seconds = self.app.app_data.config.session_seconds
         self.start_time = None
@@ -245,8 +248,10 @@ class PomodorableApp(App):
             self.say(err, console_text=f"[bold italic]{err}")
 
     def update_widgets_enabled(self) -> None:
+        logging.debug("update_widgets_enabled: start")
         paused = self.has_class("paused")
         running = self.has_class("running")
+        logging.debug("update_widgets_enabled: running={running}, paused={paused}")
         self.query_one("#btn-start").disabled = running
         self.query_one("#btn-pause").disabled = not running
         self.query_one("#btn-resume").disabled = not paused
@@ -261,6 +266,7 @@ class PomodorableApp(App):
         self.query_one("#btn-plus-one").disabled = running
         self.query_one("#btn-minus-one").disabled = running
         self.query_one("#btn-minus-five").disabled = running
+        logging.debug("update_widgets_enabled: done")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         try:
@@ -372,8 +378,10 @@ class PomodorableApp(App):
         self.say("Finished", console_text="[bold]Finished")
         if self.has_class("running"):
             countdown = self.query_one(CountdownDisplay)
+            logging.debug("countdown_finished: call app_data.write_finish()")
             self.app_data.write_finish(datetime.now(), countdown.start_time)
             time_ending = self.query_one("#time-ending")
+            logging.debug("countdown_finished: remove classes")
             self.remove_class("paused")
             self.remove_class("running")
             self.update_widgets_enabled()
@@ -385,6 +393,7 @@ class PomodorableApp(App):
             # dismissed?
 
             #  Show plyer.notification.
+            logging.debug("countdown_finished: call notification.notify()")
             try:
                 notification.notify(
                     title=APP_NAME,
@@ -396,8 +405,11 @@ class PomodorableApp(App):
                 logging.exception("Exception in notification")
                 self.say(f"Notification error: {e}")
 
+            logging.debug("countdown_finished: call show_queued_errors()")
             self.show_queued_errors()
+            logging.debug("countdown_finished: set focus on input-task")
             self.query_one("#input-task").focus()
+            logging.debug("countdown_finished: done")
 
     def action_manual_testing(self) -> None:
         # Short countdown to observe Finish.

@@ -98,7 +98,11 @@ class AppData:
         if not self.log_file:
             return
         logger = logging.getLogger()
-        logger.setLevel(logging.INFO)
+        dbg = os.environ.get("POMODORABLE_DEBUG", "n").lower()[1] in ["1", "t", "y"]
+        if dbg:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
         self._log_handler = logging.FileHandler(self.log_file)
         self._log_formatter = logging.Formatter("%(asctime)s %(message)s")
         self._log_handler.setFormatter(self._log_formatter)
