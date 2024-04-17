@@ -30,13 +30,11 @@ class SettingSwitch(Static):
         btn = event.button.id
         if btn == "btn-undo":
             event.stop()
-            switch = self.query_one(Switch)
-            switch.value = self.initial_value
+            self.query_one(Switch).value = self.initial_value
 
     def check_data_changed(self):
-        switch = self.query_one(Switch)
         btn = self.query_one(Button)
-        if switch.value == self.initial_value:
+        if self.query_one(Switch).value == self.initial_value:
             if btn.has_class("data-changed"):
                 btn.remove_class("data-changed")
         elif not btn.has_class("data-changed"):
@@ -48,8 +46,7 @@ class SettingSwitch(Static):
 
     def initialize(self, label: str, value: bool, validators: list) -> None:
         self.initial_value = value
-        lbl = self.query_one("#lbl-setting")
-        lbl.update(label)
+        self.query_one("#lbl-setting").update(label)
         switch = self.query_one(Switch)
         switch.value = value
         if validators:
@@ -86,9 +83,8 @@ class SettingInput(Static):
             inp.insert_text_at_cursor(self.initial_value)
 
     def check_data_changed(self):
-        inp = self.query_one(Input)
         btn = self.query_one(Button)
-        if inp.value == self.initial_value:
+        if self.query_one(Input).value == self.initial_value:
             if btn.has_class("data-changed"):
                 btn.remove_class("data-changed")
         elif not btn.has_class("data-changed"):
@@ -111,8 +107,7 @@ class SettingInput(Static):
 
     def initialize(self, label: str, value: str, validators: list) -> None:
         self.initial_value = value
-        lbl = self.query_one("#lbl-setting")
-        lbl.update(label)
+        self.query_one("#lbl-setting").update(label)
         inp = self.query_one(Input)
         inp.insert_text_at_cursor(value)
         if validators:
@@ -147,8 +142,7 @@ class SettingsScreen(Screen[str]):
 
     def on_mount(self) -> None:
         self.title = "Settings"
-        set_minutes = self.query_one("#set-minutes")
-        set_minutes.initialize(
+        self.query_one("#set-minutes").initialize(
             "Session Minutes",
             str(self.app_config.session_minutes),
             [
@@ -159,36 +153,31 @@ class SettingsScreen(Screen[str]):
             ],
         )
 
-        set_csv_dir = self.query_one("#set-csv-dir")
-        set_csv_dir.initialize(
+        self.query_one("#set-csv-dir").initialize(
             "Daily CSV Folder",
             self.app_config.daily_csv_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
 
-        set_md_dir = self.query_one("#set-md-dir")
-        set_md_dir.initialize(
+        self.query_one("#set-md-dir").initialize(
             "Daily Markdown Folder",
             self.app_config.daily_md_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
 
-        set_md_heading = self.query_one("#set-md-heading")
-        set_md_heading.initialize(
+        self.query_one("#set-md-heading").initialize(
             "Daily Markdown Heading",
             self.app_config.daily_md_heading or "",
             [],
         )
 
-        set_md_append = self.query_one("#set-md-append")
-        set_md_append.initialize(
+        self.query_one("#set-md-append").initialize(
             "Daily Markdown Append-only (file is created by another application)",
             self.app_config.daily_md_append,
             [],
         )
 
-        set_log_ret = self.query_one("#set-log-ret")
-        set_log_ret.initialize(
+        self.query_one("#set-log-ret").initialize(
             "Log Retention Days",
             str(self.app_config.log_retention_days),
             [

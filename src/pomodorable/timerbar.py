@@ -16,12 +16,11 @@ class TimerBar(Static):
         yield Static("", id="scale")
 
     def on_mount(self) -> None:
-        scale = self.query_one("#scale")
         s = "_" * (self.bar_mid)
         # s += "^"
         s += "\u25B2"  #  "BLACK UP-POINTING TRIANGLE"
         s += "_" * (self.bar_mid - 1)
-        scale.update(s)
+        self.query_one("#scale").update(s)
         self.update_bar(0)
 
     def update_bar(self, counter: int) -> None:
@@ -45,5 +44,4 @@ class TimerBar(Static):
                     #  at the corresponding index.
                     bar[i - 1] = sx[0]
                     bar[i] = sx[1]
-        nb = self.query_one("#numbers")
-        nb.update("".join(bar))
+        self.query_one("#numbers").update("".join(bar))

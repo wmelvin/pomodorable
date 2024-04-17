@@ -234,14 +234,12 @@ class PomodorableApp(App):
         self.say("Hello.")
         if self.app_data.do_debug:
             self.say("Note: DEBUG enabled")
-        time_disp = self.query_one("#time-ending")
-        time_disp.sync_time(self.app_data.config.session_seconds)
+        self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
         self.query_one("#input-task").focus()
 
     def say(self, message: str, console_text: str = "") -> None:
-        log = self.query_one(RichLog)
         msg = message if console_text == "" else console_text
-        log.write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
+        self.query_one(RichLog).write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
         logging.info("UI: %s", message)
 
     def show_queued_errors(self) -> None:
@@ -340,9 +338,7 @@ class PomodorableApp(App):
         elif btn == "btn-stop":
             reason = self.query_one("#input-reason").value
             self.say(f"STOP '{reason}'", console_text=f"[bold]STOP{q_text(reason)}")
-            self.app_data.write_stop(
-                datetime.now(), self.query_one("#input-reason").value
-            )
+            self.app_data.write_stop(datetime.now(), reason)
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset(timer_resume=True)
@@ -382,13 +378,12 @@ class PomodorableApp(App):
             countdown = self.query_one(CountdownDisplay)
             logging.debug("countdown_finished: call write_finish")
             self.app_data.write_finish(datetime.now(), countdown.start_time)
-            time_ending = self.query_one("#time-ending")
             logging.debug("countdown_finished: remove classes")
             self.remove_class("paused")
             self.remove_class("running")
             self.update_widgets_enabled()
             countdown.reset(timer_resume=False)
-            time_ending.sync_time(countdown.seconds)
+            self.query_one("#time-ending").sync_time(countdown.seconds)
 
             # TODO: Configure notification - enable/disable, timeout, etc.
             # If there is no timeout will notification stay on screen until
@@ -415,8 +410,8 @@ class PomodorableApp(App):
 
     def action_manual_testing(self) -> None:
         # Short countdown to observe Finish.
-        countdown = self.query_one(CountdownDisplay)
-        countdown.seconds = 7
+        self.query_one(CountdownDisplay).seconds = 7
+
         # # Fake error messages in app_data.
         # for i in range(3):
         #     self.app_data.queue_error(f"Fake error {i + 1}")
@@ -431,8 +426,7 @@ class PomodorableApp(App):
         elif not self.has_class("running"):
             mru = self.app_data.mru_list.get_tasks()
         if mru:
-            countdown = self.query_one(CountdownDisplay)
-            countdown.update_timer.pause()
+            self.query_one(CountdownDisplay).update_timer.pause()
             self.push_screen(
                 MRUScreen(mru),
                 self.mru_closed,
