@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from csv import DictReader
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -242,3 +243,27 @@ def test_purge_log_files(tmp_path):
     assert log_files[0].name == "pomodorable-20240105.log"
     assert log_files[-2].name == "pomodorable-20240108.log"
     assert log_files[-1].name == app_data.log_file.name
+
+
+@pytest.mark.parametrize(
+    ("env_value", "log_level"),
+    [
+        ("", "INFO"),
+        ("False", "INFO"),
+        ("No", "INFO"),
+        ("0", "INFO"),
+        ("True", "DEBUG"),
+        ("yes", "DEBUG"),
+        ("Y", "DEBUG"),
+        ("1", "DEBUG"),
+        ("Marbles", "INFO"),
+    ],
+)
+def test_set_debug_logging(tmp_path, env_value, log_level, monkeypatch):
+    monkeypatch.setenv("POMODORABLE_DEBUG", env_value)
+    config_file = tmp_path / "pomodorable-config.toml"
+    app_config = AppConfig(config_file)
+    app_data = AppData(init_app_config=app_config, init_data_path=tmp_path)
+    assert app_data
+    level = logging.getLevelName(app_data._log_handler.level)  # noqa: SLF001
+    assert level == log_level
