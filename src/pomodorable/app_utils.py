@@ -39,3 +39,14 @@ def q_text(text: str) -> str:
     if s:
         return f" '{s}'"
     return ""
+
+
+def str_true(s: str) -> bool:
+    """Return True if the string represents a 'true' value.
+
+    The following are considered 'true' (case-insensitive):
+    '1', 'true', 'y', 'yes'.
+
+    Otherwise return False.
+    """
+    return s.lower() in ["1", "true", "y", "yes"]

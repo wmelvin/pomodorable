@@ -12,7 +12,7 @@ import dotenv
 from platformdirs import user_config_path, user_data_path
 
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
-from pomodorable.app_utils import get_date_from_str, sec_to_hms
+from pomodorable.app_utils import get_date_from_str, sec_to_hms, str_true
 from pomodorable.mru_list import MRUList
 from pomodorable.output_csv import write_to_daily_csv
 from pomodorable.output_md import write_to_daily_md
@@ -42,6 +42,8 @@ class AppData:
     ) -> None:
         self._errors = []
         self.data_path = init_data_path
+
+        self.do_debug = str_true(os.environ.get("POMODORABLE_DEBUG", "n"))
 
         if not self.data_path:
             #  If init_data_path is not set, check environment variables for
@@ -98,16 +100,9 @@ class AppData:
         if not self.log_file:
             return
 
-        do_debug = os.environ.get("POMODORABLE_DEBUG", "n").lower() in [
-            "1",
-            "true",
-            "y",
-            "yes",
-        ]
-
         logger = logging.getLogger()
 
-        if do_debug:
+        if self.do_debug:
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
