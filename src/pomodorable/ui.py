@@ -248,10 +248,10 @@ class PomodorableApp(App):
             self.say(err, console_text=f"[bold italic]{err}")
 
     def update_widgets_enabled(self) -> None:
-        logging.debug("update_widgets_enabled: start")
+        logging.debug("update_widgets_enabled: begin")
         paused = self.has_class("paused")
         running = self.has_class("running")
-        logging.debug("update_widgets_enabled: running={running}, paused={paused}")
+        logging.debug("update_widgets_enabled: running=%s, paused=%s", running, paused)
         self.query_one("#btn-start").disabled = running
         self.query_one("#btn-pause").disabled = not running
         self.query_one("#btn-resume").disabled = not paused
@@ -266,7 +266,7 @@ class PomodorableApp(App):
         self.query_one("#btn-plus-one").disabled = running
         self.query_one("#btn-minus-one").disabled = running
         self.query_one("#btn-minus-five").disabled = running
-        logging.debug("update_widgets_enabled: done")
+        logging.debug("update_widgets_enabled: end")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         try:
@@ -409,7 +409,7 @@ class PomodorableApp(App):
             self.show_queued_errors()
             logging.debug("countdown_finished: set focus on input-task")
             self.query_one("#input-task").focus()
-            logging.debug("countdown_finished: done")
+            logging.debug("countdown_finished: end")
 
     def action_manual_testing(self) -> None:
         # Short countdown to observe Finish.

@@ -265,5 +265,6 @@ def test_set_debug_logging(tmp_path, env_value, log_level, monkeypatch):
     app_config = AppConfig(config_file)
     app_data = AppData(init_app_config=app_config, init_data_path=tmp_path)
     assert app_data
-    level = logging.getLevelName(app_data._log_handler.level)  # noqa: SLF001
-    assert level == log_level
+    logr = logging.getLogger()
+    levl = logging.getLevelName(logr.level)
+    assert levl == log_level

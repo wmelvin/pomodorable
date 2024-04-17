@@ -106,11 +106,13 @@ class AppData:
         ]
 
         logger = logging.getLogger()
-        self._log_handler = logging.FileHandler(self.log_file)
+
         if do_debug:
-            self._log_handler.setLevel(logging.DEBUG)
+            logger.setLevel(logging.DEBUG)
         else:
-            self._log_handler.setLevel(logging.INFO)
+            logger.setLevel(logging.INFO)
+
+        self._log_handler = logging.FileHandler(self.log_file)
         self._log_formatter = logging.Formatter("%(asctime)s %(message)s")
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
