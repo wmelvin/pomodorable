@@ -11,3 +11,4 @@ xplor/
 *.pyc
 .coverage*
 snapshot_report.html
+.python-version

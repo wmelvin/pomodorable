@@ -25,6 +25,10 @@
 # Run pytest
 @test:
   hatch run test
+  
+# Run test matrix
+@testmx:
+  hatch run test:test
 
 # Run ui.py
 @ui:
