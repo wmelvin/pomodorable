@@ -15,7 +15,7 @@
   rmdir dist
 
 # Apply formatting
-@format:
+@format: lint
   hatch fmt
 
 # Lint with hatch

@@ -42,7 +42,7 @@ class CountdownDisplay(Static):
     start_time: datetime | None = None
     pause_time: datetime | None = None
     seconds_added: int = 0
-    last_minute: int = 0
+    last_minute: int = -1
 
     def on_mount(self) -> None:
         secs = self.app.app_data.config.session_seconds
@@ -102,6 +102,8 @@ class CountdownDisplay(Static):
         self.start_time = None
         self.pause_time = None
         self.seconds_added = 0
+        self.last_minute = -1
+        self.app.query_one(TimerBar).reset()
         if timer_resume:
             self.update_timer.resume()
 

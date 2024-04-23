@@ -7,9 +7,9 @@ class TimerBar(Static):
     classic pomodoro (tomato-shaped) kitchen timer.
     """
 
-    bar_size = 60
+    bar_size: int = 60
     bar_mid = int(bar_size / 2)
-    last_counter = None
+    last_counter: int = -1
 
     def compose(self) -> ComposeResult:
         yield Static("", id="numbers")
@@ -23,8 +23,11 @@ class TimerBar(Static):
         self.query_one("#scale").update(s)
         self.update_bar(0)
 
+    def reset(self) -> None:
+        self.last_counter = -1
+
     def update_bar(self, counter: int) -> None:
-        if self.last_counter is not None and counter == self.last_counter:
+        if counter == self.last_counter:
             return
         self.last_counter = counter
         label_interval = 5
