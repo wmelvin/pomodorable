@@ -48,7 +48,11 @@ class CountdownDisplay(Static):
         secs = self.app.app_data.config.session_seconds
         self.seconds = secs
         self.start_seconds = secs
-        self.update_timer = self.set_interval(UPDATE_INTERVAL, self.update_countdown)
+        # Initialize the update_timer in pause mode.
+        self.update_timer = self.set_interval(
+            UPDATE_INTERVAL, self.update_countdown, pause=True
+        )
+        self.last_minute = -1
 
     def update_countdown(self) -> None:
         secs = self.seconds
@@ -98,12 +102,11 @@ class CountdownDisplay(Static):
     def reset(self, timer_resume: bool) -> None:
         logging.debug("CountdownDisplay.reset")
         self.update_timer.pause()
+        self.last_minute = -1
         self.seconds = self.app.app_data.config.session_seconds
         self.start_time = None
         self.pause_time = None
         self.seconds_added = 0
-        self.last_minute = -1
-        self.app.query_one(TimerBar).reset()
         if timer_resume:
             self.update_timer.resume()
 
@@ -237,6 +240,8 @@ class PomodorableApp(App):
         if self.app_data.do_debug:
             self.say("Note: DEBUG enabled")
         self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
+        # The update_timer is initially paused.
+        self.query_one(CountdownDisplay).update_timer.resume()
         self.query_one("#input-task").focus()
 
     def say(self, message: str, console_text: str = "") -> None:

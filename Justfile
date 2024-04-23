@@ -2,7 +2,7 @@
   @just --list
 
 # Run test, lint, check, hatch build
-@build: test lint check
+@build: lint check test
   hatch build
 
 # Check formatting

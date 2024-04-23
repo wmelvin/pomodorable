@@ -9,7 +9,6 @@ class TimerBar(Static):
 
     bar_size: int = 60
     bar_mid = int(bar_size / 2)
-    last_counter: int = -1
 
     def compose(self) -> ComposeResult:
         yield Static("", id="numbers")
@@ -21,15 +20,8 @@ class TimerBar(Static):
         s += "\u25B2"  #  "BLACK UP-POINTING TRIANGLE"
         s += "_" * (self.bar_mid - 1)
         self.query_one("#scale").update(s)
-        self.update_bar(0)
-
-    def reset(self) -> None:
-        self.last_counter = -1
 
     def update_bar(self, counter: int) -> None:
-        if counter == self.last_counter:
-            return
-        self.last_counter = counter
         label_interval = 5
         bar = ["." for _ in range(self.bar_size)]
         for i in range(self.bar_size):
