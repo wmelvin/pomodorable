@@ -9,6 +9,7 @@ SESSION_MINUTES_DEFAULT = 25
 
 KEY_SESSION_MINUTES = "session_minutes"
 KEY_DAILY_CSV_DIR = "daily_csv_dir"
+KEY_RUNNING_CSV_DIR = "running_csv_dir"
 KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_DAILY_MD_HEADING = "daily_md_heading"
 KEY_DAILY_MD_APPEND = "daily_md_append"
@@ -20,6 +21,7 @@ class AppConfig:
         self._config_file = config_file
         self.session_minutes: int = SESSION_MINUTES_DEFAULT
         self.daily_csv_dir: str = ""
+        self.running_csv_dir: str = ""
         self.daily_md_dir: str = ""
         self.daily_md_heading: str = ""
         self.daily_md_append: bool = False
@@ -64,6 +66,7 @@ class AppConfig:
                     KEY_SESSION_MINUTES, SESSION_MINUTES_DEFAULT
                 )
                 self.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
+                self.running_csv_dir = doc.get(KEY_RUNNING_CSV_DIR, "")
                 self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
                 self.daily_md_heading = doc.get(KEY_DAILY_MD_HEADING, "")
                 self.daily_md_append = doc.get(KEY_DAILY_MD_APPEND, False)
@@ -88,6 +91,7 @@ class AppConfig:
                 doc = document()
             doc[KEY_SESSION_MINUTES] = self.session_minutes
             doc[KEY_DAILY_CSV_DIR] = self.daily_csv_dir
+            doc[KEY_RUNNING_CSV_DIR] = self.running_csv_dir
             doc[KEY_DAILY_MD_DIR] = self.daily_md_dir
             doc[KEY_DAILY_MD_HEADING] = self.daily_md_heading
             doc[KEY_DAILY_MD_APPEND] = self.daily_md_append

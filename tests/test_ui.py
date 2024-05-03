@@ -11,7 +11,7 @@ async def test_app_is_created():
         assert footer
 
 
-async def test_minus_5_button_stops_at_zero(tmp_path):
+async def test_minus_button_stops_at_one(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app = PomodorableApp(init_app_data=app_data)
     async with app.run_test() as pilot:
@@ -22,7 +22,7 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         await pilot.click("#btn-plus-five")
         assert countdown.seconds == 30 * 60
 
-        # Decrease down to zero.
+        # Decrease down to five minutes.
         await pilot.click("#btn-minus-five")
         await pilot.click("#btn-minus-five")
         assert countdown.seconds == 20 * 60
@@ -34,7 +34,7 @@ async def test_minus_5_button_stops_at_zero(tmp_path):
         await pilot.click("#btn-minus-five")
         assert countdown.seconds == 5 * 60
 
-        # Should stop at 5 minutes.
+        # Should stay at 5 minutes.
         await pilot.click("#btn-minus-five")
         assert countdown.seconds == 5 * 60
 

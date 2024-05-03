@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 
 
-def write_to_daily_csv(
+def write_to_sessions_csv(
     csv_file: Path, data_rows: list[dict], start_num: int = 0
 ) -> None:
     #  Note: Output CSV layout is different from the Data CSV.

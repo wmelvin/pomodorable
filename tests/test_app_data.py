@@ -106,6 +106,20 @@ def test_writes_daily_csv_file(tmp_path):
     assert "Test stop" in text
 
 
+def test_writes_running_csv_file(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_running_csv_dir(str(tmp_path))
+
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    app_data.write_start(start_time, "Test session 1", 10)
+
+    t = start_time + timedelta(seconds=5)
+    app_data.write_stop(stop_time=t, reason="Test stop")
+
+    csv_file = tmp_path / "pomodorable-sessions.csv"
+    assert csv_file.exists()
+
+
 def test_writes_daily_markdown_file(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app_data.set_daily_md_dir(str(tmp_path))

@@ -14,7 +14,7 @@ from platformdirs import user_config_path, user_data_path
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 from pomodorable.app_utils import get_date_from_str, sec_to_hms, str_true
 from pomodorable.mru_list import MRUList
-from pomodorable.output_csv import write_to_daily_csv
+from pomodorable.output_csv import write_to_sessions_csv
 from pomodorable.output_md import write_to_daily_md
 
 APP_NAME = "pomodorable"
@@ -191,7 +191,7 @@ class AppData:
         self._append_data_csv(
             AppDataRow(date_time=stop_time, action="Stop", message=reason)
         )
-        self.write_session_to_daily_files()
+        self.write_session_to_output_files()
         # Stop should be infrequent, so do not add reason to the MRU list.
 
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
@@ -202,7 +202,7 @@ class AppData:
                 notes=f"Started at {start_time.strftime('%H:%M:%S')}",
             )
         )
-        self.write_session_to_daily_files()
+        self.write_session_to_output_files()
 
     def set_daily_csv_dir(self, daily_csv_dir: str) -> None:
         self.config.daily_csv_dir = daily_csv_dir
@@ -212,6 +212,20 @@ class AppData:
         if not self.config.daily_csv_dir:
             return None
         path = Path(self.config.daily_csv_dir).expanduser().resolve()
+        if not path.exists():
+            logging.error("Directory does not exist: %s", path)
+            self.queue_error(f"Directory does not exist: {path}")
+            return None
+        return path
+
+    def set_running_csv_dir(self, running_csv_dir: str) -> None:
+        self.config.running_csv_dir = running_csv_dir
+        self.config.save()
+
+    def get_running_csv_path(self) -> Path | None:
+        if not self.config.running_csv_dir:
+            return None
+        path = Path(self.config.running_csv_dir).expanduser().resolve()
         if not path.exists():
             logging.error("Directory does not exist: %s", path)
             self.queue_error(f"Directory does not exist: {path}")
@@ -261,8 +275,8 @@ class AppData:
             rows = list(reader)
         return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]
 
-    def write_session_to_daily_files(self) -> None:
-        """Write the latest session to the daily CSV and markdown files.
+    def write_session_to_output_files(self) -> None:
+        """Write the latest session to the CSV and markdown output files.
 
         This must be called after write_finish.
         """
@@ -270,6 +284,7 @@ class AppData:
         if not rows:
             logging.error("Call to get_latest_session_rows returned no rows.")
             return
+        self.write_session_to_running_csv(rows)
         self.write_session_to_daily_csv(rows)
         self.write_sessions_to_daily_md()
 
@@ -279,7 +294,14 @@ class AppData:
         if path:
             date_str = rows[0]["date"]
             csv_file = path / f"{date_str}.csv"
-            write_to_daily_csv(csv_file, rows)
+            write_to_sessions_csv(csv_file, rows)
+
+    def write_session_to_running_csv(self, rows: list[dict]) -> None:
+        """Write the latest session to the running CSV file."""
+        path = self.get_running_csv_path()
+        if path:
+            csv_file = path / "pomodorable-sessions.csv"
+            write_to_sessions_csv(csv_file, rows)
 
     def write_sessions_to_daily_md(self) -> None:
         """Write sessions to the daily markdown file.
@@ -342,7 +364,7 @@ class AppData:
 
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_daily_csv(csv_file, rows, start_num=1)
+        write_to_sessions_csv(csv_file, rows, start_num=1)
 
     def cli_export_daily_markdown(
         self, export_date: datetime, export_path: Path | None
