@@ -6,10 +6,12 @@ from tomlkit import document, dumps, parse
 LOG_RETENTION_DEFAULT = 30
 LOG_RETENTION_MIN = 5
 SESSION_MINUTES_DEFAULT = 25
+RUNNING_CSV_NAME_DEFAULT = "pomodorable-sessions.csv"
 
 KEY_SESSION_MINUTES = "session_minutes"
 KEY_DAILY_CSV_DIR = "daily_csv_dir"
 KEY_RUNNING_CSV_DIR = "running_csv_dir"
+KEY_RUNNING_CSV_NAME = "running_csv_name"
 KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_DAILY_MD_HEADING = "daily_md_heading"
 KEY_DAILY_MD_APPEND = "daily_md_append"
@@ -22,6 +24,7 @@ class AppConfig:
         self.session_minutes: int = SESSION_MINUTES_DEFAULT
         self.daily_csv_dir: str = ""
         self.running_csv_dir: str = ""
+        self.running_csv_name: str = RUNNING_CSV_NAME_DEFAULT
         self.daily_md_dir: str = ""
         self.daily_md_heading: str = ""
         self.daily_md_append: bool = False
@@ -67,6 +70,9 @@ class AppConfig:
                 )
                 self.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
                 self.running_csv_dir = doc.get(KEY_RUNNING_CSV_DIR, "")
+                self.running_csv_name = doc.get(
+                    KEY_RUNNING_CSV_NAME, RUNNING_CSV_NAME_DEFAULT
+                )
                 self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
                 self.daily_md_heading = doc.get(KEY_DAILY_MD_HEADING, "")
                 self.daily_md_append = doc.get(KEY_DAILY_MD_APPEND, False)
@@ -92,6 +98,7 @@ class AppConfig:
             doc[KEY_SESSION_MINUTES] = self.session_minutes
             doc[KEY_DAILY_CSV_DIR] = self.daily_csv_dir
             doc[KEY_RUNNING_CSV_DIR] = self.running_csv_dir
+            doc[KEY_RUNNING_CSV_NAME] = self.running_csv_name
             doc[KEY_DAILY_MD_DIR] = self.daily_md_dir
             doc[KEY_DAILY_MD_HEADING] = self.daily_md_heading
             doc[KEY_DAILY_MD_APPEND] = self.daily_md_append

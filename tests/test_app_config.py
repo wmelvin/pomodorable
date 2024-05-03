@@ -22,17 +22,23 @@ def test_app_config_load_reads_file(tmp_path):
 
 def test_app_config_save_load(tmp_path):
     config_file = tmp_path / "pomodorable-config.toml"
-    app_config = AppConfig(config_file)
-    app_data = AppData(app_config)
+    config_to_save = AppConfig(config_file)
+    app_data = AppData(config_to_save)
     app_data.set_daily_csv_dir("/path/to/csv")
+    app_data.set_running_csv_dir("/path/to/csv2")
+    app_data.set_running_csv_name("running.csv")
     app_data.set_daily_md_dir("/path/to/md")
-    app_config.daily_md_heading = "# Daily Markdown"
-    app_config.daily_md_append = True
-    app_config.log_retention_days = 7
-    app_config.save()
-    app_config.load()
-    assert app_config.daily_csv_dir == "/path/to/csv"
-    assert app_config.daily_md_dir == "/path/to/md"
-    assert app_config.daily_md_heading == "# Daily Markdown"
-    assert app_config.daily_md_append is True
-    assert app_config.log_retention_days == 7
+    config_to_save.daily_md_heading = "# Daily Markdown"
+    config_to_save.daily_md_append = True
+    config_to_save.log_retention_days = 7
+    config_to_save.save()
+
+    config_loaded = AppConfig(config_file)
+    config_loaded.load()
+    assert config_loaded.daily_csv_dir == "/path/to/csv"
+    assert config_loaded.running_csv_dir == "/path/to/csv2"
+    assert config_loaded.daily_md_dir == "/path/to/md"
+    assert config_loaded.daily_md_heading == "# Daily Markdown"
+    assert config_loaded.daily_md_append is True
+    assert config_loaded.log_retention_days == 7
+    assert config_loaded.running_csv_name == "running.csv"

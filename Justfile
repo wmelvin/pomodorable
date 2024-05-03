@@ -9,6 +9,9 @@
 @check:
   hatch fmt --check
 
+# Run lint, check, and test
+@checks: lint check test
+
 # Remove dist
 @clean:
   rm dist/*

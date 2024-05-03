@@ -222,6 +222,10 @@ class AppData:
         self.config.running_csv_dir = running_csv_dir
         self.config.save()
 
+    def set_running_csv_name(self, running_csv_name: str) -> None:
+        self.config.running_csv_name = running_csv_name
+        self.config.save()
+
     def get_running_csv_path(self) -> Path | None:
         if not self.config.running_csv_dir:
             return None
@@ -300,7 +304,7 @@ class AppData:
         """Write the latest session to the running CSV file."""
         path = self.get_running_csv_path()
         if path:
-            csv_file = path / "pomodorable-sessions.csv"
+            csv_file = path / self.config.running_csv_name
             write_to_sessions_csv(csv_file, rows)
 
     def write_sessions_to_daily_md(self) -> None:
