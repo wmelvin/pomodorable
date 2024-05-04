@@ -129,7 +129,9 @@ class SettingsScreen(Screen[str]):
         yield Header()
         yield ScrollableContainer(
             SettingInput(id="set-minutes"),
-            SettingInput(id="set-csv-dir"),
+            SettingInput(id="set-csv-dir-run"),
+            SettingInput(id="set-csv-name-run"),
+            SettingInput(id="set-csv-dir-daily"),
             SettingInput(id="set-md-dir"),
             SettingInput(id="set-md-heading"),
             SettingSwitch(id="set-md-append"),
@@ -153,14 +155,26 @@ class SettingsScreen(Screen[str]):
             ],
         )
 
-        self.query_one("#set-csv-dir").initialize(
-            "Daily CSV Folder",
+        self.query_one("#set-csv-dir-run").initialize(
+            "Running (milti-day) CSV Folder. Leave empty to disable.",
+            self.app_config.running_csv_dir or "",
+            [Function(is_valid_dir_or_empty, "Folder does not exist.")],
+        )
+
+        self.query_one("#set-csv-name-run").initialize(
+            "Running CSV File Name",
+            self.app_config.running_csv_name or "",
+            [],
+        )
+
+        self.query_one("#set-csv-dir-daily").initialize(
+            "Daily CSV Folder. Leave empty to disable.",
             self.app_config.daily_csv_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
 
         self.query_one("#set-md-dir").initialize(
-            "Daily Markdown Folder",
+            "Daily Markdown Folder. Leave empty to disable.",
             self.app_config.daily_md_dir or "",
             [Function(is_valid_dir_or_empty, "Folder does not exist.")],
         )
@@ -211,7 +225,22 @@ class SettingsScreen(Screen[str]):
             self.app_config.session_minutes = int(value)
             has_changes = True
 
-        changed, is_valid, value = self.query_one("#set-csv-dir").get_status()
+        # set-csv-dir-run
+        changed, is_valid, value = self.query_one("#set-csv-dir-run").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.running_csv_dir = value
+            has_changes = True
+
+        changed, is_valid, value = self.query_one("#set-csv-name-run").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.running_csv_name = value
+            has_changes = True
+
+        changed, is_valid, value = self.query_one("#set-csv-dir-daily").get_status()
         if not is_valid:
             has_errors = True
         elif changed:
