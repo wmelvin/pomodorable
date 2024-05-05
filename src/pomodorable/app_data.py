@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import dotenv
@@ -366,6 +366,35 @@ class AppData:
                 self.queue_error(f"Too many files for {date_str}")
                 return
 
+        print(f"\nExporting to {csv_file}\n")  # noqa: T201
+
+        write_to_sessions_csv(csv_file, rows, start_num=1)
+
+    def cli_export_date_range_csv(
+        self, start_date: datetime, end_date: datetime, export_path: Path | None
+    ) -> None:
+        """Export a daily CSV file for a given date range.
+
+        If export_path is not provided, use the configured 'Running CSV Folder'.
+        If the folder is not configured, return without exporting.
+        """
+        path = export_path if export_path else self.get_running_csv_path()
+        if not path:
+            return
+
+        rows = []
+        for day in range((end_date - start_date).days + 1):
+            rows.extend(
+                self.get_session_rows_for_date(start_date + timedelta(days=day))
+            )
+
+        if not rows:
+            print("\nNo data found for given date range.\n")  # noqa: T201
+            return
+
+        csv_file = path.joinpath(
+            f"{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.csv"
+        )
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
         write_to_sessions_csv(csv_file, rows, start_num=1)

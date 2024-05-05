@@ -118,4 +118,5 @@ extend-ignore = [
 [tool.ruff.extend-per-file-ignores]
 "test*.py" = [
   "DTZ001",  # datetime.now() w/o tz
+  "T201",    # allow 'print' (write to debug console)
 ]

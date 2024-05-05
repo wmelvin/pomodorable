@@ -24,9 +24,14 @@ def write_to_sessions_csv(
     #  Append data rows.
     with csv_file.open("a") as f:
         writer = csv.writer(f)
+        last_date = None
         for row in data_rows:
             out_row = None
             if row["action"] == "Start":
+                # If a start_num was provided and the current row begins a new
+                # date (exporting a date range), then reset the session_num.
+                if start_num > 0 and last_date is not None and row["date"] != last_date:
+                    session_num = 1
                 out_row = [
                     row["date"],
                     session_num or "S",
@@ -37,6 +42,7 @@ def write_to_sessions_csv(
                 ]
                 if start_num > 0:
                     session_num += 1
+                last_date = row["date"]
             elif row["action"] == "Pause":
                 if row["notes"] == "extended":
                     act = "E"

@@ -9,7 +9,7 @@ from pomodorable.app_utils import get_date_from_str
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
-MOD_VERSION = "cli-240328.1"
+MOD_VERSION = "cli-240505.1"
 
 
 def get_app_version() -> str:
@@ -19,7 +19,7 @@ def get_app_version() -> str:
         return MOD_VERSION
 
 
-def handled_option(csv_date, md_date, export_path) -> bool:
+def handled_option(csv_date, md_date, end_date, export_path) -> bool:
     """Handle the command-line options for exporting CSV or Markdown files.
     If there are errors in the options, print an error message and exit.
     If options are handled, return True; otherwise, return False.
@@ -39,11 +39,21 @@ def handled_option(csv_date, md_date, export_path) -> bool:
             sys.stderr.write(f"\nInvalid path: {export_path}\n")
             sys.exit(1)
 
+    if end_date is not None:
+        end_date = get_date_from_str(end_date)
+        if end_date is None:
+            sys.stderr.write(f"\nInvalid date: {end_date}\n")
+            sys.exit(1)
+
     if csv_date is not None:
         csv_date = get_date_from_str(csv_date)
         if csv_date is None:
             sys.stderr.write(f"\nInvalid date: {csv_date}\n")
             sys.exit(1)
+
+    if csv_date is not None and end_date is not None and csv_date > end_date:
+        sys.stderr.write("\nStart date must be before end date.\n")
+        sys.exit(1)
 
     if md_date is not None:
         md_date = get_date_from_str(md_date)
@@ -54,7 +64,10 @@ def handled_option(csv_date, md_date, export_path) -> bool:
     app_data = AppData()
 
     if csv_date is not None:
-        app_data.cli_export_daily_csv(csv_date, export_path)
+        if end_date is not None:
+            app_data.cli_export_date_range_csv(csv_date, end_date, export_path)
+        else:
+            app_data.cli_export_daily_csv(csv_date, export_path)
 
     if md_date is not None:
         app_data.cli_export_daily_markdown(md_date, export_path)
@@ -88,15 +101,22 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "are not overwritten.",
 )
 @click.option(
+    "--end-date",
+    default=None,
+    help="Export a range of sessions from the start date to the end date "
+    "(provide the dates as YYYY-MM-DD or YY-MM-DD). This option is only valid "
+    "with the --csv-date or --md-date option.",
+)
+@click.option(
     "--export-path",
     default=None,
     help="Path to export a Daily CSV or Markdown file. "
     "This option is required if a 'Daily CSV Folder' or 'Daily Markdown Folder' is "
     "not configured, or you want the files written to a different location.",
 )
-def cli(csv_date, md_date, export_path) -> None:
+def cli(csv_date, md_date, end_date, export_path) -> None:
     """Handle any command-line options or run the TUI."""
-    if handled_option(csv_date, md_date, export_path):
+    if handled_option(csv_date, md_date, end_date, export_path):
         return
     run()
 
