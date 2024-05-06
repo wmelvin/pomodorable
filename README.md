@@ -4,9 +4,11 @@ A **pomodoro timer** built using Textual.
 
 > Development work in progress.
 
+![Picture of a Pomodoro Timer](./readme_images/pomororo-timer-200.jpg)
+
 ## Screenshots
 
-![screenshot animation](./readme_images/app-1.gif)
+![Screenshot animation](./readme_images/app-1.gif)
 
 ## Using the Application
 
@@ -39,7 +41,7 @@ A **pomodoro timer** built using Textual.
 
 #### Task Panel
 
-- **Task description** input box: A brief description of the task at hand. Optional.
+- **Task description** input box: A brief description of the task at hand (optional). Press the **down arrow** key to open a list of recently used descriptions to pick from.
 - **Start** button: Starts the session. Countdown begins. Time displays show Start and End times for the running session.
 
 #### Pause Panel - Running
@@ -50,7 +52,7 @@ A **pomodoro timer** built using Textual.
 #### Pause Panel - Paused
 
 - **Pause** button: Disabled when *paused*.
-- **Reason description** input box: Enter the reason for pausing. Optional.
+- **Reason description** input box: Enter the reason for pausing (optional). Press the **down arrow** key to open a list of recently used descriptions to pick from.
 - **Extend** button: Return to *running*. Add the paused duration to the end-time to complete the full session length time-on-task.
 - **Resume** button: Return to *running*. Resume the session from the current time. The pause duration is subtracted from the countdown, reducing the session's time-on-task.
 - **Stop** button: Finish the session now. Return to *ready* mode.
