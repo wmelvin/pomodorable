@@ -146,7 +146,7 @@ SettingsScreen {
     }
 }
 
-SettingInput, SettingSwitch {
+SettingInput, SettingSwitch, SettingOutputFilter {
     border-bottom: solid olive;
     margin: 0;
 
@@ -178,6 +178,10 @@ SettingSwitch {
     #swt-setting {
         margin: 0 2;
     }
+}
+
+#set-filter-csv Horizontal {
+    height: 6;
 }
 
 TimerBar {
