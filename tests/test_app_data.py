@@ -297,3 +297,73 @@ def test_set_debug_logging(tmp_path, env_value, log_level, monkeypatch):
     logr = logging.getLogger()
     levl = logging.getLevelName(logr.level)
     assert levl == log_level
+
+
+@pytest.mark.parametrize(
+    ("filter_value", "act_code", "expected_count"),
+    [
+        ("F", "F", 0),
+        ("X", "X", 0),
+        ("P", "E", 0),
+        ("P", "R", 0),
+        ("R", "E", 1),
+        ("R", "R", 1),
+    ],
+)
+def test_filters_csv_output(tmp_path, filter_value, act_code, expected_count):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_csv_dir(str(tmp_path))
+    app_data.config.filter_csv = filter_value
+
+    # Write first session with pauses and finish.
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+
+    app_data.write_start(start_time, "Test session 1", 10)
+
+    # Extend (E) with a reason noted.
+    t = start_time + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
+    )
+
+    # Resume (R) with a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+    )
+
+    # Extend (E) without a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="", pause_seconds=5, session_extended=True
+    )
+
+    # Resume (R) without a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="", pause_seconds=2, session_extended=False
+    )
+
+    # Finish (F).
+    t = t + timedelta(seconds=10)
+    app_data.write_finish(finish_time=t, start_time=start_time)
+
+    # Write second session with stop.
+    start_time = datetime.fromisoformat("2024-01-02T09:00:00")
+
+    app_data.write_start(start_time, "Test session 2", 10)
+
+    # Stop (X).
+    t = start_time + timedelta(seconds=5)
+    app_data.write_stop(stop_time=t, reason="Test stop")
+
+    csv_file = tmp_path / "2024-01-02.csv"
+    assert csv_file.exists()
+
+    with csv_file.open() as f:
+        reader = DictReader(f)
+        fields = reader.fieldnames
+        assert fields == ["date", "act", "time", "task", "message", "notes"]
+        acts = [row["act"] for row in reader]
+
+    assert acts.count(act_code) == expected_count

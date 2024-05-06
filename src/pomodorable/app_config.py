@@ -83,8 +83,8 @@ class AppConfig:
                 self.log_retention_days = doc.get(
                     KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
                 )
-                self.filter_csv = doc.get(KEY_FILTER_CSV, "")
-                self.filter_md = doc.get(KEY_FILTER_MD, "")
+                self.filter_csv = doc.get(KEY_FILTER_CSV, "").upper()
+                self.filter_md = doc.get(KEY_FILTER_MD, "").upper()
                 self._fix_daily_md_heading()
             except Exception:
                 logging.exception("Error loading configuration.")

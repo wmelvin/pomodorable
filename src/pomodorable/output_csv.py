@@ -5,9 +5,14 @@ from pathlib import Path
 
 
 def write_to_sessions_csv(
-    csv_file: Path, data_rows: list[dict], start_num: int = 0
+    csv_file: Path, filters: str, data_rows: list[dict], start_num: int = 0
 ) -> None:
     #  Note: Output CSV layout is different from the Data CSV.
+
+    exclude_pause_all = "P" in filters
+    exclude_pause_no_reason = "R" in filters
+    exclude_stop = "X" in filters
+    exclude_finish = "F" in filters
 
     #  Write the header row when the file is created.
     if not csv_file.exists():
@@ -26,8 +31,11 @@ def write_to_sessions_csv(
         writer = csv.writer(f)
         last_date = None
         for row in data_rows:
+            action = row["action"]
+            row_message = row["message"]
+            row_notes = row["notes"]
             out_row = None
-            if row["action"] == "Start":
+            if action == "Start":
                 # If a start_num was provided and the current row begins a new
                 # date (exporting a date range), then reset the session_num.
                 if start_num > 0 and last_date is not None and row["date"] != last_date:
@@ -36,45 +44,53 @@ def write_to_sessions_csv(
                     row["date"],
                     session_num or "S",
                     row["time"],
-                    row["message"],
+                    row_message,
                     "",
                     "",
                 ]
                 if start_num > 0:
                     session_num += 1
                 last_date = row["date"]
-            elif row["action"] == "Pause":
-                if row["notes"] == "extended":
-                    act = "E"
-                    msg = "Pause (extended)"
+            elif action == "Pause":
+                if exclude_pause_all:
+                    continue
+                if exclude_pause_no_reason and len(row_message) == 0:
+                    continue
+                if row_notes == "extended":
+                    out_act = "E"
+                    out_msg = "Pause (extended)"
                 else:
-                    act = "R"
-                    msg = "Pause (resumed)"
+                    out_act = "R"
+                    out_msg = "Pause (resumed)"
                 out_row = [
                     row["date"],
-                    act,
+                    out_act,
                     row["time"],
                     "",
-                    msg,
-                    row["message"],
+                    out_msg,
+                    row_message,
                 ]
-            elif row["action"] == "Stop":
+            elif action == "Stop":
+                if exclude_stop:
+                    continue
                 out_row = [
                     row["date"],
                     "X",
                     row["time"],
                     "",
                     "Stop",
-                    row["message"],
+                    row_message,
                 ]
-            elif row["action"] == "Finish":
+            elif action == "Finish":
+                if exclude_finish:
+                    continue
                 out_row = [
                     row["date"],
                     "F",
                     row["time"],
                     "",
                     "Finish",
-                    row["notes"],
+                    row_notes,
                 ]
             if out_row:
                 writer.writerow(out_row)

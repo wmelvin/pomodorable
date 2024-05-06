@@ -298,14 +298,14 @@ class AppData:
         if path:
             date_str = rows[0]["date"]
             csv_file = path / f"{date_str}.csv"
-            write_to_sessions_csv(csv_file, rows)
+            write_to_sessions_csv(csv_file, self.config.filter_csv, rows)
 
     def write_session_to_running_csv(self, rows: list[dict]) -> None:
         """Write the latest session to the running CSV file."""
         path = self.get_running_csv_path()
         if path:
             csv_file = path / self.config.running_csv_name
-            write_to_sessions_csv(csv_file, rows)
+            write_to_sessions_csv(csv_file, self.config.filter_csv, rows)
 
     def write_sessions_to_daily_md(self) -> None:
         """Write sessions to the daily markdown file.
@@ -368,7 +368,7 @@ class AppData:
 
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, rows, start_num=1)
+        write_to_sessions_csv(csv_file, self.config.filter_csv, rows, start_num=1)
 
     def cli_export_date_range_csv(
         self, start_date: datetime, end_date: datetime, export_path: Path | None
@@ -397,7 +397,7 @@ class AppData:
         )
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, rows, start_num=1)
+        write_to_sessions_csv(csv_file, self.config.filter_csv, rows, start_num=1)
 
     def cli_export_daily_markdown(
         self, export_date: datetime, export_path: Path | None
