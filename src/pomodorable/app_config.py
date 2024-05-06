@@ -16,6 +16,8 @@ KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_DAILY_MD_HEADING = "daily_md_heading"
 KEY_DAILY_MD_APPEND = "daily_md_append"
 KEY_LOG_RETENTION_DAYS = "log_retention_days"
+KEY_FILTER_CSV = "filter_csv"
+KEY_FILTER_MD = "filter_md"
 
 
 class AppConfig:
@@ -29,6 +31,8 @@ class AppConfig:
         self.daily_md_heading: str = ""
         self.daily_md_append: bool = False
         self.log_retention_days: int = LOG_RETENTION_DEFAULT
+        self.filter_csv: str = ""
+        self.filter_md: str = ""
 
     def _load_toml_doc(self) -> document:
         """Load the TOML document from the configuration file. If the file
@@ -79,6 +83,8 @@ class AppConfig:
                 self.log_retention_days = doc.get(
                     KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
                 )
+                self.filter_csv = doc.get(KEY_FILTER_CSV, "")
+                self.filter_md = doc.get(KEY_FILTER_MD, "")
                 self._fix_daily_md_heading()
             except Exception:
                 logging.exception("Error loading configuration.")
@@ -103,6 +109,8 @@ class AppConfig:
             doc[KEY_DAILY_MD_HEADING] = self.daily_md_heading
             doc[KEY_DAILY_MD_APPEND] = self.daily_md_append
             doc[KEY_LOG_RETENTION_DAYS] = self.log_retention_days
+            doc[KEY_FILTER_CSV] = self.filter_csv
+            doc[KEY_FILTER_MD] = self.filter_md
             text = dumps(doc)
             self._config_file.write_text(text)
         except Exception:
