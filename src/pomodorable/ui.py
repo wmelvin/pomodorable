@@ -31,7 +31,7 @@ ONE_MINUTE = 60
 FIVE_MINUTES = 5 * ONE_MINUTE
 DEFAULT_SESSION_SECONDS = 25 * ONE_MINUTE
 
-UPDATE_INTERVAL = 1 / 3  # Update three times per second.
+UPDATE_INTERVAL = 1 / 2  # Update twice per second.
 
 
 class CountdownDisplay(Static):

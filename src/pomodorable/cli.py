@@ -19,7 +19,7 @@ def get_app_version() -> str:
         return MOD_VERSION
 
 
-def handled_option(csv_date, md_date, end_date, export_path) -> bool:
+def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
     """Handle the command-line options for exporting CSV or Markdown files.
     If there are errors in the options, print an error message and exit.
     If options are handled, return True; otherwise, return False.
@@ -63,11 +63,13 @@ def handled_option(csv_date, md_date, end_date, export_path) -> bool:
 
     app_data = AppData()
 
+    filters = "" if filters is None else filters.upper()
+
     if csv_date is not None:
         if end_date is not None:
-            app_data.cli_export_date_range_csv(csv_date, end_date, export_path)
+            app_data.cli_export_date_range_csv(csv_date, end_date, filters, export_path)
         else:
-            app_data.cli_export_daily_csv(csv_date, export_path)
+            app_data.cli_export_daily_csv(csv_date, filters, export_path)
 
     if md_date is not None:
         app_data.cli_export_daily_markdown(md_date, export_path)
@@ -114,9 +116,17 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "This option is required if a 'Daily CSV Folder' or 'Daily Markdown Folder' is "
     "not configured, or you want the files written to a different location.",
 )
-def cli(csv_date, md_date, end_date, export_path) -> None:
+@click.option(
+    "--filters",
+    default="",
+    help="Filter specified actions from exported CSV data. "
+    "The filter is specified as a string with no spaces, where each character "
+    "represents a type of action to exclude. The characters are: "
+    "F (Finish), P (Pause - all), R (pause w/o Reason), and X (Stop).",
+)
+def cli(csv_date, md_date, end_date, export_path, filters) -> None:
     """Handle any command-line options or run the TUI."""
-    if handled_option(csv_date, md_date, end_date, export_path):
+    if handled_option(csv_date, md_date, end_date, export_path, filters):
         return
     run()
 

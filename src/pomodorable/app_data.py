@@ -336,12 +336,15 @@ class AppData:
         )
 
     def cli_export_daily_csv(
-        self, export_date: datetime, export_path: Path | None
+        self, export_date: datetime, filters: str, export_path: Path | None
     ) -> None:
         """Export a daily CSV file for a given date.
 
         If export_path is not provided, use the configured 'Daily CSV Folder'.
         If the folder is not configured, return without exporting.
+
+        For CLI export the filters are passed as a command line argument.
+        The filter_csv AppConfig setting is not used.
         """
         path = export_path if export_path else self.get_daily_csv_path()
         if not path:
@@ -368,15 +371,22 @@ class AppData:
 
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, self.config.filter_csv, rows, start_num=1)
+        write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
     def cli_export_date_range_csv(
-        self, start_date: datetime, end_date: datetime, export_path: Path | None
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        filters: str,
+        export_path: Path | None,
     ) -> None:
         """Export a daily CSV file for a given date range.
 
         If export_path is not provided, use the configured 'Running CSV Folder'.
         If the folder is not configured, return without exporting.
+
+        For CLI export the filters are passed as a command line argument.
+        The filter_csv AppConfig setting is not used.
         """
         path = export_path if export_path else self.get_running_csv_path()
         if not path:
@@ -397,7 +407,7 @@ class AppData:
         )
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, self.config.filter_csv, rows, start_num=1)
+        write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
     def cli_export_daily_markdown(
         self, export_date: datetime, export_path: Path | None
