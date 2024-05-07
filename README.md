@@ -4,11 +4,19 @@ A **pomodoro timer** built using Textual.
 
 > Development work in progress.
 
-![Picture of a Pomodoro Timer](./readme_images/pomororo-timer-200.jpg)
+<!-- ![Picture of a Pomodoro Timer](./readme_images/pomororo-timer-200.jpg) -->
+<p align="center">
+<a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomororo-timer-200.jpg">
+<img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomororo-timer-200.jpg"
+alt="Picture of a Pomodoro Timer"/></a></p>
 
 ## Screenshots
 
-![Screenshot animation](./readme_images/app-1.gif)
+<!-- ![Screenshot animation](./readme_images/app-1.gif) -->
+<p align="center">
+<a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/app-1.gif">
+<img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/app-1.gif"
+alt="Screenshot animation"/></a></p>
 
 ## Using the Application
 
@@ -22,7 +30,7 @@ A **pomodoro timer** built using Textual.
     - Returned to when *Extend* or *Resume* is chosen in *paused* mode.
 3. **Paused**
     - Entered when the *Pause* button is pressed.
-    - Ended by pressing *Extend*, *Resume* or *Stop*. 
+    - Ended by pressing *Extend*, *Resume* or *Stop*.
 
 ### Display and Inputs
 
@@ -56,6 +64,15 @@ A **pomodoro timer** built using Textual.
 - **Extend** button: Return to *running*. Add the paused duration to the end-time to complete the full session length time-on-task.
 - **Resume** button: Return to *running*. Resume the session from the current time. The pause duration is subtracted from the countdown, reducing the session's time-on-task.
 - **Stop** button: Finish the session now. Return to *ready* mode.
+
+#### Timer Bar
+
+- Mimics the markings on a classic pomodoro (tomato-shaped) kitchen timer.
+- Shows the current countdown minute at the pointer.
+
+#### Log Panel
+
+- Shows messages from the application with a timestamp.
 
 ## Reference
 
