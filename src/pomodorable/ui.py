@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# import faulthandler
 import logging
 from datetime import datetime, timedelta
 
@@ -24,6 +25,8 @@ from pomodorable.app_utils import q_text
 from pomodorable.mru_screen import MRUScreen
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
+
+# faulthandler.enable()
 
 APP_NAME = "Pomodorable"
 
@@ -237,9 +240,15 @@ class PomodorableApp(App):
         self.title = APP_NAME
         self.sub_title = ""
         self.say("Hello.")
+
         if self.app_data.do_debug:
             self.say("Note: DEBUG enabled")
+
+        # if faulthandler.is_enabled():
+        #     self.say("Note: faulthandler enabled")
+
         self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
+
         # The update_timer is initially paused.
         self.query_one(CountdownDisplay).update_timer.resume()
         self.query_one("#input-task").focus()
