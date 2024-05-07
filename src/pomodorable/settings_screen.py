@@ -21,14 +21,12 @@ class SettingOutputFilter(Static):
     def compose(self) -> ComposeResult:
         yield Label("(setting)", id="lbl-setting")
         with Horizontal(id="sel-list"):
-            yield SelectionList[str](
-                ("Finish", "F"),
-                ("Pause (all)", "P"),
-                ("Pause (w/o Reason)", "R"),
-                ("Stop", "X"),
-            )
+            yield SelectionList[str]()
             yield Button("undo", id="btn-undo")
         yield Label("(warnings)", id="lbl-warn")
+
+    def on_mount(self) -> None:
+        self.query_one(SelectionList).border_title = "Select actions to exclude:"
 
     def _set_options(self, value: str) -> None:
         flags = value.upper()
@@ -200,10 +198,11 @@ class SettingsScreen(Screen[str]):
             SettingInput(id="set-csv-dir-run"),
             SettingInput(id="set-csv-name-run"),
             SettingInput(id="set-csv-dir-daily"),
-            SettingOutputFilter(id="set-filter-csv"),
+            SettingOutputFilter(id="set-filter-csv", classes="set-filter"),
             SettingInput(id="set-md-dir"),
             SettingInput(id="set-md-heading"),
             SettingSwitch(id="set-md-append"),
+            SettingOutputFilter(id="set-filter-md", classes="set-filter"),
             SettingInput(id="set-log-ret"),
         )
         yield Horizontal(
@@ -243,7 +242,7 @@ class SettingsScreen(Screen[str]):
         )
 
         self.query_one("#set-filter-csv").initialize(
-            "Filter CSV output - exclude events.",
+            "Filter CSV output",
             self.app_config.filter_csv or "",
             [],
         )
@@ -263,6 +262,12 @@ class SettingsScreen(Screen[str]):
         self.query_one("#set-md-append").initialize(
             "Daily Markdown Append-only (file is created by another application)",
             self.app_config.daily_md_append,
+            [],
+        )
+
+        self.query_one("#set-filter-md").initialize(
+            "Filter Markdown output",
+            self.app_config.filter_md or "",
             [],
         )
 
@@ -348,6 +353,13 @@ class SettingsScreen(Screen[str]):
             has_errors = True
         elif changed:
             self.app_config.daily_md_append = value
+            has_changes = True
+
+        changed, is_valid, value = self.query_one("#set-filter-md").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.filter_md = value
             has_changes = True
 
         changed, is_valid, value = self.query_one("#set-log-ret").get_status()

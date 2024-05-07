@@ -180,7 +180,7 @@ SettingSwitch {
     }
 }
 
-#set-filter-csv Horizontal {
+.set-filter Horizontal {
     height: 6;
 }
 
