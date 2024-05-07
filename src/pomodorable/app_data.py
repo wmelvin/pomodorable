@@ -332,7 +332,11 @@ class AppData:
             return
         md_file = path / f"{date_str}.md"
         write_to_daily_md(
-            md_file, self.config.daily_md_heading, self.config.daily_md_append, rows
+            md_file,
+            self.config.filter_md,
+            self.config.daily_md_heading,
+            self.config.daily_md_append,
+            rows,
         )
 
     def cli_export_daily_csv(
@@ -410,7 +414,7 @@ class AppData:
         write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
     def cli_export_daily_markdown(
-        self, export_date: datetime, export_path: Path | None
+        self, export_date: datetime, filters: str, export_path: Path | None
     ) -> None:
         """Export a daily markdown file for a given date.
 
@@ -444,4 +448,44 @@ class AppData:
 
         print(f"\nExporting to {md_file}\n")  # noqa: T201
 
-        write_to_daily_md(md_file, heading, append_only=False, data_rows=rows)
+        write_to_daily_md(md_file, filters, heading, append_only=False, data_rows=rows)
+
+    def cli_export_date_range_markdown(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        filters: str,
+        export_path: Path | None,
+    ) -> None:
+        """Export a daily markdown file for a given date range.
+
+        If export_path is not provided, use the configured 'Daily Markdown Folder'.
+        If the folder is not configured, return without exporting.
+        """
+        path = export_path if export_path else self.get_daily_md_path()
+        if not path:
+            return
+
+        rows = []
+        for day in range((end_date - start_date).days + 1):
+            rows.extend(
+                self.get_session_rows_for_date(start_date + timedelta(days=day))
+            )
+
+        if not rows:
+            print("\nNo data found for given date range.\n")  # noqa: T201
+            return
+
+        md_file = path.joinpath(
+            f"{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.md"
+        )
+
+        print(f"\nExporting to {md_file}\n")  # noqa: T201
+
+        write_to_daily_md(
+            md_file,
+            filters,
+            self.config.daily_md_heading,
+            append_only=False,
+            data_rows=rows,
+        )

@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 
-def rows_as_md(data_rows: list[dict]) -> list[str]:
+def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
+    exclude_pause_all = "P" in filters
+    exclude_pause_no_reason = "R" in filters
+    exclude_stop = "X" in filters
+    exclude_finish = "F" in filters
     md = []
     for row in data_rows:
         if row["action"] == "Start":
@@ -12,21 +16,29 @@ def rows_as_md(data_rows: list[dict]) -> list[str]:
             md.append(f"    - Start {row['time']}")
 
         elif row["action"] == "Pause":
+            if exclude_pause_all:
+                continue
+            if exclude_pause_no_reason and not row["message"]:
+                continue
             act = (
                 f"extend {row['duration']}" if row["notes"] == "extended" else "resume"
             )
             md.append(f"    - Pause {row['time']} '{row['message']}' ({act})")
 
         elif row["action"] == "Stop":
+            if exclude_stop:
+                continue
             md.append(f"    - STOP {row['time']} '{row['message']}'")
 
         elif row["action"] == "Finish":
+            if exclude_finish:
+                continue
             md.append(f"    - Finish {row['time']} ({row['notes']})")
     return md
 
 
 def write_to_daily_md(
-    md_file: Path, heading: str, append_only: bool, data_rows: list[dict]
+    md_file: Path, filters: str, heading: str, append_only: bool, data_rows: list[dict]
 ) -> None:
     md_heading = f"{heading}" if heading else f"# Pomodori {data_rows[0]['date']}"
 
@@ -71,9 +83,9 @@ def write_to_daily_md(
     md = [md_heading, ""] if heading_index is None else []
 
     if heading_index is None:
-        md.extend(rows_as_md(data_rows))
+        md.extend(rows_as_md(filters, data_rows))
     else:
-        md_rows = rows_as_md(data_rows)
+        md_rows = rows_as_md(filters, data_rows)
         section_rows = lines[hx:insert_index]
         md.extend([row for row in md_rows if row not in section_rows])
 

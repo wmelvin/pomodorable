@@ -171,14 +171,14 @@ def test_write_to_daily_md(app_data_with_four_test_sessions):
     assert len(rows) == 6
 
     write_to_daily_md(
-        md_file=md_file, heading="", append_only=False, data_rows=rows[:3]
+        md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[:3]
     )
 
     # Make a copy for manual review in tmp location.
     (p / "test-1.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="", append_only=False, data_rows=rows[3:]
+        md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[3:]
     )
 
 
@@ -198,13 +198,21 @@ def test_append_to_daily_md(app_data_with_six_test_sessions):
     (p / "test-0.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows[:6]
+        md_file=md_file,
+        filters="",
+        heading="## Pomodori",
+        append_only=True,
+        data_rows=rows[:6],
     )
 
     (p / "test-1.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
+        md_file=md_file,
+        filters="",
+        heading="## Pomodori",
+        append_only=True,
+        data_rows=rows,
     )
 
     s = md_file.read_text()
@@ -224,7 +232,11 @@ def test_append_to_daily_md_created_after_session(app_data_with_six_test_session
     assert len(rows) == 12
 
     write_to_daily_md(
-        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
+        md_file=md_file,
+        filters="",
+        heading="## Pomodori",
+        append_only=True,
+        data_rows=rows,
     )
 
     assert not md_file.exists()
@@ -236,7 +248,11 @@ def test_append_to_daily_md_created_after_session(app_data_with_six_test_session
     (p / "test-1.md").write_text(md_file.read_text())
 
     write_to_daily_md(
-        md_file=md_file, heading="## Pomodori", append_only=True, data_rows=rows
+        md_file=md_file,
+        filters="",
+        heading="## Pomodori",
+        append_only=True,
+        data_rows=rows,
     )
 
     s = md_file.read_text()
@@ -302,12 +318,16 @@ def test_set_debug_logging(tmp_path, env_value, log_level, monkeypatch):
 @pytest.mark.parametrize(
     ("filter_value", "act_code", "expected_count"),
     [
+        ("", "F", 1),
         ("F", "F", 0),
-        ("X", "X", 0),
+        ("", "E", 2),
+        ("", "R", 2),
         ("P", "E", 0),
         ("P", "R", 0),
         ("R", "E", 1),
         ("R", "R", 1),
+        ("", "X", 1),
+        ("X", "X", 0),
     ],
 )
 def test_filters_csv_output(tmp_path, filter_value, act_code, expected_count):
@@ -367,3 +387,72 @@ def test_filters_csv_output(tmp_path, filter_value, act_code, expected_count):
         acts = [row["act"] for row in reader]
 
     assert acts.count(act_code) == expected_count
+
+
+@pytest.mark.parametrize(
+    ("filter_value", "find_str", "expected_count"),
+    [
+        ("", "- Finish", 1),
+        ("F", "- Finish", 0),
+        ("", "(extend", 2),
+        ("", "(resume", 2),
+        ("P", "(extend", 0),
+        ("P", "(resume", 0),
+        ("R", "(extend", 1),
+        ("R", "(resume", 1),
+        ("", "- STOP", 1),
+        ("X", "- STOP", 0),
+    ],
+)
+def test_filters_markdown_output(tmp_path, filter_value, find_str, expected_count):
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_md_dir(str(tmp_path))
+    app_data.config.filter_md = filter_value
+
+    # Write first session with pauses and finish.
+    start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+
+    app_data.write_start(start_time, "Test session 1", 10)
+
+    # Extend (E) with a reason noted.
+    t = start_time + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
+    )
+
+    # Resume (R) with a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+    )
+
+    # Extend (E) without a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="", pause_seconds=5, session_extended=True
+    )
+
+    # Resume (R) without a reason noted.
+    t = t + timedelta(seconds=10)
+    app_data.write_pause(
+        pause_time=t, reason="", pause_seconds=2, session_extended=False
+    )
+
+    # Finish (F).
+    t = t + timedelta(seconds=10)
+    app_data.write_finish(finish_time=t, start_time=start_time)
+
+    # Write second session with stop.
+    start_time = datetime.fromisoformat("2024-01-02T09:00:00")
+
+    app_data.write_start(start_time, "Test session 2", 10)
+
+    # Stop (X).
+    t = start_time + timedelta(seconds=5)
+    app_data.write_stop(stop_time=t, reason="Test stop")
+
+    md_file = tmp_path / "2024-01-02.md"
+    assert md_file.exists()
+
+    text = md_file.read_text()
+    assert text.count(find_str) == expected_count

@@ -72,7 +72,7 @@ def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
             app_data.cli_export_daily_csv(csv_date, filters, export_path)
 
     if md_date is not None:
-        app_data.cli_export_daily_markdown(md_date, export_path)
+        app_data.cli_export_daily_markdown(md_date, filters, export_path)
 
     return True
 
