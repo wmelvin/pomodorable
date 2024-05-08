@@ -10,10 +10,15 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
     exclude_finish = "F" in filters
     md = []
     for row in data_rows:
+        row_time = row["time"]
+        # Remove seconds from time (HH:MM:SS to HH:MM).
+        if row_time.count(":") == 2:  # noqa: PLR2004
+            row_time = row_time.rsplit(":", 1)[0]
+
         if row["action"] == "Start":
             msg = "(?)" if not row["message"] else row["message"]
             md.append(f"- **{msg}**")
-            md.append(f"    - Start {row['time']}")
+            md.append(f"    - Start {row_time}")
 
         elif row["action"] == "Pause":
             if exclude_pause_all:
@@ -23,17 +28,17 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
             act = (
                 f"extend {row['duration']}" if row["notes"] == "extended" else "resume"
             )
-            md.append(f"    - Pause {row['time']} '{row['message']}' ({act})")
+            md.append(f"    - Pause {row_time} '{row['message']}' ({act})")
 
         elif row["action"] == "Stop":
             if exclude_stop:
                 continue
-            md.append(f"    - STOP {row['time']} '{row['message']}'")
+            md.append(f"    - STOP {row_time} '{row['message']}'")
 
         elif row["action"] == "Finish":
             if exclude_finish:
                 continue
-            md.append(f"    - Finish {row['time']} ({row['notes']})")
+            md.append(f"    - Finish {row_time} ({row['notes']})")
     return md
 
 
