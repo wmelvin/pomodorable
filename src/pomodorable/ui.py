@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-# import faulthandler
+import faulthandler
 import logging
 from datetime import datetime, timedelta
 
@@ -26,7 +26,7 @@ from pomodorable.mru_screen import MRUScreen
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
 
-# faulthandler.enable()
+faulthandler.enable()
 
 APP_NAME = "Pomodorable"
 
@@ -244,8 +244,13 @@ class PomodorableApp(App):
         if self.app_data.do_debug:
             self.say("Note: DEBUG enabled")
 
-        # if faulthandler.is_enabled():
-        #     self.say("Note: faulthandler enabled")
+        # The faulthandler module is enabled when the app is loaded.
+        # If not in debug mode, disable faulthandler.
+        if faulthandler.is_enabled():
+            if self.app_data.do_debug:
+                self.say("Note: faulthandler enabled")
+            else:
+                faulthandler.disable()
 
         self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
 
