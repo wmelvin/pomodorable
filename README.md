@@ -120,7 +120,7 @@ The **Running CSV** output spans multiple days (*running* vs *daily*). Both the 
 The following columns are in the CSV output files:
 
 - **date**: Date of the action.
-- **act**: Action code (see below). When exported via the `--export_csv` CLI option, *Start* actions will instead have the *session number* (daily sequence).
+- **act**: Action code (see below). When exported via the `--export-csv` CLI option, *Start* actions will instead have the *session number* (daily sequence).
 - **time**: Time of the action.
 - **task**: Description of the task for *Start* actions, otherwise empty.
 - **message**: Message associated with the action. Varies depending on the action.
@@ -146,7 +146,7 @@ If the *Daily Markdown Append-only* setting is enabled, the Daily Note file (exp
 
 ### Configuration File
 
-The configuration file is `pomodorable-config.toml` and is stored in a folder named `pomodorable` under the *user config* folder for the operating system. Configuration settings are managed in the *Settings* screen, so do not need to be edited directly in the file.
+The configuration file is `pomodorable-config.toml` and is stored in a folder named `pomodorable` under the *user config* folder for the operating system. Configuration settings are managed in the *Settings* screen. You should not need to directly edit this file.
 
 ### Data File
 
