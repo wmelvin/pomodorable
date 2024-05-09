@@ -90,19 +90,19 @@ The *About* screen is a dialog box showing some information about the applicatio
 The *Settings* screen is where you configure the application. It has the following settings:
 
 - **Session Minutes**: Initial *Countdown* setting on startup, finish, stop, or reset.
-- **Running CSV Folder**: Folder to which the file is to be written. The folder must already exist.
+- **Running CSV Folder**: Folder to which the file is written. The folder must already exist.
 - **Running CSV File Name**: Name to use for the output file (default is `pomodorable-sessions.csv`).
-- **Daily CSV Folder**: Folder to which the file is to be written. The folder must already exist.
+- **Daily CSV Folder**: Folder to which the file is written. The folder must already exist.
 - **Filter CSV Output**: Exclude selected actions from the CSV output files (see *Filters* below).
-- **Daily Markdown Folder**: Folder to which the file is to be written. The folder must already exist.
-- **Daily Markdown Heading**: The Markdown heading to insert before the individual sessions. The heading can be any heading level (`# Heading-text` or `### Heading-text` for example).
-- **Daily Markdown Append-only**: When enabled, the file must already exist because it should be created by another application.
+- **Daily Markdown Folder**: Folder to which the file is written. The folder must already exist.
+- **Daily Markdown Heading**: The Markdown [heading](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#headings) to insert before the individual sessions. The heading can be any heading level (`# Heading-text` or `### Heading-text` for example).
+- **Daily Markdown Append-only**: When enabled, the file must already exist. This is for the case where the file is initially created by another application (such as a Daily Note file created by Obsidian).
 - **Filter Markdown Output**: Exclude selected actions from the Markdown output files (see *Filters* below).
 - **Log Retention Days**: Number of daily log files to keep. This applies to the application's operational logs, not the session data.
 
 **Filters** for CSV and Markdown output:
 
-| Settings screen | CLI: `--filter=` | Description |
+| Settings screen | CLI: `--filters=` | Description |
 | --- | --- | --- |
 | Finish | F | Exclude *Finish* actions. |
 | Pause (all) | P | Exclude all *Pause* actions. |
