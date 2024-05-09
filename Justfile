@@ -28,7 +28,7 @@
 # Run pytest
 @test:
   hatch run test
-  
+
 # Run test matrix
 @testmx:
   hatch run test:test
@@ -48,3 +48,7 @@
 # Take a screenshot using textual --screenshot.
 @tss:
   hatch run textual run src/pomodorable/ui.py --screenshot 5
+
+# Redirect help output to temp.txt
+@help:
+  hatch run pomodorable -h > temp.txt

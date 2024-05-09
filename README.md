@@ -90,15 +90,57 @@ The *About* screen is a dialog box showing some information about the applicatio
 The *Settings* screen is where you configure the application. It has the following settings:
 
 - **Session Minutes**: Initial *Countdown* setting on startup, finish, stop, or reset.
-- **Running CSV Folder**: <!-- TODO -->
-- **Running CSV File Name**: <!-- TODO -->
-- **Daily CSV Folder**: <!-- TODO -->
-- **Filter CSV Output**: <!-- TODO -->
-- **Daily Markdown Folder**: <!-- TODO -->
-- **Daily Markdown Heading**: <!-- TODO -->
-- **Daily Markdown Append-only**: <!-- TODO -->
-- **Filter Markdown Output**: <!-- TODO -->
-- **Log Retention Days**: <!-- TODO -->
+- **Running CSV Folder**: Folder to which the file is to be written. The folder must already exist.
+- **Running CSV File Name**: Name to use for the output file (default is `pomodorable-sessions.csv`).
+- **Daily CSV Folder**: Folder to which the file is to be written. The folder must already exist.
+- **Filter CSV Output**: Exclude selected actions from the CSV output files (see *Filters* below).
+- **Daily Markdown Folder**: Folder to which the file is to be written. The folder must already exist.
+- **Daily Markdown Heading**: The Markdown heading to insert before the individual sessions. The heading can be any heading level (`# Heading-text` or `### Heading-text` for example).
+- **Daily Markdown Append-only**: When enabled, the file must already exist because it should be created by another application.
+- **Filter Markdown Output**: Exclude selected actions from the Markdown output files (see *Filters* below).
+- **Log Retention Days**: Number of daily log files to keep. This applies to the application's operational logs, not the session data.
+
+**Filters** for CSV and Markdown output:
+
+| Settings screen | CLI: `--filter=` | Description |
+| --- | --- | --- |
+| Finish | F | Exclude *Finish* actions. |
+| Pause (all) | P | Exclude all *Pause* actions. |
+| Pause (w/o Reason) | R | Exclude *Pause* actions with no *reason* noted. |
+| Stop | X | Exclude *Stop* actions. |
+
+## Outputs
+
+### Daily and Running CSV
+
+The **Daily CSV** output is for a single day. The folder it is written to can be configured in the *Settings* screen. The name of the file is the current date as *yyyy*-*mm*-*dd*.csv (`2024-04-30.csv`, for example).
+
+The **Running CSV** output spans multiple days (*running* vs *daily*). Both the folder, and file name, are configured in the *Settings* screen.
+
+The following columns are in the CSV output files:
+
+- **date**: Date of the action.
+- **act**: Action code (see below). When exported via the `--export_csv` CLI option, *Start* actions will instead have the *session number* (daily sequence).
+- **time**: Time of the action.
+- **task**: Description of the task for *Start* actions, otherwise empty.
+- **message**: Message associated with the action. Varies depending on the action.
+- **notes**: Note associated with the action. Varies depending on the action.
+
+Action codes:
+
+- **S** - Start
+- **E** - Extend (after Pause)
+- **R** - Resume (after Pause)
+- **F** - Finished session
+- **X** - Stopped session
+
+Note: The format of the CSV output files is based on the layout of a spreadsheet the author uses to track *pomodoro sessions* (among other things). It is designed for easy copy and paste into that spreadsheet. It's likely not the layout someone else would choose.
+
+### Daily Markdown
+
+The *Daily Markdown* output is designed to insert *pomodoro sessions* into a [Daily Notes](https://help.obsidian.md/Plugins/Daily+notes) file in [Obisdian](https://obsidian.md/).
+
+If the *Daily Markdown Append-only* setting is enabled, the Daily Note file (expects `YYYY-MM-DD.md`) must already exist. This is for the case where a [template](https://help.obsidian.md/Plugins/Templates) is used for Daily Note files and you want that template to always be used to create the file. If sessions are completed before the file is created they will be included the first time a session finishes and the Daily Note file exists.
 
 ## Data
 
@@ -126,38 +168,47 @@ This file is not intended to be used directly (though being CSV format, that is 
 
 ### Log Files
 
-Log files are also written to the `pomodorable` folder under the system's *user data* folder. 
+Log files are also written to the `pomodorable` folder under the system's *user data* folder.
 Each log file is named with the current date.
 The number of files to keep is configured in the *Settings* screen.
 
-## Outputs
+---
 
-### Daily and Running CSV
+## Command-Line Usage
 
-The **Daily CSV** output is for a single day. The folder it is written to can be configured in the *Settings* screen. The name of the file is the current date as *yyyy*-*mm*-*dd*.csv (`2024-04-30`, for example).
+``` console
 
-The **Running CSV** output spans multiple days (*running* vs *daily*). Both the folder it is written to, and the name of the file, can be configured in the *Settings* screen.
+Usage: pomodorable [OPTIONS]
 
-The following columns are in the CSV output files:
+  Handle command-line options or run the Textual User Interface.
 
-- **date**: Date of the action.
-- **act**: Action code (see below). When exported via the `--export_csv` CLI option, *Start* actions will instead have the *session number* (daily sequence).
-- **time**: Time of the action.
-- **task**: Description of the task for *Start* actions, otherwise empty.
-- **message**: Message associated with the action. Varies depending on the action.
-- **notes**: Note associated with the action. Varies depending on the action.
-
-Action codes:
-
-- **S** - Start
-- **E** - Extend (after Pause)
-- **R** - Resume (after Pause)
-- **F** - Finished session
-- **X** - Stopped session
-
-### Daily Markdown
-
-- *TODO*
+Options:
+  --version           Show the version and exit.
+  --csv-date TEXT     Export a Daily CSV file for a given date (provide the
+                      date as YYYY-MM-DD or YY-MM-DD). If a 'Daily CSV Folder'
+                      is not configured, then you must provide the --export-
+                      path option as well. Existing files are not overwritten.
+                      Exits when finished.
+  --md-date TEXT      Export a Daily Markdown file for a given date (provide
+                      the date as YYYY-MM-DD or YY-MM-DD). If a 'Daily
+                      Markdown Folder' is not configured, then you must
+                      provide the --export-path option as well. Existing files
+                      are not overwritten. Exits when finished.
+  --end-date TEXT     Export a range of sessions from the start date to the
+                      end date (provide the dates as YYYY-MM-DD or YY-MM-DD).
+                      This option is only valid with the --csv-date or --md-
+                      date option.
+  --export-path TEXT  Path to export a Daily CSV or Markdown file. This option
+                      is required if a 'Daily CSV Folder' or 'Daily Markdown
+                      Folder' is not configured, or you want the files written
+                      to a different location.
+  --filters TEXT      Filter specified actions from exported CSV data. The
+                      filter is specified as a string with no spaces, where
+                      each character represents a type of action to exclude.
+                      The characters are: F (Finish), P (Pause - all), R
+                      (pause w/o Reason), and X (Stop).
+  -h, --help          Show this message and exit.
+```
 
 ---
 

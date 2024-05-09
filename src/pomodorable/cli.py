@@ -9,7 +9,7 @@ from pomodorable.app_utils import get_date_from_str
 from pomodorable.ui import PomodorableApp
 
 DIST_NAME = "pomodorable"
-MOD_VERSION = "cli-240505.1"
+MOD_VERSION = "cli-240509.1"
 
 
 def get_app_version() -> str:
@@ -92,7 +92,8 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     default=None,
     help="Export a Daily CSV file for a given date (provide the date as YYYY-MM-DD "
     "or YY-MM-DD). If a 'Daily CSV Folder' is not configured, then you must provide "
-    "the --export-path option as well. Existing files are not overwritten.",
+    "the --export-path option as well. Existing files are not overwritten. "
+    "Exits when finished.",
 )
 @click.option(
     "--md-date",
@@ -100,7 +101,7 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     help="Export a Daily Markdown file for a given date (provide the date as "
     "YYYY-MM-DD or YY-MM-DD). If a 'Daily Markdown Folder' is not configured, "
     "then you must provide the --export-path option as well. Existing files "
-    "are not overwritten.",
+    "are not overwritten. Exits when finished.",
 )
 @click.option(
     "--end-date",
@@ -125,7 +126,7 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "F (Finish), P (Pause - all), R (pause w/o Reason), and X (Stop).",
 )
 def cli(csv_date, md_date, end_date, export_path, filters) -> None:
-    """Handle any command-line options or run the TUI."""
+    """Handle command-line options or run the Textual User Interface."""
     if handled_option(csv_date, md_date, end_date, export_path, filters):
         return
     run()

@@ -212,7 +212,7 @@ class PomodorableApp(App):
             Button("+1", id="btn-plus-one", classes="updn"),
             Button("-1", id="btn-minus-one", classes="updn"),
             Button("-5", id="btn-minus-five", classes="updn"),
-            Button("?", id="btn-about"),
+            Button("?", name="About", id="btn-about"),
             Button("Settings...", id="btn-settings"),
             id="frm-set",
         )
