@@ -27,7 +27,7 @@ def write_to_sessions_csv(
     session_num = start_num
 
     #  Append data rows.
-    with csv_file.open("a") as f:
+    with csv_file.open("a", newline="") as f:
         writer = csv.writer(f)
         last_date = None
         for row in data_rows:

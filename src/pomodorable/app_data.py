@@ -254,7 +254,7 @@ class AppData:
         """Return the latest session rows from the CSV file."""
         if not self._data_csv.exists():
             return []
-        with self._data_csv.open() as f:
+        with self._data_csv.open(newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -274,7 +274,7 @@ class AppData:
         """Return the session rows for a given date from the CSV file."""
         if not self._data_csv.exists():
             return []
-        with self._data_csv.open() as f:
+        with self._data_csv.open(newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
         return [row for row in rows if row["date"] == date.strftime("%Y-%m-%d")]

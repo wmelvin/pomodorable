@@ -1,4 +1,5 @@
 import csv
+import logging
 from pathlib import Path
 
 MRU_LIST_MAX = 12
@@ -20,17 +21,22 @@ class MRUList:
 
     def load(self) -> None:
         if self._csv_file.exists():
-            with self._csv_file.open() as file:
-                reader = csv.reader(file)
-                for row in reader:
-                    if row[0] == "task":
-                        self._mru_task.append(row[1])
-                    elif row[0] == "reason":
-                        self._mru_reason.append(row[1])
+            try:
+                with self._csv_file.open(newline="") as file:
+                    reader = csv.reader(file)
+                    for row in reader:
+                        if not row:
+                            continue
+                        if row[0] == "task":
+                            self._mru_task.append(row[1])
+                        elif row[0] == "reason":
+                            self._mru_reason.append(row[1])
+            except Exception:
+                logging.exception("Error loading MRU list.")
 
     def save(self) -> None:
-        with self._csv_file.open("w") as file:
-            writer = csv.writer(file)
+        with self._csv_file.open("w", newline="") as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_ALL)
             for item in self._mru_task:
                 writer.writerow(["task", item])
             for item in self._mru_reason:

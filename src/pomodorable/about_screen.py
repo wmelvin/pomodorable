@@ -48,8 +48,10 @@ class AboutScreen(ModalScreen[str]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "about-source":
+            event.stop()
             self.open_browser()
         elif event.button.id == "about-close":
+            event.stop()
             self.close_screen()
 
     def action_cancel(self) -> None:
