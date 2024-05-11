@@ -1,12 +1,12 @@
-name: Tests
+name: Tests-Mac
 
 on:
-    - push
+    - workflow_dispatch
 
 jobs:
-    test:
-        name: Test
-        runs-on: ubuntu-latest
+    test-mac:
+        name: Test on macOS
+        runs-on: macOS-latest
         steps:
             - uses: actions/checkout@v4
 
@@ -19,7 +19,3 @@ jobs:
 
             - name: Run pytest using hatch
               run: hatch run test
-
-            # -- The text matrix worked, but no need to run it on every push.
-            # - name: Run test matrix using hatch
-            #   run: hatch run test:test
