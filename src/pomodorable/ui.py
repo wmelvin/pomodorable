@@ -3,9 +3,11 @@ from __future__ import annotations
 import faulthandler
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from plyer import notification
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.css.query import NoMatches
 from textual.reactive import reactive
@@ -192,7 +194,7 @@ class PomodorableApp(App):
         # ("d", "toggle_dark", "Toggle dark mode"),
         ("down", "select_input", "Recent inputs"),
         ("ctrl+q", "exit_app", "Quit"),
-        # ("ctrl+t", "manual_testing", "Testing"),
+        Binding("ctrl+s", "screenshot", "Screenshot", show=False)
     ]
 
     def compose(self) -> ComposeResult:
@@ -429,13 +431,11 @@ class PomodorableApp(App):
             self.query_one("#input-task").focus()
             logging.debug("countdown_finished: end")
 
-    def action_manual_testing(self) -> None:
-        # Short countdown to observe Finish.
-        self.query_one(CountdownDisplay).seconds = 7
+    def take_screenshot(self) -> None:
+        self.save_screenshot(None, str(Path.home() / "Desktop"))
 
-        # # Fake error messages in app_data.
-        # for i in range(3):
-        #     self.app_data.queue_error(f"Fake error {i + 1}")
+    def action_screenshot(self) -> None:
+        self.take_screenshot()
 
     def action_select_input(self) -> None:
         """Open the MRUScreen for the focused input field."""

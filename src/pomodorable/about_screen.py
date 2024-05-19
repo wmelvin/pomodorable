@@ -1,17 +1,24 @@
+from __future__ import annotations
+
 import logging
 import webbrowser
+from typing import TYPE_CHECKING
 
-from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Static
 
 from pomodorable.__about__ import __version__
 
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
+
 
 class AboutScreen(ModalScreen[str]):
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
+        Binding("ctrl+s", "screenshot", "Screenshot", show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -53,6 +60,9 @@ class AboutScreen(ModalScreen[str]):
         elif event.button.id == "about-close":
             event.stop()
             self.close_screen()
+
+    def action_screenshot(self) -> None:
+        self.app.take_screenshot()
 
     def action_cancel(self) -> None:
         self.close_screen()

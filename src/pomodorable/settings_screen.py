@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from textual import on
-from textual.app import ComposeResult  # noqa: TCH002
+from textual.binding import Binding
 from textual.containers import Horizontal, ScrollableContainer
 from textual.screen import Screen
 from textual.validation import Function, Integer
 from textual.widgets import Button, Header, Input, Label, SelectionList, Static, Switch
 
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
+
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
 
 
 class SettingOutputFilter(Static):
@@ -190,6 +194,10 @@ class SettingsScreen(Screen[str]):
     def __init__(self, app_config: AppConfig) -> None:
         self.app_config = app_config
         super().__init__()
+
+    BINDINGS = [
+        Binding("ctrl+s", "screenshot", "Screenshot", show=False),
+    ]
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -385,6 +393,9 @@ class SettingsScreen(Screen[str]):
             else:
                 msg = "No settings changed."
             self.dismiss(msg)
+
+    def action_screenshot(self) -> None:
+        self.app.take_screenshot()
 
 
 def is_valid_dir_or_empty(path: str) -> bool:

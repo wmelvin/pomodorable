@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label, Select
@@ -17,6 +18,7 @@ class MRUScreen(ModalScreen[str]):
 
     BINDINGS = [
         ("escape", "cancel", "Cancel"),
+        Binding("ctrl+s", "screenshot", "Screenshot", show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -37,6 +39,9 @@ class MRUScreen(ModalScreen[str]):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "btn-back":
             self.close_screen()
+
+    def action_screenshot(self) -> None:
+        self.app.take_screenshot()
 
     def action_cancel(self) -> None:
         self.dismiss("")
