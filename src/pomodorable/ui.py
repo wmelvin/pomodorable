@@ -194,7 +194,7 @@ class PomodorableApp(App):
         # ("d", "toggle_dark", "Toggle dark mode"),
         ("down", "select_input", "Recent inputs"),
         ("ctrl+q", "exit_app", "Quit"),
-        Binding("ctrl+s", "screenshot", "Screenshot", show=False)
+        Binding("ctrl+s", "screenshot", "Screenshot", show=False),
     ]
 
     def compose(self) -> ComposeResult:
