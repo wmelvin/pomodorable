@@ -77,8 +77,8 @@ def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
     return True
 
 
-def run() -> None:
-    ui = PomodorableApp()
+def run(enable_screenshots: bool) -> None:
+    ui = PomodorableApp(enable_screenshots=enable_screenshots)
     ui.run()
 
 
@@ -125,11 +125,18 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "represents a type of action to exclude. The characters are: "
     "F (Finish), P (Pause - all), R (pause w/o Reason), and X (Stop).",
 )
-def cli(csv_date, md_date, end_date, export_path, filters) -> None:
+@click.option(
+    "--ctrl-s",
+    is_flag=True,
+    default=False,
+    help="Enable [Ctrl]+[s] for saving SVG screenshots in the app. "
+    "Screenshots are saved to the Desktop.",
+)
+def cli(csv_date, md_date, end_date, export_path, filters, ctrl_s) -> None:
     """Handle command-line options or run the Textual User Interface."""
     if handled_option(csv_date, md_date, end_date, export_path, filters):
         return
-    run()
+    run(enable_screenshots=ctrl_s)
 
 
 if __name__ == "__main__":

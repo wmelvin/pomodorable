@@ -178,11 +178,14 @@ class TimeDisplay(Static):
 
 
 class PomodorableApp(App):
-    def __init__(self, init_app_data: AppData = None) -> None:
+    def __init__(
+        self, init_app_data: AppData = None, enable_screenshots: bool = False
+    ) -> None:
         if init_app_data:
             self.app_data = init_app_data
         else:
             self.app_data = AppData()
+        self.do_screenshots = enable_screenshots
         super().__init__()
 
     ENABLE_COMMAND_PALETTE = False
@@ -432,7 +435,8 @@ class PomodorableApp(App):
             logging.debug("countdown_finished: end")
 
     def take_screenshot(self) -> None:
-        self.save_screenshot(None, str(Path.home() / "Desktop"))
+        if self.do_screenshots:
+            self.save_screenshot(None, str(Path.home() / "Desktop"))
 
     def action_screenshot(self) -> None:
         self.take_screenshot()

@@ -41,13 +41,17 @@
 @tui:
   hatch run textual run --dev src/pomodorable/ui.py
 
+# Run cli.py with textual --dev
+@cli:
+  hatch run textual run --dev src/pomodorable/cli.py --ctrl-s
+
 # Run 'textual colors' (color preview tool)
 @tcol:
   hatch run textual colors
 
-# Take a screenshot using textual --screenshot.
-@tss:
-  hatch run textual run src/pomodorable/ui.py --screenshot 5
+# # Take a screenshot using textual --screenshot.
+# @tss:
+#   hatch run textual run src/pomodorable/ui.py --screenshot 5
 
 # Redirect help output to temp.txt
 @help:

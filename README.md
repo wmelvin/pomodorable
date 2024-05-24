@@ -207,6 +207,8 @@ Options:
                       each character represents a type of action to exclude.
                       The characters are: F (Finish), P (Pause - all), R
                       (pause w/o Reason), and X (Stop).
+  --ctrl-s            Enable [Ctrl]+[s] for saving SVG screenshots in the app.
+                      Screenshots are saved to the Desktop.
   -h, --help          Show this message and exit.
 ```
 
