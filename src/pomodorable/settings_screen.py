@@ -203,6 +203,7 @@ class SettingsScreen(Screen[str]):
         yield Header()
         yield ScrollableContainer(
             SettingInput(id="set-minutes"),
+            SettingInput(id="set-wavfile"),
             SettingInput(id="set-csv-dir-run"),
             SettingInput(id="set-csv-name-run"),
             SettingInput(id="set-csv-dir-daily"),
@@ -229,6 +230,12 @@ class SettingsScreen(Screen[str]):
                     failure_description="Must be a number greater than 1.",
                 )
             ],
+        )
+
+        self.query_one("#set-wavfile").initialize(
+            "Play sound file (.wav) at end of session. Optional.",
+            self.app_config.wav_file or "",
+            [Function(is_valid_file_or_empty, "File does not exist.")],
         )
 
         self.query_one("#set-csv-dir-run").initialize(
@@ -313,7 +320,13 @@ class SettingsScreen(Screen[str]):
             self.app_config.session_minutes = int(value)
             has_changes = True
 
-        # set-csv-dir-run
+        changed, is_valid, value = self.query_one("#set-wavfile").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.wav_file = value
+            has_changes = True
+
         changed, is_valid, value = self.query_one("#set-csv-dir-run").get_status()
         if not is_valid:
             has_errors = True
@@ -406,4 +419,15 @@ def is_valid_dir_or_empty(path: str) -> bool:
         return p.exists() and p.is_dir()
     except Exception:
         logging.exception("Path validation failed")
+        return False
+
+
+def is_valid_file_or_empty(path: str) -> bool:
+    if not path:
+        return True
+    try:
+        p = Path(path).expanduser().resolve()
+        return p.exists() and p.is_file()
+    except Exception:
+        logging.exception("Filename validation failed")
         return False

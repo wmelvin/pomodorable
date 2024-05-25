@@ -411,10 +411,6 @@ class PomodorableApp(App):
             countdown.reset(timer_resume=False)
             self.query_one("#time-ending").sync_time(countdown.seconds)
 
-            # TODO: Configure notification - enable/disable, timeout, etc.
-            # If there is no timeout will notification stay on screen until
-            # dismissed?
-
             #  Show plyer.notification.
             logging.info("countdown_finished: notification.notify")
             try:
@@ -427,6 +423,17 @@ class PomodorableApp(App):
             except Exception as e:
                 logging.exception("Exception in notification")
                 self.say(f"Notification error: {e}")
+
+            if self.app_data.config.wav_file:
+                logging.info("countdown_finished: call playsound")
+                try:
+                    from playsound import playsound
+
+                    playsound(str(self.app_data.config.wav_file), block=False)
+                    logging.info("countdown_finished: playsound called")
+                except Exception as e:
+                    logging.exception("Exception in playsound")
+                    self.say(f"Sound error: {e}")
 
             logging.debug("countdown_finished: call show_queued_errors()")
             self.show_queued_errors()
