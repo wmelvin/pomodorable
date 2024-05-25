@@ -179,13 +179,17 @@ class TimeDisplay(Static):
 
 class PomodorableApp(App):
     def __init__(
-        self, init_app_data: AppData = None, enable_screenshots: bool = False
+        self,
+        init_app_data: AppData = None,
+        enable_screenshots: bool = False,
+        enable_testkey: bool = False,
     ) -> None:
         if init_app_data:
             self.app_data = init_app_data
         else:
             self.app_data = AppData()
         self.do_screenshots = enable_screenshots
+        self.do_testkey = enable_testkey
         super().__init__()
 
     ENABLE_COMMAND_PALETTE = False
@@ -198,6 +202,7 @@ class PomodorableApp(App):
         ("down", "select_input", "Recent inputs"),
         ("ctrl+q", "exit_app", "Quit"),
         Binding("ctrl+s", "screenshot", "Screenshot", show=False),
+        Binding("ctrl+t", "testkey", "TestKey", show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -411,29 +416,33 @@ class PomodorableApp(App):
             countdown.reset(timer_resume=False)
             self.query_one("#time-ending").sync_time(countdown.seconds)
 
-            #  Show plyer.notification.
-            logging.info("countdown_finished: notification.notify")
-            try:
-                notification.notify(
-                    title=APP_NAME,
-                    message=f"{APP_NAME}:  Session finished.",
-                    app_name=APP_NAME,
-                    timeout=15,
-                )
-            except Exception as e:
-                logging.exception("Exception in notification")
-                self.say(f"Notification error: {e}")
+            if self.app_data.config.do_notify:
+                #  Show plyer.notification.
+                logging.info("countdown_finished: notification.notify")
+                try:
+                    notification.notify(
+                        title=APP_NAME,
+                        message=f"{APP_NAME}:  Session finished.",
+                        app_name=APP_NAME,
+                        timeout=15,
+                    )
+                except Exception as e:
+                    logging.exception("Exception in notification")
+                    self.say(f"Notification error: {e}")
 
             if self.app_data.config.wav_file:
-                logging.info("countdown_finished: call playsound")
-                try:
-                    from playsound import playsound
+                if Path(self.app_data.config.wav_file).exists():
+                    logging.info("countdown_finished: call playsound")
+                    try:
+                        from playsound import playsound
 
-                    playsound(str(self.app_data.config.wav_file), block=False)
-                    logging.info("countdown_finished: playsound called")
-                except Exception as e:
-                    logging.exception("Exception in playsound")
-                    self.say(f"Sound error: {e}")
+                        playsound(str(self.app_data.config.wav_file), block=False)
+                        logging.info("countdown_finished: playsound called")
+                    except Exception as e:
+                        logging.exception("Exception in playsound")
+                        self.say(f"Sound error: {e}")
+                else:
+                    self.say(f"Sound file not found: {self.app_data.config.wav_file}")
 
             logging.debug("countdown_finished: call show_queued_errors()")
             self.show_queued_errors()
@@ -447,6 +456,11 @@ class PomodorableApp(App):
 
     def action_screenshot(self) -> None:
         self.take_screenshot()
+
+    def action_testkey(self) -> None:
+        if self.do_testkey:
+            # Set countdown to 5 seconds for testing session finish.
+            self.query_one(CountdownDisplay).seconds = 5
 
     def action_select_input(self) -> None:
         """Open the MRUScreen for the focused input field."""

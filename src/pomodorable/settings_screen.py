@@ -203,6 +203,7 @@ class SettingsScreen(Screen[str]):
         yield Header()
         yield ScrollableContainer(
             SettingInput(id="set-minutes"),
+            SettingSwitch(id="set-notify"),
             SettingInput(id="set-wavfile"),
             SettingInput(id="set-csv-dir-run"),
             SettingInput(id="set-csv-name-run"),
@@ -230,6 +231,12 @@ class SettingsScreen(Screen[str]):
                     failure_description="Must be a number greater than 1.",
                 )
             ],
+        )
+
+        self.query_one("#set-notify").initialize(
+            "Do system notification at end of session",
+            self.app_config.do_notify,
+            [],
         )
 
         self.query_one("#set-wavfile").initialize(
@@ -318,6 +325,13 @@ class SettingsScreen(Screen[str]):
             has_errors = True
         elif changed:
             self.app_config.session_minutes = int(value)
+            has_changes = True
+
+        changed, is_valid, value = self.query_one("#set-notify").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.do_notify = value
             has_changes = True
 
         changed, is_valid, value = self.query_one("#set-wavfile").get_status()

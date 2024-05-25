@@ -209,6 +209,7 @@ Options:
                       (pause w/o Reason), and X (Stop).
   --ctrl-s            Enable [Ctrl]+[s] for saving SVG screenshots in the app.
                       Screenshots are saved to the Desktop.
+  --ctrl-t            Enable [Ctrl]+[t] to run manual testing functions.
   -h, --help          Show this message and exit.
 ```
 

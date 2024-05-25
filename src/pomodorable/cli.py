@@ -77,8 +77,10 @@ def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
     return True
 
 
-def run(enable_screenshots: bool) -> None:
-    ui = PomodorableApp(enable_screenshots=enable_screenshots)
+def run(enable_screenshots: bool, enable_testkey: bool) -> None:
+    ui = PomodorableApp(
+        enable_screenshots=enable_screenshots, enable_testkey=enable_testkey
+    )
     ui.run()
 
 
@@ -132,11 +134,17 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     help="Enable [Ctrl]+[s] for saving SVG screenshots in the app. "
     "Screenshots are saved to the Desktop.",
 )
-def cli(csv_date, md_date, end_date, export_path, filters, ctrl_s) -> None:
+@click.option(
+    "--ctrl-t",
+    is_flag=True,
+    default=False,
+    help="Enable [Ctrl]+[t] to run manual testing functions.",
+)
+def cli(csv_date, md_date, end_date, export_path, filters, ctrl_s, ctrl_t) -> None:
     """Handle command-line options or run the Textual User Interface."""
     if handled_option(csv_date, md_date, end_date, export_path, filters):
         return
-    run(enable_screenshots=ctrl_s)
+    run(enable_screenshots=ctrl_s, enable_testkey=ctrl_t)
 
 
 if __name__ == "__main__":

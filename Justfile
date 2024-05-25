@@ -43,7 +43,7 @@
 
 # Run cli.py with textual --dev
 @cli:
-  hatch run textual run --dev src/pomodorable/cli.py --ctrl-s
+  hatch run textual run --dev src/pomodorable/cli.py --ctrl-s --ctrl-t
 
 # Run 'textual colors' (color preview tool)
 @tcol:
