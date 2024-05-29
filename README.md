@@ -74,6 +74,13 @@ alt="Screenshot animation"/></a></p>
 
 - Shows messages from the application with a timestamp.
 
+#### Footer
+
+The footer line at the bottom shows *key bindings* for the application:
+
+- **Down arrow** opens the list of *most recently used inputs* to pick from. This only works when the text input box (for *task description* or *pause reason*) has focus.
+- **Ctrl**+**q** quits the application.
+
 ### About Screen
 
 The *About* screen is a dialog box showing some information about the application.
@@ -90,6 +97,8 @@ The *About* screen is a dialog box showing some information about the applicatio
 The *Settings* screen is where you configure the application. It has the following settings:
 
 - **Session Minutes**: Initial *Countdown* setting on startup, finish, stop, or reset.
+- **Do system notification**: Turn the system notification (toast) on or off.
+- **Play sound file**: To play a sound as an end-of-session notification, enter the full path to a WAV file. The entire audio will be played, and there is no control for volume or stopping playback, so a short audio clip lasting only a few seconds works best.
 - **Running CSV Folder**: Folder to which the file is written. The folder must already exist.
 - **Running CSV File Name**: Name to use for the output file (default is `pomodorable-sessions.csv`).
 - **Daily CSV Folder**: Folder to which the file is written. The folder must already exist.

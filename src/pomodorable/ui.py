@@ -199,7 +199,7 @@ class PomodorableApp(App):
 
     BINDINGS = [
         # ("d", "toggle_dark", "Toggle dark mode"),
-        ("down", "select_input", "Recent inputs"),
+        ("down", "select_input", "Recent"),
         ("ctrl+q", "exit_app", "Quit"),
         Binding("ctrl+s", "screenshot", "Screenshot", show=False),
         Binding("ctrl+t", "testkey", "TestKey", show=False),
