@@ -1,14 +1,56 @@
+import logging
+from pathlib import Path
+
 import pytest
 
 from pomodorable.app_data import AppData
-from pomodorable.ui import PomodorableApp
+from pomodorable.ui import CountdownDisplay, PomodorableApp
 
 
-async def test_app_is_created():
-    app = PomodorableApp()
+@pytest.mark.parametrize(
+    ("wav_name", "expect_text"),
+    [
+        ("silent-second.wav", "countdown_finished: playsound called"),
+        ("missing.wav", "Sound file not found"),
+    ],
+)
+async def test_app_plays_wav_file_at_finish(tmp_path, wav_name, expect_text):
+    app_data = AppData(init_data_path=tmp_path)
+    app = PomodorableApp(init_app_data=app_data)
+
+    wav_file = Path(__file__).parent / "data" / wav_name
+
+    app.app_data.config.wav_file = str(wav_file)
+    app.app_data.config.do_notify = False
+
     async with app.run_test() as pilot:
+        # Check that the app UI is created.
         footer = pilot.app.query_one("Footer")
         assert footer
+
+        # Set the countdown to 1 second and click Start.
+        pilot.app.query_one(CountdownDisplay).seconds = 1
+        await pilot.click("#btn-start")
+
+        # Allow time for countdown finish and playsound.
+        await pilot.pause(delay=2)
+
+    # Remove the log handler so subsequent tests don't log to the same file.
+    logger = logging.getLogger()
+    logger.removeHandler(app.app_data._log_handler)  # noqa: SLF001
+
+    # Check that a log file was created and read its contents.
+    log_files = list(tmp_path.glob("pomodorable*.log"))
+    assert log_files
+    log_file = log_files[0]
+    log_text = log_file.read_text()
+
+    # Check for the log entry prior to calling playsound.
+    # This entry is also prior to checking if the file exists.
+    assert f"countdown_finished: playsound '{wav_file}'" in log_text
+
+    # Check for the log entry expected after successfully calling playsound.
+    assert expect_text in log_text
 
 
 async def test_minus_button_stops_at_one(tmp_path):

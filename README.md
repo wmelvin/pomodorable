@@ -44,8 +44,8 @@ alt="Screenshot animation"/></a></p>
 
 - **Reset** button: Resets the *Countdown* to the configured session length (default setting is 25 minutes).
 - **+5**, **+1**, **-1**, **-5** buttons: Increment or decrement the *Countdown* by minutes.
-- **?** (About) button: Open the *About* screen.
-- **Settings** button: Open the *Settings* screen.
+- **?** (About) button: Open the [About screen](#about-screen).
+- **Settings** button: Open the [Settings screen](#settings-screen).
 
 #### Task Panel
 
@@ -236,6 +236,7 @@ Options:
 - [plyer](https://pypi.org/project/plyer/) - system notifications
 - [python-dotenv](https://pypi.org/project/python-dotenv/) - override default settings during development
 - [tomlkit](https://pypi.org/project/tomlkit/) - store configuration as TOML
+- [playsound3](https://github.com/sjmikler/playsound3) - cross-platform library to play sound files
 
 ### Project tools
 
