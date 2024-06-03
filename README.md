@@ -1,11 +1,15 @@
 # pomodorable
 
-A **pomodoro timer** built using Textual.
+![adorable tomato](./readme_images/pomodorable.png)
 
-> Development work in progress.
+---
+
+A **pomodoro timer** built using [Textual](https://textual.textualize.io/).
+
+![PyPI - Version](https://img.shields.io/pypi/v/pomodorable)
 
 <!-- ![Picture of a Pomodoro Timer](./readme_images/pomororo-timer-200.jpg) -->
-<p align="center">
+<p>
 <a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomororo-timer-200.jpg">
 <img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomororo-timer-200.jpg"
 alt="Picture of a Pomodoro Timer"/></a></p>
@@ -227,8 +231,10 @@ Options:
 ## Reference
 
 - [Pomodoro Technique - Wikipedia](https://en.wikipedia.org/wiki/Pomodoro_Technique)
+- [Python Packaging User Guide](https://packaging.python.org/en/latest/)
 
-### Packages used
+
+### Packages Used
 
 - [Textual](https://textual.textualize.io/) - Textual User Interface framework
 - [Click](https://palletsprojects.com/p/click/) - command-line options
@@ -238,7 +244,7 @@ Options:
 - [tomlkit](https://pypi.org/project/tomlkit/) - store configuration as TOML
 - [playsound3](https://github.com/sjmikler/playsound3) - cross-platform library to play sound files
 
-### Project tools
+### Project Tools
 
 - [Hatch](https://hatch.pypa.io/latest/) - Python project manager (environments, packaging, and more)
 - [Ruff](https://docs.astral.sh/ruff/) - linter and code formatter (integrated with Hatch)
@@ -250,3 +256,11 @@ Options:
 - Textual [Devtools](https://textual.textualize.io/guide/devtools/)
 - [tcss-vscode-extension](https://github.com/Textualize/tcss-vscode-extension#readme): VS Code extension that enables syntax highlighting for Textual CSS files.
 - [pytest-textual-snapshot](https://github.com/Textualize/pytest-textual-snapshot#readme): Snapshot testing for Textual applications
+
+### More Textual Links
+
+- [Tutorial](https://textual.textualize.io/tutorial/)
+- [Widgets](https://textual.textualize.io/widget_gallery/)
+- Styles: [Align](https://textual.textualize.io/styles/align/)
+- Styles: [Content-align](https://textual.textualize.io/styles/content_align/)
+- [Color](https://textual.textualize.io/api/color/)
