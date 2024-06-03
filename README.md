@@ -1,6 +1,10 @@
 # pomodorable
 
-![adorable tomato](./readme_images/pomodorable.png)
+<!-- ![adorable tomato](./readme_images/pomodorable.png) -->
+<p>
+<a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorable.png">
+<img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorable.png"
+alt="adorable tomato image"/></a></p>
 
 ---
 
