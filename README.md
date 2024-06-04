@@ -8,7 +8,7 @@ alt="adorable tomato image"/></a></p>
 
 ---
 
-A **pomodoro timer** built using [Textual](https://textual.textualize.io/).
+A [pomodoro timer](https://en.wikipedia.org/wiki/Pomodoro_Technique) built using [Textual](https://textual.textualize.io/).
 
 ![PyPI - Version](https://img.shields.io/pypi/v/pomodorable)
 
