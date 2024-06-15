@@ -1,0 +1,10 @@
+
+# textual
+textual==0.65.1
+
+plyer
+click
+platformdirs
+python-dotenv
+tomlkit
+playsound3

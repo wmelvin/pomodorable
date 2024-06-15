@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pomodorable"
-dynamic = ["version"]
+dynamic = ["dependencies", "version"]
 description = 'A pomodoro timer implemented as a Textual app'
 readme = "README.md"
 requires-python = ">=3.8"
@@ -24,15 +24,15 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = [
-  "textual==0.65.1",
-  "plyer",
-  "click",
-  "platformdirs",
-  "python-dotenv",
-  "tomlkit",
-  "playsound3",
-]
+# dependencies = [
+#   "textual==0.65.1",
+#   "plyer",
+#   "click",
+#   "platformdirs",
+#   "python-dotenv",
+#   "tomlkit",
+#   "playsound3",
+# ]
 
 [project.urls]
 Source = "https://github.com/wmelvin/pomodorable"
@@ -41,6 +41,9 @@ Documentation = "https://github.com/wmelvin/pomodorable#readme"
 
 [project.scripts]
 pomodorable = "pomodorable.cli:cli"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
 
 [tool.hatch.version]
 path = "src/pomodorable/__about__.py"
@@ -52,6 +55,7 @@ dependencies = [
   "pytest-asyncio",
   "textual-dev",
   "pytest-textual-snapshot",
+  "pip-tools",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
