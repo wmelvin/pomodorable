@@ -66,6 +66,7 @@ async def test_minus_button_stops_at_one(tmp_path):
 
         # Decrease down to five minutes.
         await pilot.click("#btn-minus-five")
+        assert countdown.seconds == 25 * 60
         await pilot.click("#btn-minus-five")
         assert countdown.seconds == 20 * 60
 

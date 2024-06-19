@@ -49,10 +49,14 @@
 @tcol:
   hatch run textual colors
 
-# # Take a screenshot using textual --screenshot.
+# # Take a screenshot using textual --screenshot
 # @tss:
 #   hatch run textual run src/pomodorable/ui.py --screenshot 5
 
 # Redirect help output to temp.txt
 @help:
   hatch run pomodorable -h > temp.txt
+
+# Run pip-compile --upgrade
+@pipc:
+  hatch run pip-compile --upgrade requirements.in
