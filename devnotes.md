@@ -814,3 +814,69 @@ Replaced `playsound` with `playsound3` in pyproject.toml.
 <sup>Commit [5866174](https://github.com/wmelvin/pomodorable/commit/58661741fbff2c829c489b6ee1d95cd82392a246) (2024-06-04 10:41:49)</sup>
 
 ---
+
+- [x] **Expand devnotes.md**
+<sup>Commit [0f34646](https://github.com/wmelvin/pomodorable/commit/0f34646d1265358de8f2e48e09a05bbc6a03219b) (2024-06-14 18:19:51)</sup>
+
+---
+
+Tests failed on GitHub yesterday evening when only changes to `devnotes.md` were commited.
+
+Run tests locally.
+
+`just test`
+    
+All passed. Try getting latest env.
+
+``` bash
+hatch env prune
+pipx upgrade hatch
+```
+    
+"hatch is already at latest version 1.12.0"
+    
+`just test`
+
+Test `test_minus_button_stops_at_one` failed.
+
+Debug in VS-Code. If I *debug* the test, it passes. If I *run* the test it fails. Race condition?
+
+Try changing Textual version.
+
+Most recent all tests passing on GitHub was 2024-06-04. Textual was probably at `0.64.0`.
+
+Set in `pyproject.toml`: `textual==0.64.0`. 
+
+``` bash
+hatch env prune
+just test
+```
+
+Tests pass.
+
+Incrementally updated release version. Test started **hanging** at `textual==0.65.2` (had to `Ctrl+c`). Test started failing at `textual==0.67.0`.
+
+- [x] **Pin textual version to check GH action test failed**
+<sup>Commit [e9a90a4](https://github.com/wmelvin/pomodorable/commit/e9a90a44e59b5fce5760ff59dbdaf477feb27eb3) (2024-06-15 10:26:22)</sup>
+
+---
+
+Try using pip-compile (in pip-tools) to create a pinned requirements.txt.
+
+[pip-tools](https://pip-tools.readthedocs.io/en/stable/#requirements-from-requirements-in)
+
+There is a plugin for Hatch to use requirements.txt.
+
+[Metadata hook plugins - Hatch](https://hatch.pypa.io/latest/plugins/metadata-hook/reference/)
+
+[repo-helper/hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt): Hatchling plugin to read project dependencies from requirements.txt
+
+- [x] **Use pip-tools to pin dependencies**
+<sup>Commit [5423f46](https://github.com/wmelvin/pomodorable/commit/5423f46c5b8b3394d693d80c0888677c060fd09a) (2024-06-15 17:54:47)</sup>
+
+---
+
+- [x] **Add pip-compile to Justfile and update version number**
+<sup>Commit [23ac3a0](https://github.com/wmelvin/pomodorable/commit/23ac3a06c4744cc3e40db43919d37e369cb9332b) (2024-06-19 19:21:43)</sup>
+
+---

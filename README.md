@@ -237,6 +237,7 @@ Options:
 - [Pomodoro Technique - Wikipedia](https://en.wikipedia.org/wiki/Pomodoro_Technique)
 - [Python Packaging User Guide](https://packaging.python.org/en/latest/)
 
+See also: [devnotes.md](./devnotes.md)
 
 ### Packages Used
 
@@ -251,9 +252,12 @@ Options:
 ### Project Tools
 
 - [Hatch](https://hatch.pypa.io/latest/) - Python project manager (environments, packaging, and more)
+  - [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) - Hatchling plugin to read dependencies from `requirements.txt`
+- [pip-tools](https://pypi.org/project/pip-tools/) - pin dependencies using `pip-compile` to create `requirements.txt`
 - [Ruff](https://docs.astral.sh/ruff/) - linter and code formatter (integrated with Hatch)
 - [pytest](https://docs.pytest.org/en/stable/) - testing framework
 - [Just](https://github.com/casey/just#readme) - command runner
+
 
 #### Textual Development Tools
 

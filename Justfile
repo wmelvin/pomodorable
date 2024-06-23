@@ -14,8 +14,8 @@
 
 # Remove dist
 @clean:
-  rm dist/*
-  rmdir dist
+  -rm dist/*
+  -rmdir dist
 
 # Apply formatting
 @format: lint
@@ -57,6 +57,6 @@
 @help:
   hatch run pomodorable -h > temp.txt
 
-# Run pip-compile --upgrade
+# Update requirements.txt using requirements.in and pip-compile --upgrade
 @pipc:
   hatch run pip-compile --upgrade requirements.in
