@@ -2,7 +2,7 @@ import csv
 import logging
 from pathlib import Path
 
-MRU_LIST_MAX = 12
+MRU_LIST_MAX = 20
 
 
 class MRUList:

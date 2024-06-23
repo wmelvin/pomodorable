@@ -35,5 +35,5 @@ def test_mru_list(tmp_path: Path):
     reasons = mru_list3.get_reasons()
     assert len(reasons) == MRU_LIST_MAX
     #  If MRU_LIST_MAX is changed, these will need to be updated.
-    assert tasks[0] == "task15"
-    assert reasons[0] == "reason15"
+    assert tasks[0] == "task23"
+    assert reasons[0] == "reason23"
