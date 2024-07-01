@@ -1,6 +1,6 @@
 
-# textual
-textual==0.65.1
+textual
+# textual==0.65.1
 
 plyer
 click

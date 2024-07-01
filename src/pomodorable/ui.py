@@ -90,12 +90,14 @@ class CountdownDisplay(Static):
             self.update_timer.resume()
 
     def seconds_up(self, secs_up: int) -> None:
+        logging.debug("DBG: seconds_up(%s)", secs_up)
         if self.seconds < secs_up:
             self.seconds = secs_up
         else:
             self.seconds += secs_up
 
     def seconds_down(self, secs_down: int) -> None:
+        logging.debug("DBG: seconds_down(%s)", secs_down)
         if self.seconds == ONE_MINUTE and secs_down == FIVE_MINUTES:
             # Set short countdown to observe finish.
             self.seconds = 5
@@ -164,6 +166,7 @@ class TimeDisplay(Static):
         self.set_interval(UPDATE_INTERVAL, self.update_time)
 
     def sync_time(self, add_seconds: int) -> None:
+        logging.debug("DBG: sync_time(%s)", add_seconds)
         self.add_seconds = add_seconds
         self.time = datetime.now() + timedelta(seconds=self.add_seconds)
 

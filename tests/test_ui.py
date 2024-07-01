@@ -56,44 +56,88 @@ async def test_app_plays_wav_file_at_finish(tmp_path, wav_name, expect_text):
 async def test_minus_button_stops_at_one(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app = PomodorableApp(init_app_data=app_data)
+    pause_secs = 0.1  # None
     async with app.run_test() as pilot:
         countdown = pilot.app.query_one("#countdown")
         assert countdown.seconds == 25 * 60  # Should be 25 minutes by default.
 
         # Also check that plus 5 works.
+        logging.debug("CLICK 1")
         await pilot.click("#btn-plus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 1")
         assert countdown.seconds == 30 * 60
 
         # Decrease down to five minutes.
+        logging.debug("CLICK 2")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 2")
         assert countdown.seconds == 25 * 60
+
+        logging.debug("CLICK 3")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 3")
         assert countdown.seconds == 20 * 60
 
+        logging.debug("CLICK 4")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 4")
         assert countdown.seconds == 15 * 60
 
+        logging.debug("CLICK 5a")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 5b")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 5")
         assert countdown.seconds == 5 * 60
 
         # Should stay at 5 minutes.
+        logging.debug("CLICK 6")
         await pilot.click("#btn-minus-five")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 6")
         assert countdown.seconds == 5 * 60
 
         # Use the minus one button.
+        logging.debug("CLICK 7a")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 7b")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+        logging.debug("ASSERT 7")
         assert countdown.seconds == 3 * 60
 
         # Press 5 more times.
+        logging.debug("CLICK 8a")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 8b")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 8c")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 8d")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
+
+        logging.debug("CLICK 8e")
         await pilot.click("#btn-minus-one")
+        await pilot.pause(pause_secs)
 
         # Should have stopped at one minute.
+        logging.debug("ASSERT 8")
         assert countdown.seconds == 60
 
 
