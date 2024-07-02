@@ -90,14 +90,14 @@ class CountdownDisplay(Static):
             self.update_timer.resume()
 
     def seconds_up(self, secs_up: int) -> None:
-        logging.debug("DBG: seconds_up(%s)", secs_up)
+        logging.debug("seconds_up(%s)", secs_up)
         if self.seconds < secs_up:
             self.seconds = secs_up
         else:
             self.seconds += secs_up
 
     def seconds_down(self, secs_down: int) -> None:
-        logging.debug("DBG: seconds_down(%s)", secs_down)
+        logging.debug("seconds_down(%s)", secs_down)
         if self.seconds == ONE_MINUTE and secs_down == FIVE_MINUTES:
             # Set short countdown to observe finish.
             self.seconds = 5
@@ -166,7 +166,7 @@ class TimeDisplay(Static):
         self.set_interval(UPDATE_INTERVAL, self.update_time)
 
     def sync_time(self, add_seconds: int) -> None:
-        logging.debug("DBG: sync_time(%s)", add_seconds)
+        logging.debug("sync_time(%s)", add_seconds)
         self.add_seconds = add_seconds
         self.time = datetime.now() + timedelta(seconds=self.add_seconds)
 
@@ -274,7 +274,7 @@ class PomodorableApp(App):
     def say(self, message: str, console_text: str = "") -> None:
         msg = message if console_text == "" else console_text
         self.query_one(RichLog).write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
-        logging.info("UI: %s", message)
+        logging.info(message)
 
     def show_queued_errors(self) -> None:
         errs = self.app_data.retrieve_error_list()

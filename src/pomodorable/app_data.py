@@ -108,7 +108,9 @@ class AppData:
             logger.setLevel(logging.INFO)
 
         self._log_handler = logging.FileHandler(self.log_file)
-        self._log_formatter = logging.Formatter("%(asctime)s %(message)s")
+        self._log_formatter = logging.Formatter(
+            "%(asctime)s %(levelname)s (%(module)s %(funcName)s): %(message)s"
+        )
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
 
