@@ -4,6 +4,14 @@ import csv
 from pathlib import Path
 
 
+def get_start_msg(row_notes: str, row_duration: str):
+    # If row_notes contains the indicator for a non-default session duration
+    # return a formatted message.
+    if row_notes.startswith(("(< ", "(> ")):
+        return f"({row_duration} session {row_notes[1:-1]} default)"
+    return ""
+
+
 def write_to_sessions_csv(
     csv_file: Path, filters: str, data_rows: list[dict], start_num: int = 0
 ) -> None:
@@ -44,8 +52,8 @@ def write_to_sessions_csv(
                     row["date"],
                     session_num or "S",
                     row["time"],
-                    row_message,
-                    "",
+                    row_message,  # task
+                    get_start_msg(row_notes, row["duration"]),
                     "",
                 ]
                 if start_num > 0:

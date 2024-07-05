@@ -16,9 +16,14 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
             row_time = row_time.rsplit(":", 1)[0]
 
         if row["action"] == "Start":
+            if row["notes"].startswith(("(< ", "(> ")):
+                add_msg = f" ({row['duration']} session {row['notes'][1:-1]} default)"
+            else:
+                add_msg = ""
+
             msg = "(?)" if not row["message"] else row["message"]
             md.append(f"- **{msg}**")
-            md.append(f"    - Start {row_time}")
+            md.append(f"    - Start {row_time}{add_msg}")
 
         elif row["action"] == "Pause":
             if exclude_pause_all:

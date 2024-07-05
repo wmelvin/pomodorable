@@ -182,12 +182,24 @@ class AppData:
     def write_start(
         self, start_time: datetime, task: str, session_seconds: int
     ) -> None:
+        if session_seconds < self.config.session_seconds:
+            note = "<"
+        elif session_seconds > self.config.session_seconds:
+            note = ">"
+        else:
+            note = ""
+
+        # Record the fact that the session duration is not the default.
+        if note:
+            note = f"({note} {sec_to_hms(self.config.session_seconds)})"
+
         self._append_data_csv(
             AppDataRow(
                 date_time=start_time,
                 action="Start",
                 message=task,
                 duration=sec_to_hms(session_seconds),
+                notes=note,
             )
         )
         self.mru_list.add_task(task)
