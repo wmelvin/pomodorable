@@ -21,6 +21,7 @@ APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
 APP_DATA_CSV = f"{APP_NAME}-data.csv"
 APP_DATA_VERSION = "1"
+DATA_CSV_HEADER = "version,date,time,action,message,duration,notes"
 
 
 @dataclass
@@ -86,6 +87,8 @@ class AppData:
             self.config = AppConfig(self.config_file)
             self.config.load()
 
+        self._check_data_csv()
+
         self._purge_log_files()
 
         self.mru_list = MRUList(self.data_path)
@@ -114,6 +117,27 @@ class AppData:
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
 
+    def _check_data_csv(self):
+        # Check that the first line is the expected header row.
+        if self._data_csv.exists():
+            with self._data_csv.open() as f:
+                first_line = f.readline()
+
+            if not first_line.startswith(DATA_CSV_HEADER):
+                # Rename invalid data file to keep it for potential analysis or
+                # data recovery.
+                bad_csv = self._data_csv.with_suffix(
+                    f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.bad"
+                )
+                self._data_csv.rename(bad_csv)
+                err = f"INVALID DATA FILE. Saved as '{bad_csv}'."
+                logging.error(err)
+                self.queue_error(err)
+
+        if not self._data_csv.exists():
+            logging.info("Create new data file '%s'", str(self._data_csv))
+            self._data_csv.write_text(f"{DATA_CSV_HEADER}\n")
+
     def _purge_log_files(self) -> None:
         """Purge log files older than the configured retention period."""
 
@@ -129,15 +153,14 @@ class AppData:
 
     def _append_data_csv(self, data_row: AppDataRow) -> None:
         """Append a line to the CSV file."""
+        self._check_data_csv()
+
         csv_str = (
             f"{data_row.version},{self._csv_date_time(data_row.date_time)},"
             f'"{data_row.action}","{data_row.message}",'
             f'"{data_row.duration}","{data_row.notes}"'
         )
-        if not self._data_csv.exists():
-            self._data_csv.write_text(
-                "version,date,time,action,message,duration,notes\n"
-            )
+
         with self._data_csv.open("a") as f:
             f.write(f"{csv_str}\n")
 

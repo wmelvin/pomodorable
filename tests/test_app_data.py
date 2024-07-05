@@ -456,3 +456,32 @@ def test_filters_markdown_output(tmp_path, filter_value, find_str, expected_coun
 
     text = md_file.read_text()
     assert text.count(find_str) == expected_count
+
+
+def test_data_csv_exists_but_is_empty(tmp_path):
+    # Make empty data file.
+    data_file = tmp_path / "pomodorable-data.csv"
+    data_file.touch()
+
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_csv_dir(str(tmp_path))
+
+    # On initialization, app_data._check_data_csv should have renamed and
+    # replaced the empty file.
+    assert len(list(tmp_path.glob("*.bad"))) == 1
+
+    # Cause trouble by making the data file empty again.
+    data_file.write_text("")
+
+    # Write some actions.
+    app_data.write_start(datetime.now(), "Test session", 10)
+    app_data.write_finish(datetime.now(), datetime.now())
+    app_data.write_session_to_output_files()
+
+    # On writing to the data file, app_data._check_data_csv should have
+    # renamed and replaced the empty file.
+    assert len(list(tmp_path.glob("*.bad"))) == 2
+
+    # Output should be successful.
+    p = app_data.get_daily_csv_path()
+    assert p.exists()

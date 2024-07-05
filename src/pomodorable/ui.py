@@ -267,6 +267,8 @@ class PomodorableApp(App):
 
         self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
 
+        self.show_queued_errors()
+
         # The update_timer is initially paused.
         self.query_one(CountdownDisplay).update_timer.resume()
         self.query_one("#input-task").focus()
