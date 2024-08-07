@@ -94,7 +94,7 @@ def test_export_csv_for_date_range(
     assert csv_file.exists()
 
     rows = csv_file.read_text().strip().split("\n")
-    assert len(rows) == 13  # 1 header + 12 data rows
+    assert len(rows) == 14  # 1 header + 12 data rows + 1 date separator row
 
 
 @pytest.mark.parametrize("subdir_param", [None, "exported"])

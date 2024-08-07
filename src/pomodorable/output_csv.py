@@ -48,6 +48,9 @@ def write_to_sessions_csv(
                 # date (exporting a date range), then reset the session_num.
                 if start_num > 0 and last_date is not None and row["date"] != last_date:
                     session_num = 1
+                    # Write a row with only the date as a separator between days.
+                    writer.writerow([row["date"], "", "", "", "", ""])
+
                 out_row = [
                     row["date"],
                     session_num or "S",
