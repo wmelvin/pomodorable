@@ -26,6 +26,16 @@ alt="Picture of a Pomodoro Timer"/></a></p>
 <img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/app-1.gif"
 alt="Screenshot animation"/></a></p>
 
+## Installation
+
+Pomodorable is available on PyPI and can be installed using [pip](https://github.com/pypa/pip). However, to avoid dependency conflicts, it is recommended to use **pipx**.
+
+[pipx](https://github.com/pypa/pipx) installs Python applications into isolated environments and makes them available globally on the command line.
+
+``` shell
+pipx install pomodorable
+```
+
 ## Using the Application
 
 ### Modes
@@ -201,33 +211,42 @@ Usage: pomodorable [OPTIONS]
 
 Options:
   --version           Show the version and exit.
+
   --csv-date TEXT     Export a Daily CSV file for a given date (provide the
                       date as YYYY-MM-DD or YY-MM-DD). If a 'Daily CSV Folder'
                       is not configured, then you must provide the --export-
                       path option as well. Existing files are not overwritten.
                       Exits when finished.
+
   --md-date TEXT      Export a Daily Markdown file for a given date (provide
                       the date as YYYY-MM-DD or YY-MM-DD). If a 'Daily
                       Markdown Folder' is not configured, then you must
                       provide the --export-path option as well. Existing files
                       are not overwritten. Exits when finished.
+
   --end-date TEXT     Export a range of sessions from the start date to the
                       end date (provide the dates as YYYY-MM-DD or YY-MM-DD).
                       This option is only valid with the --csv-date or --md-
                       date option.
+
   --export-path TEXT  Path to export a Daily CSV or Markdown file. This option
                       is required if a 'Daily CSV Folder' or 'Daily Markdown
                       Folder' is not configured, or you want the files written
                       to a different location.
+
   --filters TEXT      Filter specified actions from exported CSV data. The
                       filter is specified as a string with no spaces, where
                       each character represents a type of action to exclude.
                       The characters are: F (Finish), P (Pause - all), R
                       (pause w/o Reason), and X (Stop).
+
   --ctrl-s            Enable [Ctrl]+[s] for saving SVG screenshots in the app.
                       Screenshots are saved to the Desktop.
+
   --ctrl-t            Enable [Ctrl]+[t] to run manual testing functions.
+
   -h, --help          Show this message and exit.
+
 ```
 
 ---
