@@ -20,6 +20,7 @@ def test_data_csv_fields(app_data_with_four_test_sessions):
         fields = reader.fieldnames
         assert fields == [
             "version",
+            "started",
             "date",
             "time",
             "action",
@@ -72,12 +73,20 @@ def test_writes_daily_csv_file(tmp_path):
 
     t = start_time + timedelta(seconds=5)
     app_data.write_pause(
-        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, extended",
+        pause_seconds=5,
+        session_extended=True,
     )
 
     t = start_time + timedelta(seconds=12)
     app_data.write_pause(
-        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, resume",
+        pause_seconds=2,
+        session_extended=False,
     )
 
     t = start_time + timedelta(seconds=15)
@@ -89,7 +98,7 @@ def test_writes_daily_csv_file(tmp_path):
     app_data.write_start(start_time, "Test session 2", 10)
 
     t = start_time + timedelta(seconds=5)
-    app_data.write_stop(stop_time=t, reason="Test stop")
+    app_data.write_stop(start_time=start_time, stop_time=t, reason="Test stop")
 
     csv_file = tmp_path / "2024-01-02.csv"
     assert csv_file.exists()
@@ -117,7 +126,7 @@ def test_writes_running_csv_file_default_name(tmp_path):
     app_data.write_start(start_time, "Test session 1", 10)
 
     t = start_time + timedelta(seconds=5)
-    app_data.write_stop(stop_time=t, reason="Test stop")
+    app_data.write_stop(start_time=start_time, stop_time=t, reason="Test stop")
 
     csv_file = tmp_path / "pomodorable-sessions.csv"
     assert csv_file.exists()
@@ -132,7 +141,7 @@ def test_writes_running_csv_file_specify_name(tmp_path):
     app_data.write_start(start_time, "Test session 1", 10)
 
     t = start_time + timedelta(seconds=5)
-    app_data.write_stop(stop_time=t, reason="Test stop")
+    app_data.write_stop(start_time=start_time, stop_time=t, reason="Test stop")
 
     csv_file = tmp_path / "test-sessions.csv"
     assert csv_file.exists()
@@ -349,25 +358,41 @@ def test_filters_csv_output(tmp_path, filter_value, act_code, expected_count):
     # Extend (E) with a reason noted.
     t = start_time + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, extended",
+        pause_seconds=5,
+        session_extended=True,
     )
 
     # Resume (R) with a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, resume",
+        pause_seconds=2,
+        session_extended=False,
     )
 
     # Extend (E) without a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="", pause_seconds=5, session_extended=True
+        start_time=start_time,
+        pause_time=t,
+        reason="",
+        pause_seconds=5,
+        session_extended=True,
     )
 
     # Resume (R) without a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="", pause_seconds=2, session_extended=False
+        start_time=start_time,
+        pause_time=t,
+        reason="",
+        pause_seconds=2,
+        session_extended=False,
     )
 
     # Finish (F).
@@ -381,7 +406,7 @@ def test_filters_csv_output(tmp_path, filter_value, act_code, expected_count):
 
     # Stop (X).
     t = start_time + timedelta(seconds=5)
-    app_data.write_stop(stop_time=t, reason="Test stop")
+    app_data.write_stop(start_time=start_time, stop_time=t, reason="Test stop")
 
     csv_file = tmp_path / "2024-01-02.csv"
     assert csv_file.exists()
@@ -423,25 +448,41 @@ def test_filters_markdown_output(tmp_path, filter_value, find_str, expected_coun
     # Extend (E) with a reason noted.
     t = start_time + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="Pause, extended", pause_seconds=5, session_extended=True
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, extended",
+        pause_seconds=5,
+        session_extended=True,
     )
 
     # Resume (R) with a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="Pause, resume", pause_seconds=2, session_extended=False
+        start_time=start_time,
+        pause_time=t,
+        reason="Pause, resume",
+        pause_seconds=2,
+        session_extended=False,
     )
 
     # Extend (E) without a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="", pause_seconds=5, session_extended=True
+        start_time=start_time,
+        pause_time=t,
+        reason="",
+        pause_seconds=5,
+        session_extended=True,
     )
 
     # Resume (R) without a reason noted.
     t = t + timedelta(seconds=10)
     app_data.write_pause(
-        pause_time=t, reason="", pause_seconds=2, session_extended=False
+        start_time=start_time,
+        pause_time=t,
+        reason="",
+        pause_seconds=2,
+        session_extended=False,
     )
 
     # Finish (F).
@@ -455,7 +496,7 @@ def test_filters_markdown_output(tmp_path, filter_value, find_str, expected_coun
 
     # Stop (X).
     t = start_time + timedelta(seconds=5)
-    app_data.write_stop(stop_time=t, reason="Test stop")
+    app_data.write_stop(start_time=start_time, stop_time=t, reason="Test stop")
 
     md_file = tmp_path / "2024-01-02.md"
     assert md_file.exists()

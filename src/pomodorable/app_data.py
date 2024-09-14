@@ -20,13 +20,15 @@ from pomodorable.output_md import write_to_daily_md
 APP_NAME = "pomodorable"
 APP_CONFIG_FILE = f"{APP_NAME}-config.toml"
 APP_DATA_CSV = f"{APP_NAME}-data.csv"
-APP_DATA_VERSION = "1"
-DATA_CSV_HEADER = "version,date,time,action,message,duration,notes"
+APP_DATA_VERSION = "2"
+DATA_CSV_HEADER_V1 = "version,date,time,action,message,duration,notes"
+DATA_CSV_HEADER_V2 = "version,started,date,time,action,message,duration,notes"
 
 
 @dataclass
 class AppDataRow:
     version: str = APP_DATA_VERSION
+    started: datetime = None
     date_time: datetime = None
     time: str = ""
     action: str = ""
@@ -87,6 +89,7 @@ class AppData:
             self.config = AppConfig(self.config_file)
             self.config.load()
 
+        self._convert_data_csv()
         self._check_data_csv()
 
         self._purge_log_files()
@@ -117,13 +120,48 @@ class AppData:
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
 
+    def _convert_data_csv(self):
+        """Convert the data file from version 1 to version 2."""
+        if not self._data_csv.exists():
+            return
+
+        with self._data_csv.open() as f:
+            first_line = f.readline()
+        if not first_line.startswith(DATA_CSV_HEADER_V1):
+            return
+
+        v1_csv = self._data_csv.with_suffix(
+            f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.v1.old"
+        )
+        self._data_csv.rename(v1_csv)
+
+        # Not really an error, but use the error queue to display the message.
+        err = f"Convert data file. Old version saved as '{v1_csv}'."
+        logging.error(err)
+        self.queue_error(err)
+
+        fields = DATA_CSV_HEADER_V2.split(",")
+        last_start = None
+        with self._data_csv.open("w", newline="") as f, v1_csv.open(newline="") as t:
+            reader = csv.DictReader(t)
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+            for row in reader:
+                if row["action"] == "Start":
+                    # Combine the date and time columns into a single datetime.
+                    last_start = datetime.fromisoformat(f"{row['date']}T{row['time']}")
+                if last_start:
+                    row["version"] = APP_DATA_VERSION
+                    row["started"] = last_start.isoformat()
+                    writer.writerow(row)
+
     def _check_data_csv(self):
         # Check that the first line is the expected header row.
         if self._data_csv.exists():
             with self._data_csv.open() as f:
                 first_line = f.readline()
 
-            if not first_line.startswith(DATA_CSV_HEADER):
+            if not first_line.startswith(DATA_CSV_HEADER_V2):
                 # Rename invalid data file to keep it for potential analysis or
                 # data recovery.
                 bad_csv = self._data_csv.with_suffix(
@@ -136,7 +174,7 @@ class AppData:
 
         if not self._data_csv.exists():
             logging.info("Create new data file '%s'", str(self._data_csv))
-            self._data_csv.write_text(f"{DATA_CSV_HEADER}\n")
+            self._data_csv.write_text(f"{DATA_CSV_HEADER_V2}\n")
 
     def _purge_log_files(self) -> None:
         """Purge log files older than the configured retention period."""
@@ -156,7 +194,8 @@ class AppData:
         self._check_data_csv()
 
         csv_str = (
-            f"{data_row.version},{self._csv_date_time(data_row.date_time)},"
+            f"{data_row.version},{data_row.started.isoformat()},"
+            f"{self._csv_date_time(data_row.date_time)},"
             f'"{data_row.action}","{data_row.message}",'
             f'"{data_row.duration}","{data_row.notes}"'
         )
@@ -195,6 +234,7 @@ class AppData:
 
         self._append_data_csv(
             AppDataRow(
+                started=start_time,
                 date_time=start_time,
                 action="Start",
                 message=task,
@@ -207,6 +247,7 @@ class AppData:
 
     def write_pause(
         self,
+        start_time: datetime,
         pause_time: datetime,
         reason: str,
         pause_seconds: int,
@@ -214,6 +255,7 @@ class AppData:
     ) -> None:
         self._append_data_csv(
             AppDataRow(
+                started=start_time,
                 date_time=pause_time,
                 action="Pause",
                 message=reason,
@@ -224,9 +266,13 @@ class AppData:
         self.mru_list.add_reason(reason)
         self.mru_list.save()
 
-    def write_stop(self, stop_time: datetime, reason: str) -> None:
+    def write_stop(
+        self, start_time: datetime, stop_time: datetime, reason: str
+    ) -> None:
         self._append_data_csv(
-            AppDataRow(date_time=stop_time, action="Stop", message=reason)
+            AppDataRow(
+                started=start_time, date_time=stop_time, action="Stop", message=reason
+            )
         )
         self.write_session_to_output_files()
         # Stop should be infrequent, so do not add reason to the MRU list.
@@ -234,6 +280,7 @@ class AppData:
     def write_finish(self, finish_time: datetime, start_time: datetime) -> None:
         self._append_data_csv(
             AppDataRow(
+                started=start_time,
                 date_time=finish_time,
                 action="Finish",
                 notes=f"Started at {start_time.strftime('%H:%M:%S')}",

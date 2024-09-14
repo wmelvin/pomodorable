@@ -29,6 +29,7 @@ def app_data_with_four_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]
     for n, start_time in enumerate(start_times, start=1):
         app_data.write_start(start_time, f"Test session {n}", 10)
         app_data.write_pause(
+            start_time=start_time,
             pause_time=start_time + timedelta(seconds=2),
             reason=f"Test pause {n}",
             pause_seconds=2,
@@ -65,12 +66,14 @@ def app_data_with_six_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
     for n, start_time in enumerate(start_times, start=1):
         app_data.write_start(start_time, f"Test session {n}", 300)
         app_data.write_pause(
+            start_time=start_time,
             pause_time=start_time + timedelta(seconds=10),
             reason=f"Test pause {n}",
             pause_seconds=2,
             session_extended=False,
         )
         app_data.write_pause(
+            start_time=start_time,
             pause_time=start_time + timedelta(seconds=20),
             reason=f"Test pause {n}",
             pause_seconds=10,
@@ -78,7 +81,9 @@ def app_data_with_six_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
         )
         if n in [2, 5]:
             app_data.write_stop(
-                stop_time=start_time + timedelta(seconds=100), reason=f"Test STOP {n}"
+                start_time=start_time,
+                stop_time=start_time + timedelta(seconds=100),
+                reason=f"Test STOP {n}",
             )
         else:
             app_data.write_finish(
