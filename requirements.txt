@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-certifi==2024.7.4
+certifi==2024.8.30
     # via playsound3
 click==8.1.7
     # via -r requirements.in
@@ -15,12 +15,14 @@ markdown-it-py[linkify,plugins]==3.0.0
     #   mdit-py-plugins
     #   rich
     #   textual
-mdit-py-plugins==0.4.1
+mdit-py-plugins==0.4.2
     # via markdown-it-py
 mdurl==0.1.2
     # via markdown-it-py
-platformdirs==4.2.2
-    # via -r requirements.in
+platformdirs==4.3.3
+    # via
+    #   -r requirements.in
+    #   textual
 playsound3==2.2.1
     # via -r requirements.in
 plyer==2.1.0
@@ -29,11 +31,11 @@ pygments==2.18.0
     # via rich
 python-dotenv==1.0.1
     # via -r requirements.in
-rich==13.7.1
+rich==13.8.1
     # via textual
-textual==0.72.0
+textual==0.79.1
     # via -r requirements.in
-tomlkit==0.13.0
+tomlkit==0.13.2
     # via -r requirements.in
 typing-extensions==4.12.2
     # via textual

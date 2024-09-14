@@ -56,7 +56,8 @@ async def test_app_plays_wav_file_at_finish(tmp_path, wav_name, expect_text):
 async def test_minus_button_stops_at_one(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app = PomodorableApp(init_app_data=app_data)
-    pause_secs = 0.2  # None
+    # pause_secs = None
+    pause_secs = 0.2
     async with app.run_test() as pilot:
         countdown = pilot.app.query_one("#countdown")
         assert countdown.seconds == 25 * 60  # Should be 25 minutes by default.
