@@ -97,6 +97,32 @@ def test_export_csv_for_date_range(
     assert len(rows) == 14  # 1 header + 12 data rows + 1 date separator row
 
 
+def test_export_timesheet_csv_for_date_range(
+    app_data_with_four_test_sessions, monkeypatch
+):
+    app_data, _ = app_data_with_four_test_sessions
+    data_dir = str(app_data.data_path)
+    app_data.set_running_csv_dir(data_dir)
+
+    # Set the environment variable used by the AppData class to override its
+    # data_path when initialized via the CLI.
+    monkeypatch.setenv("POMODORABLE_TEST_DATA_DIR", data_dir)
+
+    export_path = app_data.data_path
+    args = ["--csv-date", "2024-01-02", "--end-date", "2024-01-03", "--timesheet"]
+
+    runner = CliRunner()
+    result = runner.invoke(cli, args)
+    print(result.output)
+    assert result.exit_code == 0
+
+    csv_file = export_path / "ts-20240102-20240103.csv"
+    assert csv_file.exists()
+
+    rows = csv_file.read_text().strip().split("\n")
+    assert len(rows) == 5  # 1 header + 4 session rows
+
+
 @pytest.mark.parametrize("subdir_param", [None, "exported"])
 def test_export_markdown_for_date(
     app_data_with_four_test_sessions, subdir_param, monkeypatch

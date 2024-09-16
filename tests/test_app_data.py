@@ -115,7 +115,7 @@ def test_writes_daily_csv_file(tmp_path):
     assert "Test stop" in text
 
     # Check for note when session length is not the default.
-    assert "(00:10 session < 25:00 default)" in text
+    assert "(0:00:10 session < 0:25:00 default)" in text
 
 
 def test_writes_running_csv_file_default_name(tmp_path):
@@ -161,7 +161,7 @@ def test_writes_daily_markdown_file(tmp_path):
     assert "# Pomodori 2024-01-02" in md_text
 
     # Check for note when session length is not the default.
-    assert "(00:10 session < 25:00 default)" in md_text
+    assert "(0:00:10 session < 0:25:00 default)" in md_text
 
 
 def test_does_not_create_md_file_when_append_only(tmp_path):

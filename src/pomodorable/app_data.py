@@ -14,7 +14,7 @@ from platformdirs import user_config_path, user_data_path
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 from pomodorable.app_utils import get_date_from_str, sec_to_hms, str_true
 from pomodorable.mru_list import MRUList
-from pomodorable.output_csv import write_to_sessions_csv
+from pomodorable.output_csv import write_to_sessions_csv, write_to_timesheet_csv
 from pomodorable.output_md import write_to_daily_md
 
 APP_NAME = "pomodorable"
@@ -424,7 +424,11 @@ class AppData:
         )
 
     def cli_export_daily_csv(
-        self, export_date: datetime, filters: str, export_path: Path | None
+        self,
+        export_date: datetime,
+        do_timesheet: bool,
+        filters: str,
+        export_path: Path | None,
     ) -> None:
         """Export a daily CSV file for a given date.
 
@@ -434,8 +438,9 @@ class AppData:
         For CLI export the filters are passed as a command line argument.
         The filter_csv AppConfig setting is not used.
         """
-        path = export_path if export_path else self.get_daily_csv_path()
-        if not path:
+
+        csv_path = export_path if export_path else self.get_daily_csv_path()
+        if not csv_path:
             return
 
         rows = self.get_session_rows_for_date(export_date)
@@ -444,13 +449,14 @@ class AppData:
             return
 
         date_str = rows[0]["date"]
-        csv_file = path / f"{date_str}.csv"
+        ts = "ts-" if do_timesheet else ""
+        csv_file = csv_path / f"{ts}{date_str}.csv"
 
         # Do not overwrite existing files.
         max_num = 99
         next_num = 1
         while csv_file.exists():
-            csv_file = path / f"{date_str}_{next_num}.csv"
+            csv_file = csv_path / f"{ts}{date_str}_{next_num}.csv"
             next_num += 1
             if next_num > max_num:
                 logging.error("Too many files for %s", date_str)
@@ -459,12 +465,16 @@ class AppData:
 
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, filters, rows, start_num=1)
+        if do_timesheet:
+            write_to_timesheet_csv(csv_file, rows)
+        else:
+            write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
     def cli_export_date_range_csv(
         self,
         start_date: datetime,
         end_date: datetime,
+        do_timesheet: bool,
         filters: str,
         export_path: Path | None,
     ) -> None:
@@ -476,8 +486,9 @@ class AppData:
         For CLI export the filters are passed as a command line argument.
         The filter_csv AppConfig setting is not used.
         """
-        path = export_path if export_path else self.get_running_csv_path()
-        if not path:
+
+        csv_path = export_path if export_path else self.get_running_csv_path()
+        if not csv_path:
             return
 
         rows = []
@@ -490,12 +501,21 @@ class AppData:
             print("\nNo data found for given date range.\n")  # noqa: T201
             return
 
-        csv_file = path.joinpath(
-            f"{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.csv"
+        ts = "ts-" if do_timesheet else ""
+
+        csv_file = csv_path.joinpath(
+            f"{ts}{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.csv"
         )
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
-        write_to_sessions_csv(csv_file, filters, rows, start_num=1)
+        # Date-range export file should not be appended, so remove existing file.
+        if csv_file.exists():
+            csv_file.unlink()
+
+        if do_timesheet:
+            write_to_timesheet_csv(csv_file, rows)
+        else:
+            write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
     def cli_export_daily_markdown(
         self, export_date: datetime, filters: str, export_path: Path | None

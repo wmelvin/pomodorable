@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import csv
+from datetime import datetime
 from pathlib import Path
+
+from pomodorable.app_utils import hms_to_sec
 
 
 def get_start_msg(row_notes: str, row_duration: str):
@@ -105,3 +108,98 @@ def write_to_sessions_csv(
                 ]
             if out_row:
                 writer.writerow(out_row)
+
+
+class TaskSession:
+    def __init__(self, date: str, start_time: str, task: str, duration: str):
+        self.date = date
+        self.start_time = start_time
+        self.stop_time = None
+        self.task = task
+        self.reasons = ""
+        self.task_seconds = hms_to_sec(duration)
+        self.pause_seconds = 0
+
+    def pause(self, message: str, duration: str, notes: str) -> None:
+        if notes == "extended":
+            act = "Extend"
+        else:
+            act = "Resume"
+            self.pause_seconds += hms_to_sec(duration)
+        if message:
+            self.reasons += f"{act}: {message} | "
+
+    def stop(self, stop_date: str, stop_time: str, message: str) -> None:
+        self.stop_time = stop_time
+
+        start_datetime: datetime = datetime.strptime(  # noqa: DTZ007
+            f"{self.date} {self.start_time}", "%Y-%m-%d %H:%M:%S"
+        )
+
+        stop_datetime: datetime = datetime.strptime(  # noqa: DTZ007
+            f"{stop_date} {stop_time}", "%Y-%m-%d %H:%M:%S"
+        )
+
+        assert stop_datetime >= start_datetime  # noqa: S101
+
+        self.task_seconds = (stop_datetime - start_datetime).total_seconds()
+
+        if message:
+            self.reasons += f"STOP: {message}"
+        else:
+            self.reasons += "STOP"
+
+    def finish(self, finish_time: str) -> None:
+        self.stop_time = finish_time
+
+    def as_dict(self):
+        """Return a dictionary with the session data for writing to a CSV file."""
+
+        # For the time-on-task, only completed minutes are counted (no rounding).
+        task_minutes_initial = int(self.task_seconds / 60)
+        task_minutes_final = int((self.task_seconds - self.pause_seconds) / 60)
+        pause_minutes = task_minutes_initial - task_minutes_final
+
+        reason_notes = self.reasons.rstrip(" |")
+
+        return {
+            "date": self.date,
+            "start_time": self.start_time,
+            "stop_time": self.stop_time,
+            "task_minutes": task_minutes_final,
+            "pause_minutes": pause_minutes,
+            "task": self.task,
+            "notes": reason_notes,
+        }
+
+
+def write_to_timesheet_csv(csv_file: Path, data_rows: list[dict]) -> None:
+    header = "date,start_time,stop_time,task_minutes,pause_minutes,task,notes"
+
+    #  Write the header row when the file is created.
+    if not csv_file.exists():
+        csv_file.write_text(f"{header}\n")
+
+    #  Append data rows.
+    with csv_file.open("a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=header.split(","))
+        session: TaskSession = None
+        for row in data_rows:
+            action = row["action"]
+            if action == "Start":
+                if session is not None:
+                    writer.writerow(session.as_dict())
+                session = TaskSession(
+                    row["date"], row["time"], row["message"], row["duration"]
+                )
+            elif action == "Pause":
+                session.pause(row["message"], row["duration"], row["notes"])
+            elif action == "Stop":
+                session.stop(row["date"], row["time"], row["message"])
+            elif action == "Finish":
+                session.finish(row["time"])
+                if session is not None:
+                    writer.writerow(session.as_dict())
+                session = None
+        if session is not None:
+            writer.writerow(session.as_dict())

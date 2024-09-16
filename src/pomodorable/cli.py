@@ -19,7 +19,9 @@ def get_app_version() -> str:
         return MOD_VERSION
 
 
-def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
+def handled_option(
+    csv_date, md_date, end_date, do_timesheet, export_path, filters
+) -> bool:
     """Handle the command-line options for exporting CSV or Markdown files.
     If there are errors in the options, print an error message and exit.
     If options are handled, return True; otherwise, return False.
@@ -67,9 +69,11 @@ def handled_option(csv_date, md_date, end_date, export_path, filters) -> bool:
 
     if csv_date is not None:
         if end_date is not None:
-            app_data.cli_export_date_range_csv(csv_date, end_date, filters, export_path)
+            app_data.cli_export_date_range_csv(
+                csv_date, end_date, do_timesheet, filters, export_path
+            )
         else:
-            app_data.cli_export_daily_csv(csv_date, filters, export_path)
+            app_data.cli_export_daily_csv(csv_date, do_timesheet, filters, export_path)
 
     if md_date is not None:
         app_data.cli_export_daily_markdown(md_date, filters, export_path)
@@ -113,6 +117,14 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "with the --csv-date or --md-date option.",
 )
 @click.option(
+    "--timesheet",
+    is_flag=True,
+    default=False,
+    help="Export in Time Sheet format with one row per session. "
+    "This option is only valid with the --csv-date option. "
+    "The --end-date option can be used to export a range of dates.",
+)
+@click.option(
     "--export-path",
     default=None,
     help="Path to export a Daily CSV or Markdown file. "
@@ -140,9 +152,11 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     default=False,
     help="Enable [Ctrl]+[t] to run manual testing functions.",
 )
-def cli(csv_date, md_date, end_date, export_path, filters, ctrl_s, ctrl_t) -> None:
+def cli(
+    csv_date, md_date, end_date, timesheet, export_path, filters, ctrl_s, ctrl_t
+) -> None:
     """Handle command-line options or run the Textual User Interface."""
-    if handled_option(csv_date, md_date, end_date, export_path, filters):
+    if handled_option(csv_date, md_date, end_date, timesheet, export_path, filters):
         return
     run(enable_screenshots=ctrl_s, enable_testkey=ctrl_t)
 

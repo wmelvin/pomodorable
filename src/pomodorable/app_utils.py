@@ -4,14 +4,20 @@ from datetime import datetime
 
 
 def sec_to_hms(seconds: int) -> str:
-    """Convert seconds to a string in the form "HH:MM:SS" or "MM:SS" if less
-    than an hour.
-    """
+    """Convert seconds to a string in the form H:MM:SS."""
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
-    if hours > 0:
-        return f"{hours:02}:{minutes:02}:{seconds:02}"
-    return f"{minutes:02}:{seconds:02}"
+    return f"{hours}:{minutes:02}:{seconds:02}"
+
+
+def hms_to_sec(hms: str) -> int:
+    """Convert a string in the form "HH:MM:SS" or "MM:SS" to seconds."""
+    parts = hms.split(":")
+    if len(parts) == 3:  # noqa: PLR2004
+        hours, minutes, seconds = parts
+        return int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+    minutes, seconds = parts
+    return int(minutes) * 60 + int(seconds)
 
 
 def get_date_from_str(date_str: str) -> datetime | None:
