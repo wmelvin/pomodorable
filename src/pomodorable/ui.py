@@ -133,6 +133,7 @@ class CountdownDisplay(Static):
         self.update_timer.pause()
         duration = (datetime.now() - self.pause_time).seconds
         self.app.app_data.write_pause(
+            self.start_time,
             self.pause_time,
             self.app.query_one("#input-reason").value,
             duration,
@@ -147,6 +148,7 @@ class CountdownDisplay(Static):
             extend_secs = (datetime.now() - self.pause_time).seconds
             self.seconds_added += extend_secs
             self.app.app_data.write_pause(
+                self.start_time,
                 self.pause_time,
                 self.app.query_one("#input-reason").value,
                 extend_secs,
@@ -374,7 +376,7 @@ class PomodorableApp(App):
         elif btn == "btn-stop":
             reason = self.query_one("#input-reason").value
             self.say(f"STOP '{reason}'", console_text=f"[bold]STOP{q_text(reason)}")
-            self.app_data.write_stop(datetime.now(), reason)
+            self.app_data.write_stop(countdown.start_time, datetime.now(), reason)
             self.remove_class("paused")
             self.remove_class("running")
             countdown.reset(timer_resume=True)

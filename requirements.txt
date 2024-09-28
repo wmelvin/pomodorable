@@ -19,11 +19,11 @@ mdit-py-plugins==0.4.2
     # via markdown-it-py
 mdurl==0.1.2
     # via markdown-it-py
-platformdirs==4.3.3
+platformdirs==4.3.6
     # via
     #   -r requirements.in
     #   textual
-playsound3==2.2.1
+playsound3==2.2.2
     # via -r requirements.in
 plyer==2.1.0
     # via -r requirements.in
@@ -33,7 +33,7 @@ python-dotenv==1.0.1
     # via -r requirements.in
 rich==13.8.1
     # via textual
-textual==0.79.1
+textual==0.81.0
     # via -r requirements.in
 tomlkit==0.13.2
     # via -r requirements.in

@@ -192,6 +192,46 @@ async def test_bug_settings_screen_close_btn_press_down_arrow(tmp_path):
         await pilot.press("down")
 
 
+async def test_session_buttons(tmp_path):
+    app_data = AppData(init_data_path=tmp_path)
+    app = PomodorableApp(init_app_data=app_data)
+    pause_secs = 0.2
+    async with app.run_test() as pilot:
+        await pilot.click("#btn-reset")
+        await pilot.pause(pause_secs)
+        assert not pilot.app.has_class("paused")
+        assert not pilot.app.has_class("running")
+
+        await pilot.click("#btn-start")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("running")
+
+        await pilot.click("#btn-pause")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("paused")
+
+        await pilot.click("#btn-extend")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("running")
+
+        await pilot.click("#btn-pause")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("paused")
+
+        await pilot.click("#btn-resume")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("running")
+
+        await pilot.click("#btn-pause")
+        await pilot.pause(pause_secs)
+        assert pilot.app.has_class("paused")
+
+        await pilot.click("#btn-stop")
+        await pilot.pause(pause_secs)
+        assert not pilot.app.has_class("paused")
+        assert not pilot.app.has_class("running")
+
+
 # @pytest.mark.xfail(reason="Not ready to capture reference snapshot")
 @pytest.mark.skip(reason="Not ready to capture reference snapshot")
 def test_snap_settings_screen(snap_compare):
