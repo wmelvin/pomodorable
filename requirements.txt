@@ -31,13 +31,15 @@ pygments==2.18.0
     # via rich
 python-dotenv==1.0.1
     # via -r requirements.in
-rich==13.8.1
+rich==13.9.3
     # via textual
-textual==0.81.0
+textual==0.85.0
     # via -r requirements.in
 tomlkit==0.13.2
     # via -r requirements.in
 typing-extensions==4.12.2
-    # via textual
+    # via
+    #   rich
+    #   textual
 uc-micro-py==1.0.3
     # via linkify-it-py
