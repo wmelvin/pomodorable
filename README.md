@@ -28,13 +28,20 @@ alt="Screenshot animation"/></a></p>
 
 ## Installation
 
-Pomodorable is available on PyPI and can be installed using [pip](https://github.com/pypa/pip). However, to avoid dependency conflicts, it is recommended to use **pipx**.
+Pomodorable is available on PyPI and can be installed using [pip](https://github.com/pypa/pip). However, to avoid dependency conflicts, it is recommended to use **pipx** or **uv**. Follow the links below for more information on how to install and use these tools.
 
 [pipx](https://github.com/pypa/pipx) installs Python applications into isolated environments and makes them available globally on the command line.
 
 ``` shell
 pipx install pomodorable
 ```
+
+[uv](https://github.com/astral-sh/uv) is a Python package and project manager that can also install Python applications so they are available on the command line.
+
+``` shell
+uv tool install pomodorable
+```
+
 
 ## Using the Application
 
@@ -228,6 +235,11 @@ Options:
                       end date (provide the dates as YYYY-MM-DD or YY-MM-DD).
                       This option is only valid with the --csv-date or --md-
                       date option.
+
+  --timesheet         Export in Time Sheet format with one row per session.
+                      This option is only valid with the --csv-date option.
+                      The --end-date option can be used to export a range of
+                      dates.
 
   --export-path TEXT  Path to export a Daily CSV or Markdown file. This option
                       is required if a 'Daily CSV Folder' or 'Daily Markdown
