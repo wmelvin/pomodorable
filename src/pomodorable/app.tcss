@@ -1,6 +1,6 @@
 
-/* Make the header icon character invisible. Clicking it opens
-   the Command Palette, which is disabled in this app.
+/* When ENABLE_COMMAND_PALETTE = False (as set in ui.py) the header icon
+   character is still displayed. Make it invisible.
 */
 HeaderIcon {
     text-opacity: 0;

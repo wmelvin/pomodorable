@@ -275,6 +275,12 @@ class PomodorableApp(App):
         self.query_one(CountdownDisplay).update_timer.resume()
         self.query_one("#input-task").focus()
 
+        # When ENABLE_COMMAND_PALETTE = False, the tooltip "Open the command
+        # palette" is still shown on hover. That blocks the countdown
+        # display, and it sometimes stays there when the pointer passes
+        # over the terminal quickly.
+        self.query_one(Header).query_one("HeaderIcon").tooltip = None
+
     def say(self, message: str, console_text: str = "") -> None:
         msg = message if console_text == "" else console_text
         self.query_one(RichLog).write(f"{datetime.now().strftime('%H:%M:%S')} - {msg}")
