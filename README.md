@@ -4,7 +4,7 @@
 <p>
 <a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorable.png">
 <img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorable.png"
-alt="adorable tomato image"/></a></p>
+alt="Image of an adorable little tomato"/></a></p>
 
 ---
 
@@ -21,10 +21,23 @@ alt="Picture of a Pomodoro Timer"/></a></p>
 ## Screenshots
 
 <!-- ![Screenshot animation](./readme_images/app-1.gif) -->
-<p align="center">
+<p>
 <a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/app-1.gif">
 <img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/app-1.gif"
 alt="Screenshot animation"/></a></p>
+
+---
+
+<!-- ![rotten tomato](./readme_images/pomodorably-rotten.png) -->
+<p>
+<a href="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorably-rotten.png">
+<img src="https://github.com/wmelvin/pomodorable/raw/main/readme_images/pomodorably-rotten.png"
+alt="Image of an adorable little tomato getting a bit rotten on top"/></a></p>
+
+Given the color scheme of the UI, perhaps the *pomodoro* is getting a bit rotten on top. :)
+
+
+---
 
 ## Installation
 
