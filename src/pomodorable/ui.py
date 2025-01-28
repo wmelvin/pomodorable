@@ -444,20 +444,19 @@ class PomodorableApp(App):
                     self.say(f"Notification error: {e}")
 
             if self.app_data.config.wav_file:
-                logging.info(
-                    "countdown_finished: playsound '%s'", self.app_data.config.wav_file
-                )
-                if Path(self.app_data.config.wav_file).exists():
+                wav_path = Path(self.app_data.config.wav_file).expanduser().resolve()
+                logging.info("countdown_finished: playsound '%s'", wav_path)
+                if wav_path.exists():
                     try:
                         from playsound3 import playsound
 
-                        playsound(str(self.app_data.config.wav_file), block=False)
+                        playsound(str(wav_path), block=False)
                         logging.info("countdown_finished: playsound called")
                     except Exception as e:
                         logging.exception("Exception in playsound")
                         self.say(f"Sound error: {e}")
                 else:
-                    self.say(f"Sound file not found: {self.app_data.config.wav_file}")
+                    self.say(f"Sound file not found: {wav_path}")
 
             logging.debug("countdown_finished: call show_queued_errors()")
             self.show_queued_errors()
