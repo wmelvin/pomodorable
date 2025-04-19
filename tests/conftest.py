@@ -35,9 +35,7 @@ def app_data_with_four_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]
             pause_seconds=2,
             session_extended=False,
         )
-        app_data.write_finish(
-            finish_time=start_time + timedelta(seconds=10), start_time=start_time
-        )
+        app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
 
     return (app_data, start_times)
 
@@ -86,8 +84,6 @@ def app_data_with_six_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
                 reason=f"Test STOP {n}",
             )
         else:
-            app_data.write_finish(
-                finish_time=start_time + timedelta(seconds=310), start_time=start_time
-            )
+            app_data.write_finish(finish_time=start_time + timedelta(seconds=310), start_time=start_time)
 
     return (app_data, start_times)

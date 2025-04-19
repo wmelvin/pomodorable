@@ -22,9 +22,7 @@ def test_cli_help():
 
 
 @pytest.mark.parametrize("subdir_param", [None, "exported"])
-def test_export_csv_for_date(
-    app_data_with_four_test_sessions, subdir_param, monkeypatch
-):
+def test_export_csv_for_date(app_data_with_four_test_sessions, subdir_param, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_daily_csv_dir(data_dir)
@@ -59,9 +57,7 @@ def test_export_csv_for_date(
 
 
 @pytest.mark.parametrize("subdir_param", [None, "exported"])
-def test_export_csv_for_date_range(
-    app_data_with_four_test_sessions, subdir_param, monkeypatch
-):
+def test_export_csv_for_date_range(app_data_with_four_test_sessions, subdir_param, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_running_csv_dir(data_dir)
@@ -97,9 +93,7 @@ def test_export_csv_for_date_range(
     assert len(rows) == 14  # 1 header + 12 data rows + 1 date separator row
 
 
-def test_export_timesheet_csv_for_date_range(
-    app_data_with_four_test_sessions, monkeypatch
-):
+def test_export_timesheet_csv_for_date_range(app_data_with_four_test_sessions, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_running_csv_dir(data_dir)
@@ -124,9 +118,7 @@ def test_export_timesheet_csv_for_date_range(
 
 
 @pytest.mark.parametrize("subdir_param", [None, "exported"])
-def test_export_markdown_for_date(
-    app_data_with_four_test_sessions, subdir_param, monkeypatch
-):
+def test_export_markdown_for_date(app_data_with_four_test_sessions, subdir_param, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_daily_md_dir(data_dir)
@@ -173,9 +165,7 @@ def test_export_csv_error_end_date_before_start_date(app_data_with_four_test_ses
 
 
 @pytest.mark.parametrize(("filter_arg", "expected_row_count"), [("X", 7), ("P", 5)])
-def test_export_csv_for_date_with_filter(
-    app_data_with_four_test_sessions, filter_arg, expected_row_count, monkeypatch
-):
+def test_export_csv_for_date_with_filter(app_data_with_four_test_sessions, filter_arg, expected_row_count, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_daily_csv_dir(data_dir)

@@ -55,9 +55,7 @@ def test_get_session_rows_for_date(app_data_with_four_test_sessions, date_arg):
 
 
 # TODO: Maybe some (but not all) of these should be valid?
-@pytest.mark.parametrize(
-    "date_arg", ["1/2/24", "04-MAY-23", "2024-13-01", "fatfingerdeathmunch"]
-)
+@pytest.mark.parametrize("date_arg", ["1/2/24", "04-MAY-23", "2024-13-01", "fatfingerdeathmunch"])
 def test_bad_date_arg(date_arg):
     assert get_date_from_str(date_arg) is None
 
@@ -152,9 +150,7 @@ def test_writes_daily_markdown_file(tmp_path):
     app_data.set_daily_md_dir(str(tmp_path))
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
     app_data.write_start(start_time, "Test session", 10)
-    app_data.write_finish(
-        finish_time=start_time + timedelta(seconds=10), start_time=start_time
-    )
+    app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
     md_file = tmp_path / "2024-01-02.md"
     assert md_file.exists()
     md_text = md_file.read_text()
@@ -170,9 +166,7 @@ def test_does_not_create_md_file_when_append_only(tmp_path):
     app_data.set_daily_md_dir(str(tmp_path))
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
     app_data.write_start(start_time, "Test session", 10)
-    app_data.write_finish(
-        finish_time=start_time + timedelta(seconds=10), start_time=start_time
-    )
+    app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
     md_files = list(tmp_path.glob("*.md"))
     assert not md_files
 
@@ -185,16 +179,12 @@ def test_write_to_daily_md(app_data_with_four_test_sessions):
     rows = app_data.get_session_rows_for_date(start_times[0])
     assert len(rows) == 6
 
-    write_to_daily_md(
-        md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[:3]
-    )
+    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[:3])
 
     # Make a copy for manual review in tmp location.
     (p / "test-1.md").write_text(md_file.read_text())
 
-    write_to_daily_md(
-        md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[3:]
-    )
+    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[3:])
 
 
 def test_append_to_daily_md(app_data_with_six_test_sessions):
@@ -285,7 +275,7 @@ def test_purge_log_files(tmp_path):
 
     # Make 8 fake log files.
     for i in range(8):
-        p = tmp_path / f"pomodorable-2024010{i+1}.log"
+        p = tmp_path / f"pomodorable-2024010{i + 1}.log"
         p.write_text("")
 
     # Should create a new log file.

@@ -73,20 +73,14 @@ class AppConfig:
             logging.info("Load '%s'", self._config_file)
             try:
                 doc = self._load_toml_doc()
-                self.session_minutes = doc.get(
-                    KEY_SESSION_MINUTES, SESSION_MINUTES_DEFAULT
-                )
+                self.session_minutes = doc.get(KEY_SESSION_MINUTES, SESSION_MINUTES_DEFAULT)
                 self.daily_csv_dir = doc.get(KEY_DAILY_CSV_DIR, "")
                 self.running_csv_dir = doc.get(KEY_RUNNING_CSV_DIR, "")
-                self.running_csv_name = doc.get(
-                    KEY_RUNNING_CSV_NAME, RUNNING_CSV_NAME_DEFAULT
-                )
+                self.running_csv_name = doc.get(KEY_RUNNING_CSV_NAME, RUNNING_CSV_NAME_DEFAULT)
                 self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
                 self.daily_md_heading = doc.get(KEY_DAILY_MD_HEADING, "")
                 self.daily_md_append = doc.get(KEY_DAILY_MD_APPEND, False)
-                self.log_retention_days = doc.get(
-                    KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT
-                )
+                self.log_retention_days = doc.get(KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT)
                 self.filter_csv = doc.get(KEY_FILTER_CSV, "").upper()
                 self.filter_md = doc.get(KEY_FILTER_MD, "").upper()
                 self.wav_file = doc.get(KEY_WAV_FILE, "")

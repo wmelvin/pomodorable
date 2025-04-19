@@ -30,9 +30,7 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
                 continue
             if exclude_pause_no_reason and not row["message"]:
                 continue
-            act = (
-                f"extend {row['duration']}" if row["notes"] == "extended" else "resume"
-            )
+            act = f"extend {row['duration']}" if row["notes"] == "extended" else "resume"
             md.append(f"    - Pause {row_time} '{row['message']}' ({act})")
 
         elif row["action"] == "Stop":
@@ -47,9 +45,7 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
     return md
 
 
-def write_to_daily_md(
-    md_file: Path, filters: str, heading: str, append_only: bool, data_rows: list[dict]
-) -> None:
+def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bool, data_rows: list[dict]) -> None:
     md_heading = f"{heading}" if heading else f"# Pomodori {data_rows[0]['date']}"
 
     if md_file.exists():
@@ -83,11 +79,7 @@ def write_to_daily_md(
     if insert_index is not None:
         #  Close the gap within the section. Only leave a blank line after
         #  the heading.
-        while (
-            insert_index > hx
-            and insert_index > 0
-            and lines[insert_index - 1].strip() == ""
-        ):
+        while insert_index > hx and insert_index > 0 and lines[insert_index - 1].strip() == "":
             insert_index -= 1
 
     md = [md_heading, ""] if heading_index is None else []

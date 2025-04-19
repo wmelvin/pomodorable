@@ -299,8 +299,7 @@ class SettingsScreen(Screen[str]):
             [
                 Integer(
                     minimum=LOG_RETENTION_MIN,
-                    failure_description="Must be a number greater than "
-                    f"{LOG_RETENTION_MIN - 1}.",
+                    failure_description=f"Must be a number greater than {LOG_RETENTION_MIN - 1}.",
                 )
             ],
         )

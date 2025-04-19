@@ -149,7 +149,7 @@ async def test_open_about_screen(tmp_path):
         await pilot.pause()
         await pilot.click("#btn-about")
         await pilot.pause()
-        close_btn = pilot.app.query_one("#about-close")
+        close_btn = pilot.app.screen.query_one("#about-close")
         assert close_btn
 
 
@@ -160,7 +160,7 @@ async def test_open_settings_screen(tmp_path):
         await pilot.pause()
         await pilot.click("#btn-settings")
         await pilot.pause()
-        settings_input = pilot.app.query_one("#set-log-ret")
+        settings_input = pilot.app.screen.query_one("#set-log-ret")
         assert settings_input
 
 
@@ -186,7 +186,7 @@ async def test_bug_settings_screen_close_btn_press_down_arrow(tmp_path):
         await pilot.click("#btn-settings")
         await pilot.pause()
         # Focus the Close button and press down.
-        btn_close = pilot.app.query_one("#btn-close")
+        btn_close = pilot.app.screen.query_one("#btn-close")
         assert btn_close
         btn_close.focus()
         await pilot.press("down")

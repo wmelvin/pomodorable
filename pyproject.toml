@@ -109,6 +109,7 @@ asyncio_default_fixture_loop_scope = "function"
 # See: https://hatch.pypa.io/latest/config/static-analysis/#pyprojecttoml_2
 [tool.hatch.envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
+dependencies = ["ruff==0.9.6"]
 
 [tool.ruff]
 extend = "ruff_defaults.toml"
@@ -119,7 +120,7 @@ extend-ignore = [
   "DTZ005",  # datetime.now() w/o tz
   "FBT001",  # boolean-typed arg
   "FBT002",  # boolean arg default
-  "TCH003",  # move import to type-checking block
+  "TC003",  # move import to type-checking block
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]

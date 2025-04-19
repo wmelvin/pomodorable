@@ -15,9 +15,7 @@ def get_start_msg(row_notes: str, row_duration: str):
     return ""
 
 
-def write_to_sessions_csv(
-    csv_file: Path, filters: str, data_rows: list[dict], start_num: int = 0
-) -> None:
+def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], start_num: int = 0) -> None:
     #  Note: Output CSV layout is different from the Data CSV.
 
     exclude_pause_all = "P" in filters
@@ -189,9 +187,7 @@ def write_to_timesheet_csv(csv_file: Path, data_rows: list[dict]) -> None:
             if action == "Start":
                 if session is not None:
                     writer.writerow(session.as_dict())
-                session = TaskSession(
-                    row["date"], row["time"], row["message"], row["duration"]
-                )
+                session = TaskSession(row["date"], row["time"], row["message"], row["duration"])
             elif action == "Pause":
                 session.pause(row["message"], row["duration"], row["notes"])
             elif action == "Stop":

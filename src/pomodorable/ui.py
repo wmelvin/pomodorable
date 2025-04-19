@@ -54,9 +54,7 @@ class CountdownDisplay(Static):
         self.seconds = secs
         self.start_seconds = secs
         # Initialize the update_timer in pause mode.
-        self.update_timer = self.set_interval(
-            UPDATE_INTERVAL, self.update_countdown, pause=True
-        )
+        self.update_timer = self.set_interval(UPDATE_INTERVAL, self.update_countdown, pause=True)
         self.last_minute = -1
 
     def update_countdown(self) -> None:
@@ -78,11 +76,7 @@ class CountdownDisplay(Static):
             self.last_minute = minute
 
         # Finish the session when running and no seconds remain.
-        if (
-            self.seconds <= 0
-            and self.app.has_class("running")
-            and not self.app.has_class("paused")
-        ):
+        if self.seconds <= 0 and self.app.has_class("running") and not self.app.has_class("paused"):
             self.update_timer.pause()
             logging.debug("watch_seconds: call countdown_finished")
             self.app.countdown_finished()

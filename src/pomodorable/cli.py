@@ -19,19 +19,14 @@ def get_app_version() -> str:
         return MOD_VERSION
 
 
-def handled_option(
-    csv_date, md_date, end_date, do_timesheet, export_path, filters
-) -> bool:
+def handled_option(csv_date, md_date, end_date, do_timesheet, export_path, filters) -> bool:
     """Handle the command-line options for exporting CSV or Markdown files.
     If there are errors in the options, print an error message and exit.
     If options are handled, return True; otherwise, return False.
     """
     if csv_date is None and md_date is None:
         if export_path is not None:
-            sys.stderr.write(
-                "\n--export-path option requires either --csv-date or "
-                "--md-date option.\n"
-            )
+            sys.stderr.write("\n--export-path option requires either --csv-date or --md-date option.\n")
             sys.exit(1)
         return False
 
@@ -69,9 +64,7 @@ def handled_option(
 
     if csv_date is not None:
         if end_date is not None:
-            app_data.cli_export_date_range_csv(
-                csv_date, end_date, do_timesheet, filters, export_path
-            )
+            app_data.cli_export_date_range_csv(csv_date, end_date, do_timesheet, filters, export_path)
         else:
             app_data.cli_export_daily_csv(csv_date, do_timesheet, filters, export_path)
 
@@ -82,9 +75,7 @@ def handled_option(
 
 
 def run(enable_screenshots: bool, enable_testkey: bool) -> None:
-    ui = PomodorableApp(
-        enable_screenshots=enable_screenshots, enable_testkey=enable_testkey
-    )
+    ui = PomodorableApp(enable_screenshots=enable_screenshots, enable_testkey=enable_testkey)
     ui.run()
 
 
@@ -143,8 +134,7 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     "--ctrl-s",
     is_flag=True,
     default=False,
-    help="Enable [Ctrl]+[s] for saving SVG screenshots in the app. "
-    "Screenshots are saved to the Desktop.",
+    help="Enable [Ctrl]+[s] for saving SVG screenshots in the app. Screenshots are saved to the Desktop.",
 )
 @click.option(
     "--ctrl-t",
@@ -152,9 +142,7 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     default=False,
     help="Enable [Ctrl]+[t] to run manual testing functions.",
 )
-def cli(
-    csv_date, md_date, end_date, timesheet, export_path, filters, ctrl_s, ctrl_t
-) -> None:
+def cli(csv_date, md_date, end_date, timesheet, export_path, filters, ctrl_s, ctrl_t) -> None:
     """Handle command-line options or run the Textual User Interface."""
     if handled_option(csv_date, md_date, end_date, timesheet, export_path, filters):
         return

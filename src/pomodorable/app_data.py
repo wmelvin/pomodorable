@@ -67,13 +67,8 @@ class AppData:
         if self.data_path:
             self.config_file = self.data_path / APP_CONFIG_FILE
         else:
-            self.config_file = (
-                user_config_path(APP_NAME, appauthor=False, ensure_exists=True)
-                / APP_CONFIG_FILE
-            )
-            self.data_path = user_data_path(
-                APP_NAME, appauthor=False, ensure_exists=True
-            )
+            self.config_file = user_config_path(APP_NAME, appauthor=False, ensure_exists=True) / APP_CONFIG_FILE
+            self.data_path = user_data_path(APP_NAME, appauthor=False, ensure_exists=True)
 
         self._data_csv = self.data_path / APP_DATA_CSV
 
@@ -114,9 +109,7 @@ class AppData:
             logger.setLevel(logging.INFO)
 
         self._log_handler = logging.FileHandler(self.log_file)
-        self._log_formatter = logging.Formatter(
-            "%(asctime)s %(levelname)s (%(module)s %(funcName)s): %(message)s"
-        )
+        self._log_formatter = logging.Formatter("%(asctime)s %(levelname)s (%(module)s %(funcName)s): %(message)s")
         self._log_handler.setFormatter(self._log_formatter)
         logger.addHandler(self._log_handler)
 
@@ -130,9 +123,7 @@ class AppData:
         if not first_line.startswith(DATA_CSV_HEADER_V1):
             return
 
-        v1_csv = self._data_csv.with_suffix(
-            f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.v1.old"
-        )
+        v1_csv = self._data_csv.with_suffix(f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.v1.old")
         self._data_csv.rename(v1_csv)
 
         # Not really an error, but use the error queue to display the message.
@@ -164,9 +155,7 @@ class AppData:
             if not first_line.startswith(DATA_CSV_HEADER_V2):
                 # Rename invalid data file to keep it for potential analysis or
                 # data recovery.
-                bad_csv = self._data_csv.with_suffix(
-                    f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.bad"
-                )
+                bad_csv = self._data_csv.with_suffix(f".{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.bad")
                 self._data_csv.rename(bad_csv)
                 err = f"INVALID DATA FILE. Saved as '{bad_csv}'."
                 logging.error(err)
@@ -218,9 +207,7 @@ class AppData:
             return err_list
         return []
 
-    def write_start(
-        self, start_time: datetime, task: str, session_seconds: int
-    ) -> None:
+    def write_start(self, start_time: datetime, task: str, session_seconds: int) -> None:
         if session_seconds < self.config.session_seconds:
             note = "<"
         elif session_seconds > self.config.session_seconds:
@@ -266,14 +253,8 @@ class AppData:
         self.mru_list.add_reason(reason)
         self.mru_list.save()
 
-    def write_stop(
-        self, start_time: datetime, stop_time: datetime, reason: str
-    ) -> None:
-        self._append_data_csv(
-            AppDataRow(
-                started=start_time, date_time=stop_time, action="Stop", message=reason
-            )
-        )
+    def write_stop(self, start_time: datetime, stop_time: datetime, reason: str) -> None:
+        self._append_data_csv(AppDataRow(started=start_time, date_time=stop_time, action="Stop", message=reason))
         self.write_session_to_output_files()
         # Stop should be infrequent, so do not add reason to the MRU list.
 
@@ -493,9 +474,7 @@ class AppData:
 
         rows = []
         for day in range((end_date - start_date).days + 1):
-            rows.extend(
-                self.get_session_rows_for_date(start_date + timedelta(days=day))
-            )
+            rows.extend(self.get_session_rows_for_date(start_date + timedelta(days=day)))
 
         if not rows:
             print("\nNo data found for given date range.\n")  # noqa: T201
@@ -503,9 +482,7 @@ class AppData:
 
         ts = "ts-" if do_timesheet else ""
 
-        csv_file = csv_path.joinpath(
-            f"{ts}{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.csv"
-        )
+        csv_file = csv_path.joinpath(f"{ts}{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.csv")
         print(f"\nExporting to {csv_file}\n")  # noqa: T201
 
         # Date-range export file should not be appended, so remove existing file.
@@ -517,9 +494,7 @@ class AppData:
         else:
             write_to_sessions_csv(csv_file, filters, rows, start_num=1)
 
-    def cli_export_daily_markdown(
-        self, export_date: datetime, filters: str, export_path: Path | None
-    ) -> None:
+    def cli_export_daily_markdown(self, export_date: datetime, filters: str, export_path: Path | None) -> None:
         """Export a daily markdown file for a given date.
 
         If export_path is not provided, use the configured 'Daily Markdown Folder'.
@@ -572,17 +547,13 @@ class AppData:
 
         rows = []
         for day in range((end_date - start_date).days + 1):
-            rows.extend(
-                self.get_session_rows_for_date(start_date + timedelta(days=day))
-            )
+            rows.extend(self.get_session_rows_for_date(start_date + timedelta(days=day)))
 
         if not rows:
             print("\nNo data found for given date range.\n")  # noqa: T201
             return
 
-        md_file = path.joinpath(
-            f"{start_date.strftime('%Y%m%d')}" f"-{end_date.strftime('%Y%m%d')}.md"
-        )
+        md_file = path.joinpath(f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.md")
 
         print(f"\nExporting to {md_file}\n")  # noqa: T201
 
