@@ -25,6 +25,7 @@ from pomodorable.about_screen import AboutScreen
 from pomodorable.app_data import AppData, sec_to_hms
 from pomodorable.app_utils import q_text
 from pomodorable.mru_screen import MRUScreen
+from pomodorable.quit_screen import QuitScreen
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
 
@@ -197,9 +198,8 @@ class PomodorableApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
-        # ("d", "toggle_dark", "Toggle dark mode"),
         ("down", "select_input", "Recent"),
-        ("ctrl+q", "exit_app", "Quit"),
+        ("ctrl+q", "request_quit", "Quit"),
         Binding("ctrl+s", "screenshot", "Screenshot", show=False),
         Binding("ctrl+t", "testkey", "TestKey", show=False),
     ]
@@ -496,8 +496,8 @@ class PomodorableApp(App):
             inp.insert_text_at_cursor(text)
         self.query_one(CountdownDisplay).update_timer.resume()
 
-    def action_exit_app(self) -> None:
-        self.exit()
+    def action_request_quit(self) -> None:
+        self.push_screen(QuitScreen())
 
 
 if __name__ == "__main__":
