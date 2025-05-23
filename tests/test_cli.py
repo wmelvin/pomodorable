@@ -56,8 +56,11 @@ def test_export_csv_for_date(app_data_with_four_test_sessions, subdir_param, mon
     assert len(rows) == 7  # 1 header + 6 data rows
 
 
-@pytest.mark.parametrize("subdir_param", [None, "exported"])
-def test_export_csv_for_date_range(app_data_with_four_test_sessions, subdir_param, monkeypatch):
+@pytest.mark.parametrize(
+    ("subdir_param", "filter_arg"),
+    [(None, None), ("exported", None), ("exported", "--filters=FPD")],
+)
+def test_export_csv_for_date_range(app_data_with_four_test_sessions, subdir_param, filter_arg, monkeypatch):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)
     app_data.set_running_csv_dir(data_dir)
@@ -81,16 +84,50 @@ def test_export_csv_for_date_range(app_data_with_four_test_sessions, subdir_para
         export_path = app_data.data_path
         args = ["--csv-date", "2024-01-02", "--end-date", "2024-01-03"]
 
+    if filter_arg:
+        args.append(filter_arg)
+
     runner = CliRunner()
     result = runner.invoke(cli, args)
     print(result.output)
     assert result.exit_code == 0
 
-    csv_file = export_path / "20240102-20240103.csv"
+    csv_file = export_path / "po-20240102-20240103.csv"
     assert csv_file.exists()
 
     rows = csv_file.read_text().strip().split("\n")
-    assert len(rows) == 14  # 1 header + 12 data rows + 1 date separator row
+
+    #  Check CSV file content.
+    if filter_arg is None:
+        expect_lines = [
+            "date,act,time,task,message,notes",
+            "2024-01-02,1,08:30:01,Test session 1,(0:00:10 session < 0:25:00 default),",
+            "2024-01-02,R,08:30:03,,Pause (resumed),Test pause 1",
+            "2024-01-02,F,08:30:11,,Finish,Started at 08:30:01",
+            "2024-01-02,2,09:30:01,Test session 2,(0:00:10 session < 0:25:00 default),",
+            "2024-01-02,R,09:30:03,,Pause (resumed),Test pause 2",
+            "2024-01-02,F,09:30:11,,Finish,Started at 09:30:01",
+            ".,,,,,",
+            "2024-01-03,1,08:05:01,Test session 3,(0:00:10 session < 0:25:00 default),",
+            "2024-01-03,R,08:05:03,,Pause (resumed),Test pause 3",
+            "2024-01-03,F,08:05:11,,Finish,Started at 08:05:01",
+            "2024-01-03,2,08:35:01,Test session 4,(0:00:10 session < 0:25:00 default),",
+            "2024-01-03,R,08:35:03,,Pause (resumed),Test pause 4",
+            "2024-01-03,F,08:35:11,,Finish,Started at 08:35:01",
+        ]
+    else:
+        #  With 'filter=FPD'
+        expect_lines = [
+            "date,act,time,task,message,notes",
+            "2024-01-02,1,08:30:01,Test session 1,(0:00:10 session < 0:25:00 default),",
+            ",2,09:30:01,Test session 2,(0:00:10 session < 0:25:00 default),",
+            ".,,,,,",
+            "2024-01-03,1,08:05:01,Test session 3,(0:00:10 session < 0:25:00 default),",
+            ",2,08:35:01,Test session 4,(0:00:10 session < 0:25:00 default),",
+        ]
+
+    for a, b in zip(expect_lines, rows, strict=True):
+        assert a == b
 
 
 def test_export_timesheet_csv_for_date_range(app_data_with_four_test_sessions, monkeypatch):

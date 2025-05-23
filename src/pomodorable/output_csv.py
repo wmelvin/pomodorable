@@ -22,6 +22,7 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
     exclude_pause_no_reason = "R" in filters
     exclude_stop = "X" in filters
     exclude_finish = "F" in filters
+    blank_same_date = "D" in filters
 
     #  Write the header row when the file is created.
     if not csv_file.exists():
@@ -41,19 +42,22 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
         last_date = None
         for row in data_rows:
             action = row["action"]
+            row_date = row["date"]
+            shown_date = "" if blank_same_date and last_date is not None and row_date == last_date else row_date
             row_message = row["message"]
             row_notes = row["notes"]
             out_row = None
             if action == "Start":
                 # If a start_num was provided and the current row begins a new
                 # date (exporting a date range), then reset the session_num.
-                if start_num > 0 and last_date is not None and row["date"] != last_date:
+                if start_num > 0 and last_date is not None and row_date != last_date:
                     session_num = 1
-                    # Write a row with only the date as a separator between days.
-                    writer.writerow([row["date"], "", "", "", "", ""])
+
+                    # Write a row with only a dot in the date column as a separator between days.
+                    writer.writerow([".", "", "", "", "", ""])
 
                 out_row = [
-                    row["date"],
+                    shown_date,
                     session_num or "S",
                     row["time"],
                     row_message,  # task
@@ -62,7 +66,7 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
                 ]
                 if start_num > 0:
                     session_num += 1
-                last_date = row["date"]
+                last_date = row_date
             elif action == "Pause":
                 if exclude_pause_all:
                     continue
@@ -75,7 +79,7 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
                     out_act = "R"
                     out_msg = "Pause (resumed)"
                 out_row = [
-                    row["date"],
+                    shown_date,
                     out_act,
                     row["time"],
                     "",
@@ -86,7 +90,7 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
                 if exclude_stop:
                     continue
                 out_row = [
-                    row["date"],
+                    shown_date,
                     "X",
                     row["time"],
                     "",
@@ -97,7 +101,7 @@ def write_to_sessions_csv(csv_file: Path, filters: str, data_rows: list[dict], s
                 if exclude_finish:
                     continue
                 out_row = [
-                    row["date"],
+                    shown_date,
                     "F",
                     row["time"],
                     "",

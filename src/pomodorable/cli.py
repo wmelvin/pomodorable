@@ -128,7 +128,8 @@ CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     help="Filter specified actions from exported CSV data. "
     "The filter is specified as a string with no spaces, where each character "
     "represents a type of action to exclude. The characters are: "
-    "F (Finish), P (Pause - all), R (pause w/o Reason), and X (Stop).",
+    "F (Finish), P (Pause - all), R (pause w/o Reason), X (Stop),"
+    "and D (Date value if same as previous; does not exclude action).",
 )
 @click.option(
     "--ctrl-s",

@@ -10,6 +10,7 @@ from pathlib import Path
 
 import dotenv
 from platformdirs import user_config_path, user_data_path
+from rich import print as rprint
 
 from pomodorable.app_config import LOG_RETENTION_MIN, AppConfig
 from pomodorable.app_utils import get_date_from_str, sec_to_hms, str_true
@@ -426,7 +427,7 @@ class AppData:
 
         rows = self.get_session_rows_for_date(export_date)
         if not rows:
-            print("\nNo data found for given date.\n")  # noqa: T201
+            rprint("\nNo data found for given date.\n")
             return
 
         date_str = rows[0]["date"]
@@ -444,7 +445,7 @@ class AppData:
                 self.queue_error(f"Too many files for {date_str}")
                 return
 
-        print(f"\nExporting to {csv_file}\n")  # noqa: T201
+        rprint(f"\nExporting to {csv_file}\n")
 
         if do_timesheet:
             write_to_timesheet_csv(csv_file, rows)
@@ -477,13 +478,13 @@ class AppData:
             rows.extend(self.get_session_rows_for_date(start_date + timedelta(days=day)))
 
         if not rows:
-            print("\nNo data found for given date range.\n")  # noqa: T201
+            rprint("\nNo data found for given date range.\n")
             return
 
-        ts = "ts-" if do_timesheet else ""
+        prefix = "ts-" if do_timesheet else "po-"
 
-        csv_file = csv_path.joinpath(f"{ts}{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.csv")
-        print(f"\nExporting to {csv_file}\n")  # noqa: T201
+        csv_file = csv_path.joinpath(f"{prefix}{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.csv")
+        rprint(f"\nExporting to {csv_file}\n")
 
         # Date-range export file should not be appended, so remove existing file.
         if csv_file.exists():
@@ -506,7 +507,7 @@ class AppData:
 
         rows = self.get_session_rows_for_date(export_date)
         if not rows:
-            print("\nNo data found for given date.\n")  # noqa: T201
+            rprint("\nNo data found for given date.\n")
             return
 
         date_str = rows[0]["date"]
@@ -525,7 +526,7 @@ class AppData:
 
         heading = self.config.daily_md_heading or "# Pomodori"
 
-        print(f"\nExporting to {md_file}\n")  # noqa: T201
+        rprint(f"\nExporting to {md_file}\n")
 
         write_to_daily_md(md_file, filters, heading, append_only=False, data_rows=rows)
 
@@ -550,12 +551,12 @@ class AppData:
             rows.extend(self.get_session_rows_for_date(start_date + timedelta(days=day)))
 
         if not rows:
-            print("\nNo data found for given date range.\n")  # noqa: T201
+            rprint("\nNo data found for given date range.\n")
             return
 
         md_file = path.joinpath(f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.md")
 
-        print(f"\nExporting to {md_file}\n")  # noqa: T201
+        rprint(f"\nExporting to {md_file}\n")
 
         write_to_daily_md(
             md_file,

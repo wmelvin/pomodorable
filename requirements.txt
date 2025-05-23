@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-click==8.1.8
+click==8.2.1
     # via -r requirements.in
 linkify-it-py==2.0.3
     # via markdown-it-py
@@ -17,7 +17,7 @@ mdit-py-plugins==0.4.2
     # via markdown-it-py
 mdurl==0.1.2
     # via markdown-it-py
-platformdirs==4.3.7
+platformdirs==4.3.8
     # via
     #   -r requirements.in
     #   textual
@@ -31,7 +31,7 @@ python-dotenv==1.1.0
     # via -r requirements.in
 rich==14.0.0
     # via textual
-textual==3.1.0
+textual==3.2.0
     # via -r requirements.in
 tomlkit==0.13.2
     # via -r requirements.in
