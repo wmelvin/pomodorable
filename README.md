@@ -263,7 +263,8 @@ Options:
                       filter is specified as a string with no spaces, where
                       each character represents a type of action to exclude.
                       The characters are: F (Finish), P (Pause - all), R
-                      (pause w/o Reason), and X (Stop).
+                      (pause w/o Reason), X (Stop),and D (Date value if same
+                      as previous; does not exclude action).
 
   --ctrl-s            Enable [Ctrl]+[s] for saving SVG screenshots in the app.
                       Screenshots are saved to the Desktop.
