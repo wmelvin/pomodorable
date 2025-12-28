@@ -32,7 +32,7 @@ def get_date_from_str(date_str: str) -> datetime | None:
     for date_format in date_formats:
         try:
             return datetime.strptime(date_str, date_format)  # noqa: DTZ007
-        except ValueError:
+        except ValueError:  # noqa: PERF203
             pass
     return None
 

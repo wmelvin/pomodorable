@@ -7,7 +7,7 @@
 
 # Check formatting
 @check:
-  hatch fmt --check
+  hatch run ruff format --check
 
 # Run lint, check, and test
 @checks: lint check test
@@ -15,15 +15,14 @@
 # Remove dist
 @clean:
   -rm dist/*
-  -rmdir dist
 
-# Apply formatting
+# Apply formatting with ruff
 @format: lint
-  hatch fmt
+  hatch run ruff format
 
-# Lint with hatch
+# Run ruff check
 @lint:
-  hatch fmt --linter
+  hatch run ruff check
 
 # Run pytest
 @test:

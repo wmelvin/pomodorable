@@ -442,7 +442,7 @@ class PomodorableApp(App):
                 logging.info("countdown_finished: playsound '%s'", wav_path)
                 if wav_path.exists():
                     try:
-                        from playsound3 import playsound
+                        from playsound3 import playsound  # noqa: PLC0415
 
                         playsound(str(wav_path), block=False)
                         logging.info("countdown_finished: playsound called")

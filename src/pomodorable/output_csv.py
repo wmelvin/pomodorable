@@ -121,10 +121,12 @@ class TaskSession:
         self.reasons = ""
         self.task_seconds = hms_to_sec(duration)
         self.pause_seconds = 0
+        self.extend_seconds = 0
 
     def pause(self, message: str, duration: str, notes: str) -> None:
         if notes == "extended":
             act = "Extend"
+            self.extend_seconds += hms_to_sec(duration)
         else:
             act = "Resume"
             self.pause_seconds += hms_to_sec(duration)
@@ -144,7 +146,8 @@ class TaskSession:
 
         assert stop_datetime >= start_datetime  # noqa: S101
 
-        self.task_seconds = (stop_datetime - start_datetime).total_seconds()
+        #  When stopping, extend_seconds must be subtracted as part of recalculating task_seconds.
+        self.task_seconds = (stop_datetime - start_datetime).total_seconds() - self.extend_seconds
 
         if message:
             self.reasons += f"STOP: {message}"

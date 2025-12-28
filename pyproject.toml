@@ -46,6 +46,7 @@ dependencies = [
   "textual-dev",
   "pytest-textual-snapshot",
   "pip-tools",
+  "ruff",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
@@ -60,10 +61,10 @@ cov = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.types]
 dependencies = [
@@ -95,25 +96,42 @@ exclude_lines = [
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
-# See: https://hatch.pypa.io/latest/config/static-analysis/#pyprojecttoml_2
 [tool.hatch.envs.hatch-static-analysis]
-config-path = "ruff_defaults.toml"
-dependencies = ["ruff==0.9.6"]
+config-path = "none"
 
 [tool.ruff]
-extend = "ruff_defaults.toml"
+line-length = 120
+indent-width = 4
 
 [tool.ruff.lint]
-extend-ignore = [
-  "RUF012",  # typing.ClassVar annotation
-  "DTZ005",  # datetime.now() w/o tz
-  "FBT001",  # boolean-typed arg
-  "FBT002",  # boolean arg default
-  "TC003",  # move import to type-checking block
+select = [
+    "A",    # flake8-builtins
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "E",    # pycodestyle errors
+    "F",    # Pyfakes
+    "FA",   # flake8-future-annotations
+    "I",    # isort
+    "ISC",  # flake8-implicit-str-concat
+    "PERF", # Perflint
+    "PL",   # Pylint
+    "PTH",  # flake8-use-pathlib
+    "PYI",  # flake8-pyi
+    "RET",  # flake8-return
+    "S",    # flake8-bandit
+    "SIM",  # flake8-simplify
+    "W"     # Warning
+]
+# extend-select = ["ALL"]
+ignore = [
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
 ]
 
-[tool.ruff.lint.extend-per-file-ignores]
-"test*.py" = [
-  "DTZ001",  # datetime.now() w/o tz
-  "T201",    # allow 'print' (write to debug console)
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*.py" = [
+    "S101",     # assert
+    "PLR2004",  # magic value
+    "PLR0915",  # too many statements
 ]

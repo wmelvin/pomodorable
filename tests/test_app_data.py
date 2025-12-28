@@ -235,7 +235,9 @@ def test_daily_markdown_append(app_data_with_six_test_sessions):
     assert "Test session 3" in s
 
 
-def test_daily_markdown_append_when_created_after_session(app_data_with_six_test_sessions):
+def test_daily_markdown_append_when_created_after_session(
+    app_data_with_six_test_sessions,
+):
     app_data, start_times = app_data_with_six_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
@@ -275,7 +277,9 @@ def test_daily_markdown_append_when_created_after_session(app_data_with_six_test
     assert "Test session 3" in s
 
 
-def test_daily_markdown_append_when_task_revisited(app_data_with_six_sessions_alt_tasks):
+def test_daily_markdown_append_when_task_revisited(
+    app_data_with_six_sessions_alt_tasks,
+):
     app_data, start_times = app_data_with_six_sessions_alt_tasks
     p = app_data.data_path
     md_file: Path = p / "test.md"
@@ -575,3 +579,65 @@ def test_data_csv_exists_but_is_empty(tmp_path):
     # Output should be successful.
     p = app_data.get_daily_csv_path()
     assert p.exists()
+
+
+def test_timesheet_export_handles_stop_after_extend(tmp_path: Path):
+    test_data_rows = [
+        "version,started,date,time,action,message,duration,notes",
+        '2,2025-07-09T12:46:43.058968,"2025-07-09","12:46:43","Start","Project work","0:25:00",""',
+        '2,2025-07-09T12:46:43.058968,"2025-07-09","13:11:43","Finish","","","Started at 12:46:43"',
+        '2,2025-07-09T14:19:50.055301,"2025-07-09","14:19:50","Start","Project work","0:25:00",""',
+        '2,2025-07-09T14:19:50.055301,"2025-07-09","14:36:43","Pause","","0:05:52","extended"',
+        '2,2025-07-09T14:19:50.055301,"2025-07-09","14:50:42","Finish","","","Started at 14:19:50"',
+        # Start - Stop (in less than a minute):
+        '2,2025-07-09T16:06:56.738636,"2025-07-09","16:06:56","Start","","0:25:00",""',
+        '2,2025-07-09T16:06:56.738636,"2025-07-09","16:07:04","Stop","","",""',
+        # Start - Pause - Extend - Stop:
+        '2,2025-07-09T16:07:12.665355,"2025-07-09","16:07:12","Start","Project work","0:25:00",""',
+        '2,2025-07-09T16:07:12.665355,"2025-07-09","16:12:18","Pause","","0:27:59","extended"',
+        '2,2025-07-09T16:07:12.665355,"2025-07-09","16:44:29","Stop","Have to leave","",""',
+    ]
+    data_file = tmp_path / "pomodorable-data.csv"
+    data_file.write_text("\n".join(test_data_rows))
+
+    app_data = AppData(init_data_path=tmp_path)
+    app_data.set_daily_csv_dir(str(tmp_path))
+
+    lines = data_file.read_text().splitlines()
+    assert len(lines) == len(test_data_rows)
+
+    out_path = tmp_path / "output"
+    out_path.mkdir()
+
+    app_data.cli_export_date_range_csv(
+        datetime.fromisoformat("2025-07-08"),
+        datetime.fromisoformat("2025-07-10"),
+        True,
+        "",
+        out_path,  # noqa: F841
+    )
+
+    #  Should be one csv file in output.
+    files = sorted(out_path.glob("*.csv"))
+    assert len(files) == 1
+
+    #  Should be five lines in the file.
+    ts = files[0]
+    lines = ts.read_text().splitlines()
+    assert len(lines) == 5
+
+    #  First line should be the CSV header.
+    assert lines[0] == "date,start_time,stop_time,task_minutes,pause_minutes,task,notes"
+
+    #  Verify task_minutes.
+    assert lines[0].split(",")[3] == "task_minutes"
+    assert lines[1].split(",")[3] == "25"
+
+    #  Pause-to-Extend time should be subtracted from Start-to-Finish.
+    assert lines[2].split(",")[3] == "25"
+
+    #  Stoping less than a minute into a session should result in zero minutes.
+    assert lines[3].split(",")[3] == "0"
+
+    #  Pause-to-Extend time should be subtracted from Start-to-Stop.
+    assert lines[4].split(",")[3] == "9"
