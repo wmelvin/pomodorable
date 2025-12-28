@@ -22,7 +22,9 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
                 add_msg = ""
 
             msg = "(?)" if not row["message"] else row["message"]
-            md.append(f"- **{msg}**")
+
+            md.append(f"- **{msg}**")  # Task heading
+
             md.append(f"    - Start {row_time}{add_msg}")
 
         elif row["action"] == "Pause":
@@ -89,6 +91,25 @@ def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bo
     else:
         md_rows = rows_as_md(filters, data_rows)
         section_rows = lines[hx:insert_index]
+
+        #  Look for a previously written task heading.
+        prev_task = ""
+        for sec_row in section_rows:
+            if sec_row.startswith("- **"):
+                prev_task = sec_row
+
+        if prev_task:
+            #  If resuming a previous task after a different one, then append
+            #  the task heading to md, because it will not be included in the
+            #  md.extend call that follows.
+            first_new_task = md_rows[0]
+            if (
+                first_new_task.startswith("- **")  # is a task heading
+                and first_new_task != prev_task  # is different from previous
+                and first_new_task in section_rows  # was already in the section
+            ):
+                md.append(first_new_task)
+
         md.extend([row for row in md_rows if row not in section_rows])
 
     a = lines[:insert_index]

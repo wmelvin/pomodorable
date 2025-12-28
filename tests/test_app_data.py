@@ -150,13 +150,13 @@ def test_daily_markdown_writes_file(tmp_path):
     app_data.set_daily_md_dir(str(tmp_path))
 
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
-    
+
     app_data.write_start(start_time, "Test session", 10)
     app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
-    
+
     md_file = tmp_path / "2024-01-02.md"
     assert md_file.exists()
-    
+
     md_text = md_file.read_text()
     assert "# Pomodori 2024-01-02" in md_text
 
@@ -170,10 +170,10 @@ def test_daily_markdown_does_not_create_when_append_only(tmp_path):
     app_data.set_daily_md_dir(str(tmp_path))
 
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
-    
+
     app_data.write_start(start_time, "Test session", 10)
     app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
-    
+
     md_files = list(tmp_path.glob("*.md"))
     assert not md_files
 
@@ -207,7 +207,7 @@ def test_daily_markdown_append(app_data_with_six_test_sessions):
 
     md_file.write_text(f"{a}{b}")
 
-    (p / "test-0.md").write_text(md_file.read_text())
+    (p / "test-cp-1-before-write.md").write_text(md_file.read_text())
 
     write_to_daily_md(
         md_file=md_file,
@@ -217,7 +217,7 @@ def test_daily_markdown_append(app_data_with_six_test_sessions):
         data_rows=rows[:6],
     )
 
-    (p / "test-1.md").write_text(md_file.read_text())
+    (p / "test-cp-2-after-write.md").write_text(md_file.read_text())
 
     write_to_daily_md(
         md_file=md_file,
@@ -257,7 +257,7 @@ def test_daily_markdown_append_when_created_after_session(app_data_with_six_test
     b = "\n# More blah\n\n"
     md_file.write_text(f"{a}{b}")
 
-    (p / "test-1.md").write_text(md_file.read_text())
+    (p / "test-cp-1-before-write.md").write_text(md_file.read_text())
 
     write_to_daily_md(
         md_file=md_file,
@@ -273,6 +273,52 @@ def test_daily_markdown_append_when_created_after_session(app_data_with_six_test
     assert "Test session 1" in s
     assert "Test session 2" in s
     assert "Test session 3" in s
+
+
+def test_daily_markdown_append_when_task_revisited(app_data_with_six_sessions_alt_tasks):
+    app_data, start_times = app_data_with_six_sessions_alt_tasks
+    p = app_data.data_path
+    md_file: Path = p / "test.md"
+
+    rows = app_data.get_session_rows_for_date(start_times[0])
+    assert len(rows) == 24
+
+    a = "# Blah\n\nblah blah\n\n## Pomodori\n"
+    b = "\n# More blah\n\n"
+    md_file.write_text(f"{a}{b}")
+
+    (p / "test-cp-1-before-write.md").write_text(md_file.read_text())
+
+    sess_rows = []
+    for row in rows:
+        if row["action"] == "Finish":
+            if sess_rows:
+                write_to_daily_md(
+                    md_file=md_file,
+                    filters="",
+                    heading="## Pomodori",
+                    append_only=True,
+                    data_rows=sess_rows,
+                )
+            sess_rows = []
+        else:
+            sess_rows.append(row)
+
+    s = md_file.read_text()
+
+    #  Sessions should be inserted before second level-1 heading.
+    assert s.startswith(a)
+    assert s.endswith(b)
+
+    #  Both tasks should appear in output.
+    assert "Task 1" in s
+    assert "Task 2" in s
+
+    #  Task 1 should appear again after Task 2.
+    a = s.split("Task 2")
+    assert len(a) == 2
+    assert "Task 1" in a[0]
+    assert "Task 1" in a[1]
 
 
 def test_purge_log_files(tmp_path):
