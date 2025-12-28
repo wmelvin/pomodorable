@@ -145,14 +145,18 @@ def test_writes_running_csv_file_specify_name(tmp_path):
     assert csv_file.exists()
 
 
-def test_writes_daily_markdown_file(tmp_path):
+def test_daily_markdown_writes_file(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app_data.set_daily_md_dir(str(tmp_path))
+
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    
     app_data.write_start(start_time, "Test session", 10)
     app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
+    
     md_file = tmp_path / "2024-01-02.md"
     assert md_file.exists()
+    
     md_text = md_file.read_text()
     assert "# Pomodori 2024-01-02" in md_text
 
@@ -160,18 +164,21 @@ def test_writes_daily_markdown_file(tmp_path):
     assert "(0:00:10 session < 0:25:00 default)" in md_text
 
 
-def test_does_not_create_md_file_when_append_only(tmp_path):
+def test_daily_markdown_does_not_create_when_append_only(tmp_path):
     app_data = AppData(init_data_path=tmp_path)
     app_data.config.daily_md_append = True
     app_data.set_daily_md_dir(str(tmp_path))
+
     start_time = datetime.fromisoformat("2024-01-02T08:30:01")
+    
     app_data.write_start(start_time, "Test session", 10)
     app_data.write_finish(finish_time=start_time + timedelta(seconds=10), start_time=start_time)
+    
     md_files = list(tmp_path.glob("*.md"))
     assert not md_files
 
 
-def test_write_to_daily_md(app_data_with_four_test_sessions):
+def test_daily_markdown_written(app_data_with_four_test_sessions):
     app_data, start_times = app_data_with_four_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
@@ -187,7 +194,7 @@ def test_write_to_daily_md(app_data_with_four_test_sessions):
     write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[3:])
 
 
-def test_append_to_daily_md(app_data_with_six_test_sessions):
+def test_daily_markdown_append(app_data_with_six_test_sessions):
     app_data, start_times = app_data_with_six_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
@@ -228,7 +235,7 @@ def test_append_to_daily_md(app_data_with_six_test_sessions):
     assert "Test session 3" in s
 
 
-def test_append_to_daily_md_created_after_session(app_data_with_six_test_sessions):
+def test_daily_markdown_append_when_created_after_session(app_data_with_six_test_sessions):
     app_data, start_times = app_data_with_six_test_sessions
     p = app_data.data_path
     md_file: Path = p / "test.md"
