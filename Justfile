@@ -24,6 +24,10 @@
 @lint:
   hatch run ruff check
 
+# Run ruff check ALL to temp.csv
+@lintall:
+  hatch run ruff check --select=ALL --output-format=concise | sort -t ":" -k4 | sed 's/:/,/g' > temp.csv
+
 # Run pytest
 @test:
   hatch run test

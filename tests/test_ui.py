@@ -37,7 +37,7 @@ async def test_app_plays_wav_file_at_finish(tmp_path, wav_name, expect_text):
 
     # Remove the log handler so subsequent tests don't log to the same file.
     logger = logging.getLogger()
-    logger.removeHandler(app.app_data._log_handler)  # noqa: SLF001
+    logger.removeHandler(app.app_data._log_handler)
 
     # Check that a log file was created and read its contents.
     log_files = list(tmp_path.glob("pomodorable*.log"))

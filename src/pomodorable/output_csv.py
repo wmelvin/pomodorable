@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import csv
 from datetime import datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from pomodorable.app_utils import hms_to_sec
 
@@ -136,13 +139,9 @@ class TaskSession:
     def stop(self, stop_date: str, stop_time: str, message: str) -> None:
         self.stop_time = stop_time
 
-        start_datetime: datetime = datetime.strptime(  # noqa: DTZ007
-            f"{self.date} {self.start_time}", "%Y-%m-%d %H:%M:%S"
-        )
+        start_datetime: datetime = datetime.strptime(f"{self.date} {self.start_time}", "%Y-%m-%d %H:%M:%S")
 
-        stop_datetime: datetime = datetime.strptime(  # noqa: DTZ007
-            f"{stop_date} {stop_time}", "%Y-%m-%d %H:%M:%S"
-        )
+        stop_datetime: datetime = datetime.strptime(f"{stop_date} {stop_time}", "%Y-%m-%d %H:%M:%S")
 
         assert stop_datetime >= start_datetime  # noqa: S101
 

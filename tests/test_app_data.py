@@ -3,7 +3,10 @@ from __future__ import annotations
 import logging
 from csv import DictReader
 from datetime import datetime, timedelta
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import pytest
 
@@ -14,8 +17,8 @@ from pomodorable.output_md import write_to_daily_md
 
 
 def test_data_csv_fields(app_data_with_four_test_sessions):
-    app_data, start_times = app_data_with_four_test_sessions
-    with app_data._data_csv.open() as f:  # noqa: SLF001
+    app_data, _ = app_data_with_four_test_sessions
+    with app_data._data_csv.open() as f:
         reader = DictReader(f)
         fields = reader.fieldnames
         assert fields == [
@@ -47,7 +50,7 @@ def test_get_latest_session_rows(app_data_with_four_test_sessions):
 #  short date formats. TODO: Maybe more formats?
 @pytest.mark.parametrize("date_arg", ["2024-01-02", "24-01-02"])
 def test_get_session_rows_for_date(app_data_with_four_test_sessions, date_arg):
-    app_data, start_times = app_data_with_four_test_sessions
+    app_data, _ = app_data_with_four_test_sessions
     date_val = get_date_from_str(date_arg)
     rows = app_data.get_session_rows_for_date(date_val)
     assert rows
@@ -342,7 +345,7 @@ def test_purge_log_files(tmp_path):
     app_data.config.log_retention_days = 5
 
     # Run the private method to purge older log files.
-    app_data._purge_log_files()  # noqa: SLF001
+    app_data._purge_log_files()
 
     # Check that all but 5 most recent were purged.
     log_files = sorted(tmp_path.glob("*.log"))
@@ -614,7 +617,7 @@ def test_timesheet_export_handles_stop_after_extend(tmp_path: Path):
         datetime.fromisoformat("2025-07-10"),
         True,
         "",
-        out_path,  # noqa: F841
+        out_path,
     )
 
     #  Should be one csv file in output.
