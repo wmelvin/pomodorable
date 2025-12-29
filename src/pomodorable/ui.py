@@ -112,6 +112,10 @@ class CountdownDisplay(Static):
         if timer_resume:
             self.update_timer.resume()
 
+    def init_timerbar(self):
+        """Update TimerBar after it has been composed."""
+        self.app.query_one(TimerBar).update_bar(int(self.seconds / 60))
+
     def set_start_time(self) -> None:
         self.start_time = datetime.now()
         self.start_seconds = self.seconds
@@ -264,6 +268,8 @@ class PomodorableApp(App):
         self.query_one("#time-ending").sync_time(self.app_data.config.session_seconds)
 
         self.show_queued_errors()
+
+        self.query_one(CountdownDisplay).init_timerbar()
 
         # The update_timer is initially paused.
         self.query_one(CountdownDisplay).update_timer.resume()

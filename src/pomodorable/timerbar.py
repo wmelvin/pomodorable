@@ -7,12 +7,17 @@ class TimerBar(Static):
     classic pomodoro (tomato-shaped) kitchen timer.
     """
 
+    def __init__(self) -> None:
+        self.timerbar_ready: bool = False
+        super().__init__()
+
     bar_size: int = 60
     bar_mid = int(bar_size / 2)
 
     def compose(self) -> ComposeResult:
         yield Static("", id="numbers")
         yield Static("", id="scale")
+        self.timerbar_ready = True
 
     def on_mount(self) -> None:
         s = "_" * (self.bar_mid)
@@ -20,8 +25,11 @@ class TimerBar(Static):
         s += "\u25b2"  #  "BLACK UP-POINTING TRIANGLE"
         s += "_" * (self.bar_mid - 1)
         self.query_one("#scale").update(s)
+        self.update_bar(0)
 
     def update_bar(self, counter: int) -> None:
+        if not self.timerbar_ready:
+            return
         label_interval = 5
         bar = ["." for _ in range(self.bar_size)]
         for i in range(self.bar_size):

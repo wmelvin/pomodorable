@@ -1,7 +1,7 @@
 
 textual
-# textual==0.65.1
-# textual==0.72.0
+# textual==6.1.0
+# textual==6.2.0
 
 plyer
 click
