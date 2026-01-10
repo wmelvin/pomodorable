@@ -69,7 +69,10 @@ def handled_option(csv_date, md_date, end_date, do_timesheet, export_path, filte
             app_data.cli_export_daily_csv(csv_date, do_timesheet, filters, export_path)
 
     if md_date is not None:
-        app_data.cli_export_daily_markdown(md_date, filters, export_path)
+        if end_date is not None:
+            app_data.cli_export_date_range_markdown(md_date, end_date, filters, export_path)
+        else:
+            app_data.cli_export_daily_markdown(md_date, filters, export_path)
 
     return True
 

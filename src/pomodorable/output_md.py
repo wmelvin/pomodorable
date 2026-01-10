@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
+TASK_HEADING_MARKER = "- **"
+
 
 def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
     exclude_pause_all = "P" in filters
@@ -51,7 +53,19 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
 
 
 def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bool, data_rows: list[dict]) -> None:
-    md_heading = f"{heading}" if heading else f"# Pomodori {data_rows[0]['date']}"
+    """Write a section containing pomodoro sessions to a Markdown document.
+
+    :param md_file: Path to the Markdown file.
+    :param filters: Filters to apply when selecting data rows.
+    :param heading: Section heading to use in the document.
+    :param append_only: If True, md_file must already exist.
+    :param data_rows: List of rows from the app's data file.
+
+    An existing pomodoro section is replaced each time, so
+    the data_rows list should contain all rows for the day.
+    """
+
+    section_heading = f"{heading}" if heading else f"# Pomodori {data_rows[0]['date']}"
 
     if md_file.exists():
         lines = md_file.read_text().splitlines()
@@ -62,7 +76,7 @@ def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bo
 
     heading_index = None
     for i, line in enumerate(lines):
-        if line.strip().startswith(md_heading):
+        if line.strip().startswith(section_heading):
             heading_index = i
             break
 
@@ -81,49 +95,26 @@ def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bo
         #  Append to end of file.
         insert_index = len(lines)
 
-    if insert_index is not None:
-        #  Close the gap within the section. Only leave a blank line after
-        #  the heading.
-        while insert_index > hx and insert_index > 0 and lines[insert_index - 1].strip() == "":
-            insert_index -= 1
-
-    md = [md_heading, ""] if heading_index is None else []
+    #  Close the gap within the section. Only leave a blank line after the heading.
+    while insert_index > hx and insert_index > 0 and lines[insert_index - 1].strip() == "":
+        insert_index -= 1
 
     if heading_index is None:
-        md.extend(rows_as_md(filters, data_rows))
+        md_new = [section_heading, ""]
+        md_new.extend(rows_as_md(filters, data_rows))
+        md_head = lines[:insert_index]
     else:
-        md_rows = rows_as_md(filters, data_rows)
-        section_rows = lines[hx:insert_index]
+        md_new = rows_as_md(filters, data_rows)
+        md_head = lines[:hx]
 
-        #  Look for a previously written task heading.
-        prev_task = ""
-        for sec_row in section_rows:
-            if sec_row.startswith("- **"):
-                prev_task = sec_row
+    md_tail = lines[insert_index:]
 
-        if prev_task:
-            #  If resuming a previous task after a different one, then append
-            #  the task heading to md, because it will not be included in the
-            #  md.extend call that follows.
-            first_new_task = md_rows[0]
-            if (
-                first_new_task.startswith("- **")  # is a task heading
-                and first_new_task != prev_task  # is different from previous
-                and first_new_task in section_rows  # was already in the section
-            ):
-                md.append(first_new_task)
+    #  Keep a blank line after the inserted section.
+    if (not md_tail) or (md_tail[0].strip() != ""):
+        md_tail.insert(0, "")
 
-        md.extend([row for row in md_rows if row not in section_rows])
-
-    a = lines[:insert_index]
-    b = lines[insert_index:]
-
-    # Keep a blank line after the inserted section.
-    if (not b) or (b[0].strip() != ""):
-        b.insert(0, "")
-
-    md = [*a, *md, *b]
+    md_new = [*md_head, *md_new, *md_tail]
 
     with md_file.open("w") as f:
-        for s in md:
+        for s in md_new:
             f.write(f"{s}\n")

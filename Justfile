@@ -36,6 +36,11 @@
 @testmx:
   hatch run test:test
 
+# 'ty' is not installed in the project, but on the system using 'uv tool install ty'.
+# Redirect 'ty check' to 'temp.txt'.
+@ty:
+  hatch run ty check > temp.txt
+
 # Run ui.py
 @ui:
   hatch run python3 src/pomodorable/ui.py

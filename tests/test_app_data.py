@@ -281,9 +281,9 @@ def test_daily_markdown_append_when_created_after_session(
 
 
 def test_daily_markdown_append_when_task_revisited(
-    app_data_with_six_sessions_alt_tasks,
+    app_data_six_sessions_alt_tasks_w_pause,
 ):
-    app_data, start_times = app_data_with_six_sessions_alt_tasks
+    app_data, start_times = app_data_six_sessions_alt_tasks_w_pause
     p = app_data.data_path
     md_file: Path = p / "test.md"
 
@@ -296,20 +296,13 @@ def test_daily_markdown_append_when_task_revisited(
 
     (p / "test-cp-1-before-write.md").write_text(md_file.read_text())
 
-    sess_rows = []
-    for row in rows:
-        if row["action"] == "Finish":
-            if sess_rows:
-                write_to_daily_md(
-                    md_file=md_file,
-                    filters="",
-                    heading="## Pomodori",
-                    append_only=True,
-                    data_rows=sess_rows,
-                )
-            sess_rows = []
-        else:
-            sess_rows.append(row)
+    write_to_daily_md(
+        md_file=md_file,
+        filters="",
+        heading="## Pomodori",
+        append_only=True,
+        data_rows=rows,
+    )
 
     s = md_file.read_text()
 
@@ -326,6 +319,82 @@ def test_daily_markdown_append_when_task_revisited(
     assert len(a) == 2
     assert "Task 1" in a[0]
     assert "Task 1" in a[1]
+
+
+def test_daily_markdown_append_tasks_stray_start(tmp_path: Path):
+    #  What happens when the app is terminated before Stop or Finish?
+    config_file = tmp_path / "pomodorable-config.toml"
+
+    app_config = AppConfig(config_file)
+    app_config.daily_md_heading = "## Pomodori"
+    app_config.daily_md_append = True
+    # app_config.filter_md = "FR"
+    app_data = AppData(init_app_config=app_config, init_data_path=tmp_path)
+    app_data.set_daily_md_dir(str(app_data.data_path))
+
+    start_times = [
+        datetime.fromisoformat("2025-12-28T08:30:01"),
+        datetime.fromisoformat("2025-12-28T09:30:01"),
+        datetime.fromisoformat("2025-12-28T10:05:01"),
+        datetime.fromisoformat("2025-12-28T11:35:01"),
+        datetime.fromisoformat("2025-12-28T12:05:01"),
+        datetime.fromisoformat("2025-12-28T13:35:01"),
+    ]
+
+    tasks = [
+        "Task 1",
+        "Task 1",
+        "Task 2",
+        "Task 3",
+        "Task 4",
+        "Task 5",
+    ]
+
+    md_file: Path = app_data.data_path / "2025-12-28.md"
+
+    # #  Create as if done by an external program (such as Obsidian).
+    a = "# Blah\n\nblah blah\n\n## Pomodori\n"
+    b = "\n# More blah\n\n"
+    md_file.write_text(f"{a}{b}")
+
+    i = 0
+    app_data.write_start(start_times[i], tasks[0], 300)
+
+    # #  Simulate restart.
+    # app_config = AppConfig(config_file)
+    # app_config.daily_md_heading = "## Pomodori"
+    # app_config.daily_md_append = True
+    # app_config.filter_md = "FR"
+    # app_data = AppData(init_app_config=app_config, init_data_path=tmp_path)
+    # app_data.set_daily_md_dir(str(app_data.data_path))
+
+    i = 1
+    app_data.write_start(start_times[i], tasks[i], 300)
+    app_data.write_pause(
+        start_times[i],
+        pause_time=start_times[i] + timedelta(seconds=10),
+        reason="",
+        pause_seconds=10,
+        session_extended=True,
+    )
+    app_data.write_finish(finish_time=start_times[i] + timedelta(seconds=310), start_time=start_times[i])
+
+    for i in range(2, 6):
+        app_data.write_start(start_times[i], tasks[i], 300)
+        app_data.write_finish(finish_time=start_times[i] + timedelta(seconds=310), start_time=start_times[i])
+
+    assert md_file.exists()
+    s = md_file.read_text()
+
+    #  Sessions should be inserted before second level-1 heading.
+    assert s.startswith(a)
+    assert s.endswith(b)
+
+    assert s.count("Task 1") == 2
+    assert s.count("Task 2") == 1
+    assert s.count("Task 3") == 1
+    assert s.count("Task 4") == 1
+    assert s.count("Task 5") == 1
 
 
 def test_purge_log_files(tmp_path):

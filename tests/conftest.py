@@ -90,13 +90,13 @@ def app_data_with_six_test_sessions(tmp_path) -> tuple[AppData, list[datetime]]:
 
 
 @pytest.fixture
-def app_data_with_six_sessions_alt_tasks(tmp_path) -> tuple[AppData, list[datetime]]:
+def app_data_six_sessions_alt_tasks_w_pause(tmp_path) -> tuple[AppData, list[datetime]]:
     """Return an AppData instance with some test sessions written to it.
     The AppData instance is created with a temporary directory as the data path.
     A list of start times for the test sessions is also returned.
     There are six test sessions, each with a start, two pauses, and a finish
     or stop action.
-    The session tasks are such that 'task 1' is resumed after a 'task 2' session.
+    The session tasks are such that 'Task 1' is resumed after a 'Task 2' session.
     The sessions are all on the same date.
     """
 
@@ -107,13 +107,14 @@ def app_data_with_six_sessions_alt_tasks(tmp_path) -> tuple[AppData, list[dateti
         datetime.fromisoformat("2025-12-28T08:30:01"),
         datetime.fromisoformat("2025-12-28T09:30:01"),
         datetime.fromisoformat("2025-12-28T10:05:01"),
-        datetime.fromisoformat("2025-12-28T08:35:01"),
-        datetime.fromisoformat("2025-12-28T09:05:01"),
-        datetime.fromisoformat("2025-12-28T10:35:01"),
+        datetime.fromisoformat("2025-12-28T11:35:01"),
+        datetime.fromisoformat("2025-12-28T12:05:01"),
+        datetime.fromisoformat("2025-12-28T13:35:01"),
     ]
 
     for n, start_time in enumerate(start_times, start=1):
         task = "Task 2" if n == 3 else "Task 1"
+
         app_data.write_start(start_time, task, 300)
         app_data.write_pause(
             start_time=start_time,

@@ -501,23 +501,23 @@ class AppData:
         If export_path is not provided, use the configured 'Daily Markdown Folder'.
         If the folder is not configured, return without exporting.
         """
-        path = export_path if export_path else self.get_daily_md_path()
-        if not path:
+        out_path = export_path if export_path else self.get_daily_md_path()
+        if not out_path:
             return
 
         rows = self.get_session_rows_for_date(export_date)
         if not rows:
-            rprint("\nNo data found for given date.\n")
+            rprint(f"\nNo data found for {export_date.strftime('%Y-%m-%d')}.\n")
             return
 
         date_str = rows[0]["date"]
-        md_file = path / f"{date_str}.md"
+        md_file = out_path / f"{date_str}.md"
 
         # Do not overwrite existing files.
         max_num = 99
         next_num = 1
         while md_file.exists():
-            md_file = path / f"{date_str}_{next_num}.md"
+            md_file = out_path / f"{date_str}_{next_num}.md"
             next_num += 1
             if next_num > max_num:
                 logging.error("Too many files for %s", date_str)
@@ -542,26 +542,9 @@ class AppData:
         If export_path is not provided, use the configured 'Daily Markdown Folder'.
         If the folder is not configured, return without exporting.
         """
-        path = export_path if export_path else self.get_daily_md_path()
-        if not path:
+        out_path = export_path if export_path else self.get_daily_md_path()
+        if not out_path:
             return
 
-        rows = []
         for day in range((end_date - start_date).days + 1):
-            rows.extend(self.get_session_rows_for_date(start_date + timedelta(days=day)))
-
-        if not rows:
-            rprint("\nNo data found for given date range.\n")
-            return
-
-        md_file = path.joinpath(f"{start_date.strftime('%Y%m%d')}-{end_date.strftime('%Y%m%d')}.md")
-
-        rprint(f"\nExporting to {md_file}\n")
-
-        write_to_daily_md(
-            md_file,
-            filters,
-            self.config.daily_md_heading,
-            append_only=False,
-            data_rows=rows,
-        )
+            self.cli_export_daily_markdown(start_date + timedelta(days=day), filters, out_path)

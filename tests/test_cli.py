@@ -186,6 +186,42 @@ def test_export_markdown_for_date(app_data_with_four_test_sessions, subdir_param
     assert "Test session 2" in lines[6]
 
 
+def test_export_markdown_for_date_range(app_data_with_four_test_sessions, monkeypatch):
+    app_data, _ = app_data_with_four_test_sessions
+    data_dir = str(app_data.data_path)
+    app_data.set_daily_md_dir(data_dir)
+
+    # Set the environment variable used by the AppData class to override its
+    # data_path when initialized via the CLI.
+    monkeypatch.setenv("POMODORABLE_TEST_DATA_DIR", data_dir)
+
+    export_path = app_data.data_path
+    args = ["--md-date", "2024-01-02", "--end-date", "2024-01-04"]
+
+    runner = CliRunner()
+    result = runner.invoke(cli, args)
+    print(result.output)
+    assert result.exit_code == 0
+
+    md_file_1 = export_path / "2024-01-02.md"
+    assert md_file_1.exists()
+
+    lines = md_file_1.read_text().strip().split("\n")
+    assert len(lines) == 10  # 1 header + 1 blank line + 8 data lines
+    assert "Test session 1" in lines[2]
+    assert "Test session 2" in lines[6]
+
+    md_file_2 = export_path / "2024-01-03.md"
+    assert md_file_2.exists()
+    lines = md_file_2.read_text().strip().split("\n")
+    assert len(lines) == 10  # 1 header + 1 blank line + 8 data lines
+    assert "Test session 3" in lines[2]
+    assert "Test session 4" in lines[6]
+
+    #  Should not make a file for date with no data.
+    assert not (export_path / "2024-01-04.md").exists()
+
+
 def test_export_csv_error_end_date_before_start_date(app_data_with_four_test_sessions):
     app_data, _ = app_data_with_four_test_sessions
     data_dir = str(app_data.data_path)

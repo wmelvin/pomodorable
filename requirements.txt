@@ -33,7 +33,7 @@ python-dotenv==1.2.1
     # via -r requirements.in
 rich==14.2.0
     # via textual
-textual==6.11.0
+textual==7.1.0
     # via -r requirements.in
 tomlkit==0.13.3
     # via -r requirements.in
