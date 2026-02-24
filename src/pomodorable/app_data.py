@@ -402,6 +402,7 @@ class AppData:
             self.config.filter_md,
             self.config.daily_md_heading,
             self.config.daily_md_append,
+            self.config.daily_md_nodup,
             rows,
         )
 
@@ -528,7 +529,7 @@ class AppData:
 
         rprint(f"\nExporting to {md_file}\n")
 
-        write_to_daily_md(md_file, filters, heading, append_only=False, data_rows=rows)
+        write_to_daily_md(md_file, filters, heading, append_only=False, nodup=False, data_rows=rows)
 
     def cli_export_date_range_markdown(
         self,

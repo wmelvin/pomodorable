@@ -13,7 +13,7 @@ import pytest
 from pomodorable.app_config import AppConfig
 from pomodorable.app_data import AppData
 from pomodorable.app_utils import get_date_from_str
-from pomodorable.output_md import write_to_daily_md
+from pomodorable.output_md import TASK_HEADING_MARKER, write_to_daily_md
 
 
 def test_data_csv_fields(app_data_with_four_test_sessions):
@@ -189,12 +189,12 @@ def test_daily_markdown_written(app_data_with_four_test_sessions):
     rows = app_data.get_session_rows_for_date(start_times[0])
     assert len(rows) == 6
 
-    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[:3])
+    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, nodup=False, data_rows=rows[:3])
 
     # Make a copy for manual review in tmp location.
     (p / "test-1.md").write_text(md_file.read_text())
 
-    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, data_rows=rows[3:])
+    write_to_daily_md(md_file=md_file, filters="", heading="", append_only=False, nodup=False, data_rows=rows[3:])
 
 
 def test_daily_markdown_append(app_data_with_six_test_sessions):
@@ -217,6 +217,7 @@ def test_daily_markdown_append(app_data_with_six_test_sessions):
         filters="",
         heading="## Pomodori",
         append_only=True,
+        nodup=False,
         data_rows=rows[:6],
     )
 
@@ -227,6 +228,7 @@ def test_daily_markdown_append(app_data_with_six_test_sessions):
         filters="",
         heading="## Pomodori",
         append_only=True,
+        nodup=False,
         data_rows=rows,
     )
 
@@ -253,6 +255,7 @@ def test_daily_markdown_append_when_created_after_session(
         filters="",
         heading="## Pomodori",
         append_only=True,
+        nodup=False,
         data_rows=rows,
     )
 
@@ -269,6 +272,7 @@ def test_daily_markdown_append_when_created_after_session(
         filters="",
         heading="## Pomodori",
         append_only=True,
+        nodup=False,
         data_rows=rows,
     )
 
@@ -280,9 +284,11 @@ def test_daily_markdown_append_when_created_after_session(
     assert "Test session 3" in s
 
 
-def test_daily_markdown_append_when_task_revisited(
-    app_data_six_sessions_alt_tasks_w_pause,
-):
+@pytest.mark.parametrize("nodup,expect1", [(False, 5), (True, 2)])
+def test_daily_markdown_append_when_task_revisited(app_data_six_sessions_alt_tasks_w_pause, nodup, expect1):
+    """Check that returning to a previous task results in the expected task headings.
+    Also check the option to not repeat task headings.
+    """
     app_data, start_times = app_data_six_sessions_alt_tasks_w_pause
     p = app_data.data_path
     md_file: Path = p / "test.md"
@@ -301,6 +307,7 @@ def test_daily_markdown_append_when_task_revisited(
         filters="",
         heading="## Pomodori",
         append_only=True,
+        nodup=nodup,
         data_rows=rows,
     )
 
@@ -311,8 +318,9 @@ def test_daily_markdown_append_when_task_revisited(
     assert s.endswith(b)
 
     #  Both tasks should appear in output.
-    assert "Task 1" in s
-    assert "Task 2" in s
+    assert s.count("Task 1") == expect1
+    assert s.count("Task 2") == 1
+    assert s.count(TASK_HEADING_MARKER) == expect1 + 1
 
     #  Task 1 should appear again after Task 2.
     a = s.split("Task 2")

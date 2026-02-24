@@ -15,6 +15,7 @@ KEY_RUNNING_CSV_NAME = "running_csv_name"
 KEY_DAILY_MD_DIR = "daily_md_dir"
 KEY_DAILY_MD_HEADING = "daily_md_heading"
 KEY_DAILY_MD_APPEND = "daily_md_append"
+KEY_DAILY_MD_NODUP = "daily_md_no_dup_headings"
 KEY_LOG_RETENTION_DAYS = "log_retention_days"
 KEY_FILTER_CSV = "filter_csv"
 KEY_FILTER_MD = "filter_md"
@@ -32,6 +33,7 @@ class AppConfig:
         self.daily_md_dir: str = ""
         self.daily_md_heading: str = ""
         self.daily_md_append: bool = False
+        self.daily_md_nodup: bool = False
         self.log_retention_days: int = LOG_RETENTION_DEFAULT
         self.filter_csv: str = ""
         self.filter_md: str = ""
@@ -80,6 +82,7 @@ class AppConfig:
                 self.daily_md_dir = doc.get(KEY_DAILY_MD_DIR, "")
                 self.daily_md_heading = doc.get(KEY_DAILY_MD_HEADING, "")
                 self.daily_md_append = doc.get(KEY_DAILY_MD_APPEND, False)
+                self.daily_md_nodup = doc.get(KEY_DAILY_MD_NODUP, False)
                 self.log_retention_days = doc.get(KEY_LOG_RETENTION_DAYS, LOG_RETENTION_DEFAULT)
                 self.filter_csv = doc.get(KEY_FILTER_CSV, "").upper()
                 self.filter_md = doc.get(KEY_FILTER_MD, "").upper()
@@ -108,6 +111,7 @@ class AppConfig:
             doc[KEY_DAILY_MD_DIR] = self.daily_md_dir
             doc[KEY_DAILY_MD_HEADING] = self.daily_md_heading
             doc[KEY_DAILY_MD_APPEND] = self.daily_md_append
+            doc[KEY_DAILY_MD_NODUP] = self.daily_md_nodup
             doc[KEY_LOG_RETENTION_DAYS] = self.log_retention_days
             doc[KEY_FILTER_CSV] = self.filter_csv
             doc[KEY_FILTER_MD] = self.filter_md

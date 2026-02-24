@@ -52,7 +52,22 @@ def rows_as_md(filters: str, data_rows: list[dict]) -> list[str]:
     return md
 
 
-def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bool, data_rows: list[dict]) -> None:
+def strip_dup_task_headings(md_lines: list[str]) -> list[str]:
+    result = []
+    last_heading = ""
+    for line in md_lines:
+        if line.startswith(TASK_HEADING_MARKER):
+            if line != last_heading:
+                result.append(line)
+            last_heading = line
+        else:
+            result.append(line)
+    return result
+
+
+def write_to_daily_md(
+    md_file: Path, filters: str, heading: str, append_only: bool, nodup: bool, data_rows: list[dict]
+) -> None:
     """Write a section containing pomodoro sessions to a Markdown document.
 
     :param md_file: Path to the Markdown file.
@@ -99,12 +114,15 @@ def write_to_daily_md(md_file: Path, filters: str, heading: str, append_only: bo
     while insert_index > hx and insert_index > 0 and lines[insert_index - 1].strip() == "":
         insert_index -= 1
 
+    md_new = rows_as_md(filters, data_rows)
+
+    if nodup:
+        md_new = strip_dup_task_headings(md_new)
+
     if heading_index is None:
-        md_new = [section_heading, ""]
-        md_new.extend(rows_as_md(filters, data_rows))
+        md_new = ["", section_heading, "", *md_new]
         md_head = lines[:insert_index]
     else:
-        md_new = rows_as_md(filters, data_rows)
         md_head = lines[:hx]
 
     md_tail = lines[insert_index:]

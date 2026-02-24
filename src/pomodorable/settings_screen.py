@@ -212,6 +212,7 @@ class SettingsScreen(Screen[str]):
             SettingInput(id="set-md-dir"),
             SettingInput(id="set-md-heading"),
             SettingSwitch(id="set-md-append"),
+            SettingSwitch(id="set-md-nodup"),
             SettingOutputFilter(id="set-filter-md", classes="set-filter"),
             SettingInput(id="set-log-ret"),
         )
@@ -284,6 +285,12 @@ class SettingsScreen(Screen[str]):
         self.query_one("#set-md-append").initialize(
             "Daily Markdown Append-only (file is created by another application)",
             self.app_config.daily_md_append,
+            [],
+        )
+
+        self.query_one("#set-md-nodup").initialize(
+            "Daily Markdown - Remove duplicate task headings (same task as previous)",
+            self.app_config.daily_md_nodup,
             [],
         )
 
@@ -387,6 +394,13 @@ class SettingsScreen(Screen[str]):
             has_errors = True
         elif changed:
             self.app_config.daily_md_append = value
+            has_changes = True
+
+        changed, is_valid, value = self.query_one("#set-md-nodup").get_status()
+        if not is_valid:
+            has_errors = True
+        elif changed:
+            self.app_config.daily_md_nodup = value
             has_changes = True
 
         changed, is_valid, value = self.query_one("#set-filter-md").get_status()
