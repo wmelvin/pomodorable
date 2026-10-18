@@ -7,7 +7,7 @@ name = "pomodorable"
 dynamic = ["dependencies", "version"]
 description = 'A pomodoro timer implemented as a Textual app'
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 keywords = ["pomodoro timer", "pomodoro", "timer", "Textual", "TUI"]
 authors = [
@@ -16,10 +16,10 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -61,10 +61,10 @@ cov = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+python = ["3.11", "3.12", "3.13", "3.14"]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+python = ["3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.types]
 dependencies = [
@@ -130,6 +130,7 @@ ignore = [
   "PLR0912",  # too many branches
   "PLR0913",  # too many arguments
   "PLR0915",  # too many statements
+  "PLR0917",  # too many positional arguments
   "RUF012",   # mutable class attributes
 ]
 
