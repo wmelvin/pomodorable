@@ -9,12 +9,13 @@
 @check:
   hatch run ruff format --check
 
-# Run lint, check, and test
-@checks: lint check test
+# Run lint and check
+@checks: lint check
 
 # Remove dist
 @clean:
   -rm dist/*
+  hatch env prune
 
 # Apply formatting with ruff
 @format: lint

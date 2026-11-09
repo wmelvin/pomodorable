@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-click==8.5.0
+click==8.5.1
     # via -r requirements.in
 linkify-it-py==2.2.0
     # via markdown-it-py
@@ -17,7 +17,7 @@ mdit-py-plugins==0.6.1
     # via textual
 mdurl==0.1.2
     # via markdown-it-py
-platformdirs==4.13.4
+platformdirs==4.14.5
     # via
     #   -r requirements.in
     #   textual

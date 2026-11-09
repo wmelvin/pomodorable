@@ -399,13 +399,12 @@ class PomodorableApp(App):
                     self.about_closed,
                 )
 
-        elif btn == "btn-settings":
-            if not self.has_class("running"):
-                countdown.update_timer.pause()
-                self.push_screen(
-                    SettingsScreen(app_config=self.app_data.config),
-                    self.settings_closed,
-                )
+        elif btn == "btn-settings" and not self.has_class("running"):
+            countdown.update_timer.pause()
+            self.push_screen(
+                SettingsScreen(app_config=self.app_data.config),
+                self.settings_closed,
+            )
 
     def about_closed(self, msg: str) -> None:
         # The about dialog returns the app version.
