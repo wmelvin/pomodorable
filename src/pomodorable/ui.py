@@ -4,6 +4,7 @@ import faulthandler
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from plyer import notification
 from textual.app import App, ComposeResult
@@ -29,6 +30,9 @@ from pomodorable.quit_screen import QuitScreen
 from pomodorable.settings_screen import SettingsScreen
 from pomodorable.timerbar import TimerBar
 
+if TYPE_CHECKING:
+    from playsound3.playsound3 import Sound
+
 faulthandler.enable()
 
 APP_NAME = "Pomodorable"
@@ -38,6 +42,8 @@ FIVE_MINUTES = 5 * ONE_MINUTE
 DEFAULT_SESSION_SECONDS = 25 * ONE_MINUTE
 
 UPDATE_INTERVAL = 1 / 2  # Update twice per second.
+
+MAX_SOUND_SECONDS = 15  # Stop playback of the finish sound after this long.
 
 
 class CountdownDisplay(Static):
@@ -449,8 +455,9 @@ class PomodorableApp(App):
                     try:
                         from playsound3 import playsound  # noqa: PLC0415
 
-                        playsound(str(wav_path), block=False)
+                        sound = playsound(str(wav_path), block=False)
                         logging.info("countdown_finished: playsound called")
+                        self.set_timer(MAX_SOUND_SECONDS, lambda: self.stop_sound(sound))
                     except Exception as e:
                         logging.exception("Exception in playsound")
                         self.say(f"Sound error: {e}")
@@ -462,6 +469,14 @@ class PomodorableApp(App):
             logging.debug("countdown_finished: set focus on input-task")
             self.query_one("#input-task").focus()
             logging.debug("countdown_finished: end")
+
+    def stop_sound(self, sound: Sound) -> None:
+        try:
+            if sound.is_alive():
+                logging.info("stop_sound: playback limit reached")
+                sound.stop()
+        except Exception:
+            logging.exception("Exception stopping sound")
 
     def take_screenshot(self) -> None:
         if self.do_screenshots:
