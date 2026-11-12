@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from pomodorable.app_data import AppData
+from pomodorable.settings_screen import is_valid_file_or_dir_or_empty
 from pomodorable.ui import CountdownDisplay, PomodorableApp
 
 
@@ -51,6 +52,34 @@ async def test_app_plays_wav_file_at_finish(tmp_path, wav_name, expect_text):
 
     # Check for the log entry expected after successfully calling playsound.
     assert expect_text in log_text
+
+
+def test_pick_wav_path_directory(tmp_path, caplog):
+    # Empty directory: nothing to play, noted in the log.
+    with caplog.at_level(logging.INFO):
+        assert PomodorableApp.pick_wav_path(str(tmp_path)) is None
+    assert "no .wav files" in caplog.text
+
+    (tmp_path / "notes.txt").write_text("x")
+    assert PomodorableApp.pick_wav_path(str(tmp_path)) is None
+
+    (tmp_path / "a.wav").write_bytes(b"")
+    (tmp_path / "b.WAV").write_bytes(b"")
+    picked = {PomodorableApp.pick_wav_path(str(tmp_path)) for _ in range(100)}
+    assert picked == {(tmp_path / "a.wav").resolve(), (tmp_path / "b.WAV").resolve()}
+
+    # A file path is returned as-is.
+    wav = tmp_path / "a.wav"
+    assert PomodorableApp.pick_wav_path(str(wav)) == wav.resolve()
+
+
+def test_valid_file_or_dir_or_empty(tmp_path):
+    f = tmp_path / "x.wav"
+    f.write_bytes(b"")
+    assert is_valid_file_or_dir_or_empty("")
+    assert is_valid_file_or_dir_or_empty(str(f))
+    assert is_valid_file_or_dir_or_empty(str(tmp_path))
+    assert not is_valid_file_or_dir_or_empty(str(tmp_path / "missing"))
 
 
 async def test_minus_button_stops_at_one(tmp_path):

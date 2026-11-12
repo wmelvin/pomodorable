@@ -136,7 +136,7 @@ The *Settings* screen is where you configure the application. It has the followi
 
 - **Session Minutes**: Initial *Countdown* setting on startup, finish, stop, or reset.
 - **Do system notification**: Turn the system notification (toast) on or off.
-- **Play sound file**: To play a sound as an end-of-session notification, enter the full path to a WAV file. There is no control for volume or manually stopping playback. There is a fixed playback limit of 15 seconds. A short audio clip lasting only a few seconds works best.
+- **Play sound file**: To play a sound as an end-of-session notification, enter the full path to a WAV file. If a directory is entered instead, one of the `*.wav` files in it is chosen at random each time a session finishes (no sound is played if there are none). There is no control for volume or manually stopping playback. There is a fixed playback limit of 15 seconds. A short audio clip lasting only a few seconds works best.
 - **Running CSV Folder**: Folder to which the file is written. The folder must already exist.
 - **Running CSV File Name**: Name to use for the output file (default is `pomodorable-sessions.csv`).
 - **Daily CSV Folder**: Folder to which the file is written. The folder must already exist.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import faulthandler
 import logging
+import random
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -449,26 +450,42 @@ class PomodorableApp(App):
                     self.say(f"Notification error: {e}")
 
             if self.app_data.config.wav_file:
-                wav_path = Path(self.app_data.config.wav_file).expanduser().resolve()
-                logging.info("countdown_finished: playsound '%s'", wav_path)
-                if wav_path.exists():
-                    try:
-                        from playsound3 import playsound  # noqa: PLC0415
+                wav_path = self.pick_wav_path(self.app_data.config.wav_file)
+                if wav_path:
+                    logging.info("countdown_finished: playsound '%s'", wav_path)
+                    if wav_path.exists():
+                        try:
+                            from playsound3 import playsound  # noqa: PLC0415
 
-                        sound = playsound(str(wav_path), block=False)
-                        logging.info("countdown_finished: playsound called")
-                        self.set_timer(MAX_SOUND_SECONDS, lambda: self.stop_sound(sound))
-                    except Exception as e:
-                        logging.exception("Exception in playsound")
-                        self.say(f"Sound error: {e}")
-                else:
-                    self.say(f"Sound file not found: {wav_path}")
+                            sound = playsound(str(wav_path), block=False)
+                            logging.info("countdown_finished: playsound called")
+                            self.set_timer(MAX_SOUND_SECONDS, lambda: self.stop_sound(sound))
+                        except Exception as e:
+                            logging.exception("Exception in playsound")
+                            self.say(f"Sound error: {e}")
+                    else:
+                        self.say(f"Sound file not found: {wav_path}")
 
             logging.debug("countdown_finished: call show_queued_errors()")
             self.show_queued_errors()
             logging.debug("countdown_finished: set focus on input-task")
             self.query_one("#input-task").focus()
             logging.debug("countdown_finished: end")
+
+    @staticmethod
+    def pick_wav_path(setting: str) -> Path | None:
+        """Return the WAV file to play for the wav_file setting. If the setting
+        is a directory, choose a random *.wav file in it. Return None if there
+        is nothing to play.
+        """
+        path = Path(setting).expanduser().resolve()
+        if not path.is_dir():
+            return path
+        wav_files = [p for p in path.glob("*") if p.suffix.lower() == ".wav" and p.is_file()]
+        if not wav_files:
+            logging.info("countdown_finished: no .wav files in directory '%s'", path)
+            return None
+        return random.choice(wav_files)  # noqa: S311
 
     def stop_sound(self, sound: Sound) -> None:
         try:

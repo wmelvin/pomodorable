@@ -241,9 +241,9 @@ class SettingsScreen(Screen[str]):
         )
 
         self.query_one("#set-wavfile").initialize(
-            "Play sound file (.wav) at end of session. Optional.",
+            "Play sound file (.wav) at end of session. Optional. A directory plays a random .wav in it.",
             self.app_config.wav_file or "",
-            [Function(is_valid_file_or_empty, "File does not exist.")],
+            [Function(is_valid_file_or_dir_or_empty, "File or directory does not exist.")],
         )
 
         self.query_one("#set-csv-dir-run").initialize(
@@ -449,12 +449,12 @@ def is_valid_dir_or_empty(path: str) -> bool:
         return False
 
 
-def is_valid_file_or_empty(path: str) -> bool:
+def is_valid_file_or_dir_or_empty(path: str) -> bool:
     if not path:
         return True
     try:
         p = Path(path).expanduser().resolve()
-        return p.exists() and p.is_file()
+        return p.exists() and (p.is_file() or p.is_dir())
     except Exception:
-        logging.exception("Filename validation failed")
+        logging.exception("Path validation failed")
         return False
